@@ -4,13 +4,22 @@ import { ArrowRight, Euro, Crown, Zap } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Preise - Wählen Sie Ihren Plan',
-  description: 'Transparente Preise für unsere AI und Dropshipping Kurse. Pro und Max Pläne verfügbar.',
+interface PricingPageProps {
+  params: Promise<{ course: string }>
 }
 
-export default function PricingPage({ params }: { params: { course: string } }) {
-  const course = params.course
+export async function generateMetadata({ params }: PricingPageProps): Promise<Metadata> {
+  const { course } = await params
+  const courseTitle = course === 'ai' ? 'AI Kurs' : 'Dropshipping Kurs'
+  
+  return {
+    title: `${courseTitle} - Preise`,
+    description: `Transparente Preise für unseren ${courseTitle}. Pro und Max Pläne verfügbar.`,
+  }
+}
+
+export default async function PricingPage({ params }: PricingPageProps) {
+  const { course } = await params
   const isAI = course === 'ai'
   const courseTitle = isAI ? 'AI Kurs' : 'Dropshipping Kurs'
   
@@ -145,52 +154,6 @@ export default function PricingPage({ params }: { params: { course: string } }) 
         </Card>
       </div>
 
-      {/* Features Comparison */}
-      <div className="bg-muted/30 rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-center mb-8">Was ist enthalten?</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4">Feature</th>
-                <th className="text-center py-3 px-4">Pro</th>
-                <th className="text-center py-3 px-4">Max</th>
-              </tr>
-            </thead>
-            <tbody className="space-y-2">
-              {[
-                ['Vollständiger Kurszugang', true, true],
-                ['Community-Zugang', true, true],
-                ['Email-Support', true, true],
-                ['Abschlusszertifikat', true, true],
-                ['1-zu-1 Mentoring', false, true],
-                ['Persönlicher Coach', false, true],
-                ['Priorisierter Support', false, true],
-                ['Exklusive Masterclasses', false, true],
-              ].map(([feature, pro, max], index) => (
-                <tr key={index} className="border-b border-muted">
-                  <td className="py-3 px-4">{feature}</td>
-                  <td className="text-center py-3 px-4">
-                    {pro ? (
-                      <Euro className="h-5 w-5 text-green-500 mx-auto" />
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </td>
-                  <td className="text-center py-3 px-4">
-                    {max ? (
-                      <Crown className="h-5 w-5 text-yellow-500 mx-auto" />
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       {/* Payment Methods */}
       <div className="text-center space-y-6">
         <h2 className="text-2xl font-bold">Sichere Zahlungsmethoden</h2>
@@ -205,36 +168,6 @@ export default function PricingPage({ params }: { params: { course: string } }) 
         <p className="text-sm text-muted-foreground">
           Alle Preise inkl. 19% MwSt. | 14 Tage Geld-zurück-Garantie
         </p>
-      </div>
-
-      {/* FAQ Preview */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-center">Häufige Fragen</h2>
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Ist der Zugang wirklich lebenslang?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Ja, nach dem Kauf haben Sie lebenslangen Zugang zu allen Inhalten 
-                und erhalten kostenlose Updates.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Gibt es eine Geld-zurück-Garantie?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Ja, wir bieten eine 14-tägige Geld-zurück-Garantie, falls Sie 
-                nicht zufrieden sind.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   )
