@@ -7,6 +7,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ProgressIndicator } from './progress-indicator'
 import { PersonalInfoStep } from './intake-steps/personal-info-step'
 import { ExperienceGoalsStep } from './intake-steps/experience-goals-step'
+import { CourseSpecificStep } from './intake-steps/course-specific-step'
+import { MotivationExpectationsStep } from './intake-steps/motivation-expectations-step'
+import { MarketingConsentStep } from './intake-steps/marketing-consent-step'
 import { intakeFormSchema, type IntakeFormData, type StepNumber, getStepTitle, getStepDescription } from './intake-validation'
 import { IntakeService } from '@/lib/firebase/firestore'
 import { Timestamp } from 'firebase/firestore'
@@ -33,14 +36,14 @@ export function IntakeForm() {
         timeZone: '',
       },
       experienceGoals: {
-        currentExperience: undefined,
+        currentExperience: '',
         primaryGoal: '',
-        timeCommitment: undefined,
-        budget: undefined,
+        timeCommitment: '',
+        budget: '',
       },
       courseSpecific: {
         interestedCourse: [],
-        preferredPlan: undefined,
+        preferredPlan: '',
       },
       motivationExpectations: {
         motivation: '',
@@ -49,7 +52,7 @@ export function IntakeForm() {
       },
       marketingConsent: {
         howDidYouHear: '',
-        preferredLanguage: undefined,
+        preferredLanguage: '',
         marketingConsent: false,
         dataProcessingConsent: false,
         termsAccepted: false,
@@ -107,6 +110,8 @@ export function IntakeForm() {
           // Marketing
           howDidYouHear: data.marketingConsent.howDidYouHear,
           marketingConsent: data.marketingConsent.marketingConsent,
+          dataProcessingConsent: data.marketingConsent.dataProcessingConsent,
+          termsAccepted: data.marketingConsent.termsAccepted,
         },
         status: 'pending' as const,
       }
@@ -114,7 +119,7 @@ export function IntakeForm() {
       // Save to Firestore
       const intakeId = await IntakeService.createIntakeResponse(intakeData)
       
-      console.log('✅ Intake response saved:', intakeId)
+      console.log('✅ Complete intake response saved:', intakeId)
       
       // Redirect to success page
       router.push('/intake/success')
@@ -134,14 +139,11 @@ export function IntakeForm() {
       case 2:
         return <ExperienceGoalsStep onNext={handleNext} onBack={handleBack} />
       case 3:
-        // TODO: Implement CourseSpecificStep
-        return <div>Course Specific Step - Coming Next!</div>
+        return <CourseSpecificStep onNext={handleNext} onBack={handleBack} />
       case 4:
-        // TODO: Implement MotivationExpectationsStep
-        return <div>Motivation & Expectations Step - Coming Next!</div>
+        return <MotivationExpectationsStep onNext={handleNext} onBack={handleBack} />
       case 5:
-        // TODO: Implement MarketingConsentStep
-        return <div>Marketing & Consent Step - Coming Next!</div>
+        return <MarketingConsentStep onSubmit={handleSubmit(onSubmit)} onBack={handleBack} isSubmitting={isSubmitting} />
       default:
         return <PersonalInfoStep onNext={handleNext} />
     }
@@ -156,11 +158,19 @@ export function IntakeForm() {
         </CardContent>
       </Card>
 
+      {/* Step Header */}
+      <div className="text-center space-y-2">
+        <div className="text-sm text-muted-foreground">
+          {getStepDescription(currentStep)}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Ihre Antworten helfen uns, Ihnen die beste Beratung zu bieten
+        </div>
+      </div>
+
       {/* Step Content */}
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {renderCurrentStep()}
-        </form>
+        {renderCurrentStep()}
       </FormProvider>
 
       {/* Debug Info (Remove in production) */}
@@ -168,8 +178,8 @@ export function IntakeForm() {
         <Card className="bg-muted/50">
           <CardContent className="pt-6">
             <details>
-              <summary className="cursor-pointer font-medium">Debug Info</summary>
-              <pre className="mt-2 text-xs overflow-auto">
+              <summary className="cursor-pointer font-medium">Debug Info (Schritt {currentStep})</summary>
+              <pre className="mt-2 text-xs overflow-auto max-h-60">
                 {JSON.stringify(watch(), null, 2)}
               </pre>
             </details>

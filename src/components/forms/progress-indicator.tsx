@@ -12,6 +12,14 @@ interface ProgressIndicatorProps {
 export function ProgressIndicator({ currentStep, totalSteps, className }: ProgressIndicatorProps) {
   const progress = (currentStep / totalSteps) * 100
 
+  const stepLabels = [
+    'Persönlich',
+    'Erfahrung',
+    'Kurse',
+    'Motivation',
+    'Abschluss'
+  ]
+
   return (
     <div className={cn('w-full space-y-4', className)}>
       {/* Progress Bar */}
@@ -56,11 +64,26 @@ export function ProgressIndicator({ currentStep, totalSteps, className }: Progre
 
       {/* Step Labels */}
       <div className="flex justify-between text-xs text-muted-foreground mt-8">
-        <span>Start</span>
-        <span>Persönlich</span>
-        <span>Erfahrung</span>
-        <span>Kurs</span>
-        <span>Abschluss</span>
+        {stepLabels.map((label, index) => {
+          const stepNumber = index + 1
+          const isCompleted = stepNumber < currentStep
+          const isCurrent = stepNumber === currentStep
+          
+          return (
+            <span 
+              key={index}
+              className={cn(
+                'text-center transition-colors duration-300',
+                {
+                  'text-primary font-medium': isCompleted || isCurrent,
+                  'text-muted-foreground': !isCompleted && !isCurrent,
+                }
+              )}
+            >
+              {label}
+            </span>
+          )
+        })}
       </div>
 
       {/* Progress Text */}
