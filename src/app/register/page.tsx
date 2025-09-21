@@ -1,31 +1,31 @@
-import LoginForm from './login-form'
-import { LogIn } from 'lucide-react'
+import RegisterForm from './register-form'
+import { UserPlus } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Anmelden - University Ecom',
-  description: 'Melden Sie sich in Ihrem University Ecom Konto an, um auf Ihre Kurse zuzugreifen.',
+  title: 'Registrieren - University Ecom',
+  description: 'Erstellen Sie Ihr University Ecom Konto und erhalten Sie Zugang zu professionellen Kursen.',
 }
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="container mx-auto px-6 py-12 max-w-md">
       <div className="space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <LogIn className="h-8 w-8 text-primary" />
+            <UserPlus className="h-8 w-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Willkommen zurück</h1>
+            <h1 className="text-3xl font-bold">Konto erstellen</h1>
             <p className="text-muted-foreground">
-              Melden Sie sich an, um auf Ihre Kurse zuzugreifen
+              Beginnen Sie Ihre Reise zum Erfolg
             </p>
           </div>
         </div>
 
-        {/* Login Form */}
-        <LoginForm />
+        {/* Register Form */}
+        <RegisterForm />
       </div>
     </div>
   )
