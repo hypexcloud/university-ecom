@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,7 +22,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>
 
-export default function LoginForm() {
+function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -36,7 +36,6 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-    setError: setFormError
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema)
   })
@@ -228,5 +227,34 @@ export default function LoginForm() {
         </p>
       </div>
     </div>
+  )
+}
+
+// Loading fallback for Suspense boundary
+function LoginFormFallback() {
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
+          <CardDescription>
+            Laden...
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={<LoginFormFallback />}>
+      <LoginFormContent />
+    </Suspense>
   )
 }

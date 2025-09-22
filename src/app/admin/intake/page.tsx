@@ -78,7 +78,8 @@ function IntakeManagementContent() {
     try {
       setLoading(true)
       const responses = await IntakeService.getPendingIntakes()
-      setIntakeResponses(responses)
+      // Type assertion to ensure proper typing
+      setIntakeResponses(responses as IntakeResponse[])
     } catch (error) {
       console.error('Error loading intake responses:', error)
     } finally {
@@ -140,6 +141,7 @@ function IntakeManagementContent() {
   }
 
   const getCourseNames = (courses: string[]) => {
+    if (!courses || !Array.isArray(courses)) return 'Keine Kurse ausgewählt'
     return courses.map(course => {
       switch (course) {
         case 'ai': return 'AI Kurs'
@@ -166,6 +168,15 @@ function IntakeManagementContent() {
       case 'intermediate': return 'Fortgeschritten'
       case 'advanced': return 'Experte'
       default: return experience
+    }
+  }
+
+  const getTimeCommitmentLabel = (commitment: string) => {
+    switch (commitment) {
+      case 'part-time': return 'Teilzeit (5-10h/Woche)'
+      case 'full-time': return 'Vollzeit (20+h/Woche)'
+      case 'weekends': return 'Wochenenden (5-8h/Woche)'
+      default: return commitment
     }
   }
 
@@ -277,7 +288,7 @@ function IntakeManagementContent() {
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">
-                            {response.responses.firstName} {response.responses.lastName}
+                            {response.responses?.firstName} {response.responses?.lastName}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -286,7 +297,7 @@ function IntakeManagementContent() {
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <BookOpen className="h-3 w-3 text-muted-foreground" />
-                          <span>{getCourseNames(response.responses.interestedCourse)}</span>
+                          <span>{getCourseNames(response.responses?.interestedCourse)}</span>
                         </div>
                       </div>
                       <div className="text-right space-y-2">
@@ -330,20 +341,20 @@ function IntakeManagementContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium">Name</Label>
-                      <p className="text-sm">{selectedResponse.responses.firstName} {selectedResponse.responses.lastName}</p>
+                      <p className="text-sm">{selectedResponse.responses?.firstName} {selectedResponse.responses?.lastName}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">E-Mail</Label>
                       <p className="text-sm">{selectedResponse.email}</p>
                     </div>
                   </div>
-                  {selectedResponse.responses.company && (
+                  {selectedResponse.responses?.company && (
                     <div>
                       <Label className="text-sm font-medium">Unternehmen</Label>
                       <p className="text-sm">{selectedResponse.responses.company}</p>
                     </div>
                   )}
-                  {selectedResponse.responses.industry && (
+                  {selectedResponse.responses?.industry && (
                     <div>
                       <Label className="text-sm font-medium">Branche</Label>
                       <p className="text-sm">{selectedResponse.responses.industry}</p>
@@ -352,11 +363,11 @@ function IntakeManagementContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium">Land</Label>
-                      <p className="text-sm">{selectedResponse.responses.country}</p>
+                      <p className="text-sm">{selectedResponse.responses?.country}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Zeitzone</Label>
-                      <p className="text-sm">{selectedResponse.responses.timeZone}</p>
+                      <p className="text-sm">{selectedResponse.responses?.timeZone}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -374,16 +385,20 @@ function IntakeManagementContent() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium">Erfahrungslevel</Label>
-                      <p className="text-sm">{getExperienceLabel(selectedResponse.responses.currentExperience)}</p>
+                      <p className="text-sm">{getExperienceLabel(selectedResponse.responses?.currentExperience)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Budget</Label>
-                      <p className="text-sm">{getBudgetLabel(selectedResponse.responses.budget)}</p>
+                      <p className="text-sm">{getBudgetLabel(selectedResponse.responses?.budget)}</p>
                     </div>
                   </div>
                   <div>
+                    <Label className="text-sm font-medium">Zeitaufwand</Label>
+                    <p className="text-sm">{getTimeCommitmentLabel(selectedResponse.responses?.timeCommitment)}</p>
+                  </div>
+                  <div>
                     <Label className="text-sm font-medium">Hauptziel</Label>
-                    <p className="text-sm">{selectedResponse.responses.primaryGoal}</p>
+                    <p className="text-sm">{selectedResponse.responses?.primaryGoal}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -399,44 +414,50 @@ function IntakeManagementContent() {
                 <CardContent className="space-y-3">
                   <div>
                     <Label className="text-sm font-medium">Interessierte Kurse</Label>
-                    <p className="text-sm">{getCourseNames(selectedResponse.responses.interestedCourse)}</p>
+                    <p className="text-sm">{getCourseNames(selectedResponse.responses?.interestedCourse)}</p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Bevorzugter Plan</Label>
-                    <p className="text-sm">{selectedResponse.responses.preferredPlan === 'pro' ? 'Pro Plan (€497)' : 'Max Plan (€997)'}</p>
+                    <p className="text-sm">
+                      {selectedResponse.responses?.preferredPlan === 'pro' ? 'Pro Plan (€497)' : 'Max Plan (€997)'}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Motivation */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
-                    Motivation & Erwartungen
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <Label className="text-sm font-medium">Motivation</Label>
-                    <p className="text-sm">{selectedResponse.responses.motivation}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">Erwartete Ergebnisse</Label>
-                    <p className="text-sm">{selectedResponse.responses.expectedOutcome}</p>
-                  </div>
-                  {selectedResponse.responses.challenges.length > 0 && (
+              {selectedResponse.responses?.motivation && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Heart className="h-5 w-5" />
+                      Motivation & Erwartungen
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
                     <div>
-                      <Label className="text-sm font-medium">Herausforderungen</Label>
-                      <ul className="text-sm space-y-1">
-                        {selectedResponse.responses.challenges.map((challenge, index) => (
-                          <li key={index}>• {challenge}</li>
-                        ))}
-                      </ul>
+                      <Label className="text-sm font-medium">Motivation</Label>
+                      <p className="text-sm">{selectedResponse.responses.motivation}</p>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    {selectedResponse.responses.expectedOutcome && (
+                      <div>
+                        <Label className="text-sm font-medium">Erwartete Ergebnisse</Label>
+                        <p className="text-sm">{selectedResponse.responses.expectedOutcome}</p>
+                      </div>
+                    )}
+                    {selectedResponse.responses.challenges && selectedResponse.responses.challenges.length > 0 && (
+                      <div>
+                        <Label className="text-sm font-medium">Herausforderungen</Label>
+                        <ul className="text-sm space-y-1">
+                          {selectedResponse.responses.challenges.map((challenge, index) => (
+                            <li key={index}>• {challenge}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Review Section */}
               <Card className="border-2 border-primary/20">
