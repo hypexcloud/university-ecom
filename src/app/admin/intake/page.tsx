@@ -24,9 +24,11 @@ import {
   AlertCircle,
   Loader2,
   Users,
-  TrendingUp
+  TrendingUp,
+  Send
 } from 'lucide-react'
 import { IntakeService } from '@/lib/firebase/firestore'
+import { EmailAutomation } from '@/lib/email/email-automation'
 import { useAuth } from '@/lib/auth/auth-context'
 
 interface IntakeResponse {
@@ -66,8 +68,10 @@ function IntakeManagementContent() {
   const [selectedResponse, setSelectedResponse] = useState<IntakeResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [sendingEmail, setSendingEmail] = useState(false)
   const [reviewNotes, setReviewNotes] = useState('')
   const [newStatus, setNewStatus] = useState<'approved' | 'rejected'>('approved')
+  const [emailStatus, setEmailStatus] = useState<'sent' | 'failed' | null>(null)
   const { appUser } = useAuth()
 
   useEffect(() => {
@@ -78,7 +82,6 @@ function IntakeManagementContent() {
     try {
       setLoading(true)
       const responses = await IntakeService.getPendingIntakes()
-      // Type assertion to ensure proper typing
       setIntakeResponses(responses as IntakeResponse[])
     } catch (error) {
       console.error('Error loading intake responses:', error)
@@ -92,12 +95,35 @@ function IntakeManagementContent() {
 
     try {
       setUpdating(true)
+      setSendingEmail(true)
+      setEmailStatus(null)
+
+      // Update status in Firestore
+      console.log('📝 Updating intake status to:', newStatus)
       await IntakeService.updateIntakeStatus(
         selectedResponse.id,
         newStatus,
         reviewNotes,
         appUser.uid
       )
+
+      // Send decision email
+      console.log('📧 Sending decision email...')
+      try {
+        await EmailAutomation.sendIntakeDecision({
+          email: selectedResponse.email,
+          firstName: selectedResponse.responses.firstName,
+          lastName: selectedResponse.responses.lastName,
+          approved: newStatus === 'approved',
+          reviewNotes: reviewNotes,
+          userId: selectedResponse.id
+        })
+        console.log('✅ Decision email sent successfully')
+        setEmailStatus('sent')
+      } catch (emailError) {
+        console.error('❌ Failed to send decision email:', emailError)
+        setEmailStatus('failed')
+      }
 
       // Update local state
       setIntakeResponses(prev => 
@@ -107,11 +133,15 @@ function IntakeManagementContent() {
       setReviewNotes('')
       
       // Reload to get updated data
-      await loadIntakeResponses()
+      setTimeout(() => {
+        loadIntakeResponses()
+      }, 1000)
+
     } catch (error) {
       console.error('Error updating status:', error)
     } finally {
       setUpdating(false)
+      setSendingEmail(false)
     }
   }
 
@@ -198,7 +228,7 @@ function IntakeManagementContent() {
         <div>
           <h1 className="text-3xl font-bold">Intake Management</h1>
           <p className="text-muted-foreground">
-            Prüfung und Verwaltung von Vorab-Fragebögen
+            Prüfung und Verwaltung von Vorab-Fragebögen mit automatischer E-Mail-Benachrichtigung
           </p>
         </div>
         <div className="flex items-center space-x-4">
@@ -208,6 +238,23 @@ function IntakeManagementContent() {
           </Button>
         </div>
       </div>
+
+      {/* Email Status Alert */}
+      {emailStatus && (
+        <Alert variant={emailStatus === 'sent' ? 'default' : 'destructive'}>
+          <Mail className="h-4 w-4" />
+          <AlertDescription>
+            {emailStatus === 'sent' ? (
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                E-Mail-Benachrichtigung erfolgreich gesendet!
+              </span>
+            ) : (
+              'E-Mail-Benachrichtigung konnte nicht gesendet werden.'
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -245,13 +292,13 @@ function IntakeManagementContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Beliebtester Kurs</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">E-Mail Automation</CardTitle>
+            <Send className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">AI Kurs</div>
+            <div className="text-2xl font-bold">Aktiv</div>
             <p className="text-xs text-muted-foreground">
-              Meist gewählt
+              Automatische Benachrichtigungen
             </p>
           </CardContent>
         </Card>
@@ -462,7 +509,13 @@ function IntakeManagementContent() {
               {/* Review Section */}
               <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <CardTitle className="text-lg">Prüfung & Entscheidung</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Prüfung & E-Mail-Benachrichtigung
+                  </CardTitle>
+                  <CardDescription>
+                    Ihre Entscheidung wird automatisch per E-Mail an den Bewerber gesendet
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -489,14 +542,34 @@ function IntakeManagementContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reviewNotes">Notizen</Label>
+                    <Label htmlFor="reviewNotes">Personalisierte Nachricht</Label>
                     <Textarea
                       id="reviewNotes"
-                      placeholder="Interne Notizen zur Entscheidung..."
+                      placeholder={newStatus === 'approved' 
+                        ? "Optionale persönliche Nachricht für den Bewerber (wird in der E-Mail angezeigt)..."
+                        : "Optionales Feedback oder Empfehlungen für eine zukünftige Bewerbung..."
+                      }
                       value={reviewNotes}
                       onChange={(e) => setReviewNotes(e.target.value)}
                       className="min-h-[100px]"
                     />
+                  </div>
+
+                  <div className="bg-blue-50 p-4 rounded-lg border-blue-200 border">
+                    <div className="flex items-start space-x-2">
+                      <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-blue-800">
+                          📧 Automatische E-Mail-Benachrichtigung
+                        </p>
+                        <p className="text-sm text-blue-700">
+                          {newStatus === 'approved' 
+                            ? "Der Bewerber erhält eine Glückwunsch-E-Mail mit nächsten Schritten und einem Link zu den Kursen."
+                            : "Der Bewerber erhält eine höfliche Absage mit konstruktivem Feedback und kostenlosen Ressourcen."
+                          }
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <Button 
@@ -504,15 +577,20 @@ function IntakeManagementContent() {
                     className="w-full" 
                     disabled={updating}
                   >
-                    {updating ? (
+                    {sendingEmail ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        E-Mail wird gesendet...
+                      </>
+                    ) : updating ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Wird gespeichert...
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Entscheidung speichern
+                        <Send className="mr-2 h-4 w-4" />
+                        Entscheidung senden
                       </>
                     )}
                   </Button>

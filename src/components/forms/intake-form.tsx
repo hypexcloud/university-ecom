@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Card, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ProgressIndicator } from './progress-indicator'
 import { PersonalInfoStep } from './intake-steps/personal-info-step'
 import { ExperienceGoalsStep } from './intake-steps/experience-goals-step'
@@ -12,14 +13,18 @@ import { MotivationExpectationsStep } from './intake-steps/motivation-expectatio
 import { MarketingConsentStep } from './intake-steps/marketing-consent-step'
 import { intakeFormSchema, type IntakeFormData, type StepNumber, getStepTitle, getStepDescription } from './intake-validation'
 import { IntakeService } from '@/lib/firebase/firestore'
+import { EmailAutomation } from '@/lib/email/email-automation'
 import { Timestamp } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
+import { CheckCircle, AlertCircle, Mail } from 'lucide-react'
 
 const TOTAL_STEPS = 5
 
 export function IntakeForm() {
   const [currentStep, setCurrentStep] = useState<StepNumber>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [emailStatus, setEmailStatus] = useState<'sending' | 'sent' | 'failed' | null>(null)
   const router = useRouter()
 
   const methods = useForm<IntakeFormData>({
@@ -76,6 +81,9 @@ export function IntakeForm() {
 
   const onSubmit = async (data: IntakeFormData) => {
     setIsSubmitting(true)
+    setSubmitError(null)
+    setEmailStatus('sending')
+    
     try {
       // Flatten the data structure for Firestore
       const intakeData = {
@@ -117,16 +125,40 @@ export function IntakeForm() {
       }
 
       // Save to Firestore
+      console.log('💾 Saving intake response to Firestore...')
       const intakeId = await IntakeService.createIntakeResponse(intakeData)
+      console.log('✅ Intake response saved with ID:', intakeId)
       
-      console.log('✅ Complete intake response saved:', intakeId)
-      
-      // Redirect to success page
-      router.push('/intake/success')
+      // Send confirmation email
+      console.log('📧 Sending confirmation email...')
+      try {
+        await EmailAutomation.sendIntakeConfirmation({
+          email: data.personalInfo.email,
+          firstName: data.personalInfo.firstName,
+          lastName: data.personalInfo.lastName,
+          userId: intakeId // Use intake ID as user reference
+        })
+        console.log('✅ Confirmation email sent successfully')
+        setEmailStatus('sent')
+      } catch (emailError) {
+        console.error('❌ Failed to send confirmation email:', emailError)
+        setEmailStatus('failed')
+        // Don't fail the whole process if email fails
+      }
+
+      // Small delay to show email status
+      setTimeout(() => {
+        router.push('/intake/success')
+      }, 1500)
       
     } catch (error) {
       console.error('❌ Error submitting intake:', error)
-      // TODO: Show error message to user
+      setSubmitError(
+        error instanceof Error 
+          ? error.message 
+          : 'Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
+      )
+      setEmailStatus(null)
     } finally {
       setIsSubmitting(false)
     }
@@ -167,6 +199,33 @@ export function IntakeForm() {
           Ihre Antworten helfen uns, Ihnen die beste Beratung zu bieten
         </div>
       </div>
+
+      {/* Error Alert */}
+      {submitError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Fehler:</strong> {submitError}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Email Status Alert */}
+      {emailStatus && (
+        <Alert variant={emailStatus === 'sent' ? 'default' : emailStatus === 'failed' ? 'destructive' : 'default'}>
+          <Mail className="h-4 w-4" />
+          <AlertDescription>
+            {emailStatus === 'sending' && 'Bestätigungs-E-Mail wird gesendet...'}
+            {emailStatus === 'sent' && (
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Bestätigungs-E-Mail erfolgreich gesendet!
+              </span>
+            )}
+            {emailStatus === 'failed' && 'E-Mail konnte nicht gesendet werden, aber Ihre Antworten wurden gespeichert.'}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Step Content */}
       <FormProvider {...methods}>
