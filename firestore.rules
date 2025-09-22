@@ -12,13 +12,13 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
     
-    function isAdmin() {
+    function isAdminSafe() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    function isInstructor() {
+    function isInstructorSafe() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'instructor'];
@@ -29,14 +29,16 @@ service cloud.firestore {
              get(/databases/$(database)/documents/enrollments/$(request.auth.uid + '_' + courseType)).data.status == 'active';
     }
 
-    // Users collection
+    // Users collection - FIXED for user creation
     match /users/{userId} {
+      // Allow authenticated users to create their own user document (for registration)
+      allow create: if isAuthenticated() && request.auth.uid == userId;
       // Users can read and write their own data
-      allow read, write: if isOwner(userId);
-      // Admins can read all users
-      allow read: if isAdmin();
+      allow read, update: if isOwner(userId);
+      // Admins can read all users (but only if admin user document exists)
+      allow read: if isAdminSafe();
       // Admins can update user roles and status
-      allow update: if isAdmin();
+      allow update: if isAdminSafe();
     }
 
     // Courses collection
@@ -44,7 +46,7 @@ service cloud.firestore {
       // Anyone can read active courses (for marketing pages)
       allow read: if resource.data.isActive == true;
       // Only admins can create, update, or delete courses
-      allow write: if isAdmin();
+      allow write: if isAdminSafe();
     }
 
     // Enrollments collection
@@ -56,9 +58,9 @@ service cloud.firestore {
                     resource.data.userId == request.auth.uid &&
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['progress', 'updatedAt']);
       // Only admins can create enrollments (after payment)
-      allow create: if isAdmin();
+      allow create: if isAdminSafe();
       // Admins can read and update all enrollments
-      allow read, update: if isAdmin();
+      allow read, update: if isAdminSafe();
     }
 
     // Support tickets collection
@@ -72,7 +74,7 @@ service cloud.firestore {
                     resource.data.userId == request.auth.uid &&
                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['messages', 'updatedAt']);
       // Admins and instructors can read and update all tickets
-      allow read, update: if isInstructor();
+      allow read, update: if isInstructorSafe();
     }
 
     // Community access collection
@@ -80,7 +82,7 @@ service cloud.firestore {
       // Users can read their own community access
       allow read: if isOwner(userId);
       // Only admins can create and update community access
-      allow write: if isAdmin();
+      allow write: if isAdminSafe();
     }
 
     // Payments collection
@@ -88,7 +90,7 @@ service cloud.firestore {
       // Users can read their own payments
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       // Only admins can create and update payments
-      allow write: if isAdmin();
+      allow write: if isAdminSafe();
     }
 
     // Intake responses collection
@@ -98,7 +100,7 @@ service cloud.firestore {
       // Users can read their own intake responses
       allow read: if isAuthenticated() && resource.data.email == request.auth.token.email;
       // Only admins can read all and update intake responses
-      allow read, update: if isAdmin();
+      allow read, update: if isAdminSafe();
     }
 
     // User activity collection
@@ -108,7 +110,7 @@ service cloud.firestore {
       // Users can read their own activity
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       // Admins can read all activity
-      allow read: if isAdmin();
+      allow read: if isAdminSafe();
     }
 
     // Admin settings collection
@@ -116,13 +118,13 @@ service cloud.firestore {
       // Anyone can read public settings (for course availability, etc.)
       allow read: if true;
       // Only admins can update settings
-      allow write: if isAdmin();
+      allow write: if isAdminSafe();
     }
 
     // Email templates collection
     match /email_templates/{templateId} {
       // Only admins can manage email templates
-      allow read, write: if isAdmin();
+      allow read, write: if isAdminSafe();
     }
 
     // Email logs collection
@@ -130,8 +132,8 @@ service cloud.firestore {
       // Users can read their own email logs
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       // Only admins can create and read all email logs
-      allow create: if isAdmin();
-      allow read: if isAdmin();
+      allow create: if isAdminSafe();
+      allow read: if isAdminSafe();
     }
 
     // Subcollections for nested data
@@ -141,7 +143,7 @@ service cloud.firestore {
       // Enrolled users can read modules for their courses
       allow read: if isAuthenticated() && hasActiveEnrollment(get(/databases/$(database)/documents/courses/$(courseId)).data.type);
       // Only admins can manage modules
-      allow write: if isAdmin();
+      allow write: if isAdminSafe();
     }
 
     // Support ticket messages (subcollection of support_tickets)
@@ -154,12 +156,7 @@ service cloud.firestore {
                     get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid &&
                     request.resource.data.senderId == request.auth.uid;
       // Admins and instructors can read and create messages in any ticket
-      allow read, create: if isInstructor();
-    }
-
-    // Default deny rule
-    match /{document=**} {
-      allow read, write: if false;
+      allow read, create: if isInstructorSafe();
     }
   }
 }

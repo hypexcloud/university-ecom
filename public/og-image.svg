@@ -1,0 +1,25 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#000000"/>
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="#1a1a1a"/>
+  
+  <!-- Logo -->
+  <rect x="150" y="150" width="60" height="60" rx="15" fill="#ffffff"/>
+  <text x="180" y="190" text-anchor="middle" fill="#000000" font-family="Arial, sans-serif" font-size="24" font-weight="bold">UE</text>
+  
+  <!-- Main Title -->
+  <text x="240" y="190" fill="#ffffff" font-family="Arial, sans-serif" font-size="48" font-weight="bold">University Ecom</text>
+  
+  <!-- Subtitle -->
+  <text x="150" y="280" fill="#cccccc" font-family="Arial, sans-serif" font-size="32">AI &amp; Dropshipping Kurse</text>
+  <text x="150" y="320" fill="#cccccc" font-family="Arial, sans-serif" font-size="32">für Unternehmer in Europa</text>
+  
+  <!-- Features -->
+  <text x="150" y="400" fill="#999999" font-family="Arial, sans-serif" font-size="24">✓ Praktisches Wissen ohne Hype</text>
+  <text x="150" y="440" fill="#999999" font-family="Arial, sans-serif" font-size="24">✓ GDPR-konforme Strategien</text>
+  <text x="150" y="480" fill="#999999" font-family="Arial, sans-serif" font-size="24">✓ Qualifizierungsprozess vor Kauf</text>
+  
+  <!-- Decoration -->
+  <circle cx="950" cy="250" r="80" fill="#333333" opacity="0.5"/>
+  <circle cx="1000" cy="200" r="60" fill="#555555" opacity="0.3"/>
+  <circle cx="900" cy="180" r="40" fill="#777777" opacity="0.4"/>
+</svg>

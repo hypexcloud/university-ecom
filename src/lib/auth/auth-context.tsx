@@ -63,8 +63,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       let existingUser = await UserService.getUserById(firebaseUser.uid) as AppUser | null
       
       if (!existingUser) {
-        // Create new user profile
-        const newUserData: Omit<AppUser, 'uid' | 'createdAt' | 'updatedAt'> = {
+        // Create new user profile with UID as document ID
+        const newUserData: Omit<AppUser, 'createdAt' | 'updatedAt'> = {
+          uid: firebaseUser.uid, // Include UID for document creation
           email: firebaseUser.email!,
           displayName: firebaseUser.displayName || additionalData?.displayName || '',
           photoURL: firebaseUser.photoURL || additionalData?.photoURL || '',
@@ -91,22 +92,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await UserService.createUser(newUserData)
         existingUser = await UserService.getUserById(firebaseUser.uid) as AppUser | null
       } else {
-        // Update last login
-        await UserService.updateUser(firebaseUser.uid, {
+        // Update last login and any additional data
+        const updateData: Partial<AppUser> = {
           lastLoginAt: Timestamp.now(),
           ...(additionalData && { ...additionalData })
-        })
+        }
+        
+        await UserService.updateUser(firebaseUser.uid, updateData)
         existingUser = await UserService.getUserById(firebaseUser.uid) as AppUser | null
       }
 
       if (existingUser) {
         setAppUser(existingUser)
-      } else {
-        console.error('Failed to create or retrieve user profile')
       }
     } catch (error) {
       console.error('Error creating/updating user profile:', error)
-      throw error
+      // Don't throw error here - the user can still use the app with Firebase auth only
     }
   }
 
@@ -140,8 +141,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         displayName: `${userData.firstName} ${userData.lastName}`
       })
 
-      // Send email verification
-      await sendEmailVerification(result.user)
+      // Send email verification (optional - don't block if it fails)
+      try {
+        await sendEmailVerification(result.user)
+      } catch (emailError) {
+        console.warn('Email verification failed:', emailError)
+        // Continue without email verification
+      }
       
       // Create app user profile
       await createOrUpdateAppUser(result.user, {
@@ -216,13 +222,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       setError(null)
+      setLoading(true)
+      
       await signOut(auth)
       setUser(null)
       setAppUser(null)
+      
+      // Clear any stored data
+      if (typeof window !== 'undefined') {
+        // Clear any localStorage/sessionStorage if needed
+        // localStorage.clear() // Only if you store auth data there
+      }
     } catch (error: any) {
       console.error('Sign out error:', error)
       setError('Fehler beim Abmelden')
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -266,9 +282,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Refresh user data
   const refreshUser = async () => {
     if (user) {
-      const updatedAppUser = await UserService.getUserById(user.uid) as AppUser | null
-      if (updatedAppUser) {
-        setAppUser(updatedAppUser)
+      try {
+        const updatedAppUser = await UserService.getUserById(user.uid) as AppUser | null
+        if (updatedAppUser) {
+          setAppUser(updatedAppUser)
+        }
+      } catch (error) {
+        console.error('Error refreshing user:', error)
+        // Don't set error state here - just log it
       }
     }
   }
@@ -276,22 +297,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true)
-      
-      if (firebaseUser) {
-        setUser(firebaseUser)
-        try {
+      try {
+        setLoading(true)
+        clearError() // Clear any previous errors
+        
+        if (firebaseUser) {
+          setUser(firebaseUser)
           await createOrUpdateAppUser(firebaseUser)
-        } catch (error) {
-          console.error('Error loading user profile:', error)
-          setError('Fehler beim Laden des Benutzerprofils')
+        } else {
+          setUser(null)
+          setAppUser(null)
         }
-      } else {
-        setUser(null)
-        setAppUser(null)
+      } catch (error) {
+        console.error('Auth state change error:', error)
+        // Don't set error for auth state issues - just log them
+      } finally {
+        setLoading(false)
       }
-      
-      setLoading(false)
     })
 
     return () => unsubscribe()

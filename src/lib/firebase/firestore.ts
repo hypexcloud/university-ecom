@@ -4,6 +4,7 @@ import {
   getDoc,
   getDocs,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -23,7 +24,7 @@ import { COLLECTIONS, CollectionName } from '../types'
 // Generic Firestore service class
 export class FirestoreService {
   
-  // Create a new document
+  // Create a new document with auto-generated ID
   static async create<T>(collectionName: CollectionName, data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) {
     try {
       const now = Timestamp.now()
@@ -35,6 +36,27 @@ export class FirestoreService {
       return docRef.id
     } catch (error) {
       console.error(`Error creating document in ${collectionName}:`, error)
+      throw error
+    }
+  }
+
+  // Create a document with a specific ID
+  static async createWithId<T>(
+    collectionName: CollectionName, 
+    id: string, 
+    data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>
+  ) {
+    try {
+      const now = Timestamp.now()
+      const docRef = doc(db, collectionName, id)
+      await setDoc(docRef, {
+        ...data,
+        createdAt: now,
+        updatedAt: now,
+      })
+      return id
+    } catch (error) {
+      console.error(`Error creating document ${id} in ${collectionName}:`, error)
       throw error
     }
   }
@@ -195,8 +217,14 @@ export class FirestoreService {
 
 // User Services
 export const UserService = {
+  // Create user with their UID as the document ID
   async createUser(userData: any) {
-    return FirestoreService.create(COLLECTIONS.USERS, userData)
+    // Extract uid from userData and use it as document ID
+    const { uid, ...dataWithoutUid } = userData
+    if (!uid) {
+      throw new Error('User UID is required for user creation')
+    }
+    return FirestoreService.createWithId(COLLECTIONS.USERS, uid, dataWithoutUid)
   },
 
   async getUserById(uid: string) {

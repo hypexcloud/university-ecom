@@ -1,32 +1,43 @@
-import RegisterForm from './register-form'
-import { UserPlus } from 'lucide-react'
-import type { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Registrieren - University Ecom',
-  description: 'Erstellen Sie Ihr University Ecom Konto und erhalten Sie Zugang zu professionellen Kursen.',
-}
+import { useAuth } from '@/lib/auth/auth-context'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Loader2 } from 'lucide-react'
+import RegisterForm from './register-form'
 
 export default function RegisterPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    // If user is already logged in, redirect to dashboard
+    if (!loading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
+
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-12 min-h-[60vh] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Überprüfe Anmeldestatus...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If user is logged in, don't render the register form (redirect is happening)
+  if (user) {
+    return null
+  }
+
+  // Render register form for non-authenticated users
   return (
     <div className="container mx-auto px-6 py-12 max-w-md">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <UserPlus className="h-8 w-8 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">Konto erstellen</h1>
-            <p className="text-muted-foreground">
-              Beginnen Sie Ihre Reise zum Erfolg
-            </p>
-          </div>
-        </div>
-
-        {/* Register Form */}
-        <RegisterForm />
-      </div>
+      <RegisterForm />
     </div>
   )
 }

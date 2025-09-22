@@ -98,6 +98,7 @@ function LoginFormContent() {
                   id="email"
                   type="email"
                   placeholder="max@beispiel.de"
+                  autoComplete="email"
                   className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                   {...register('email')}
                   disabled={isLoading || isGoogleLoading}
@@ -116,6 +117,7 @@ function LoginFormContent() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
                   {...register('password')}
                   disabled={isLoading || isGoogleLoading}
@@ -133,6 +135,9 @@ function LoginFormContent() {
                   ) : (
                     <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
+                  <span className="sr-only">
+                    {showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                  </span>
                 </Button>
               </div>
               {errors.password && (

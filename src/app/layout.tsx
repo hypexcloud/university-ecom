@@ -24,6 +24,11 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL('https://university-ecom.com'),
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'de_DE',
@@ -34,7 +39,7 @@ export const metadata: Metadata = {
     description: 'Professionelle AI & Dropshipping Kurse für Unternehmer in Europa. Praktisches Wissen ohne Hype.',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
         alt: 'University Ecom - AI & Dropshipping Kurse',
@@ -45,7 +50,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'University Ecom - AI & Dropshipping Kurse',
     description: 'Professionelle AI & Dropshipping Kurse für Unternehmer in Europa.',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.svg'],
   },
   robots: {
     index: true,
