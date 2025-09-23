@@ -1,275 +1,281 @@
 'use client'
 
-import { ProtectedRoute } from '@/lib/auth/protected-route'
-import { useAuth } from '@/lib/auth/auth-context'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
+import StudentCourseContent from '@/components/StudentCourseContent'
+import { CourseType } from '@/lib/types'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { 
-  User, 
-  BookOpen, 
-  Clock, 
-  Trophy, 
-  Settings, 
-  LogOut,
-  Bell,
-  MessageCircle,
-  TrendingUp,
-  ArrowRight,
-  Play
+import {
+  BookOpenIcon,
+  CalendarIcon,
+  TrendingUpIcon,
+  PlayIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  ExternalLinkIcon
 } from 'lucide-react'
-import Link from 'next/link'
 
-function DashboardContent() {
-  const { appUser, user, logout } = useAuth()
+export default function StudentDashboard() {
+  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null)
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-    } catch (error) {
-      console.error('Logout failed:', error)
+  // Mock user data - replace with actual authentication
+  const mockUser = {
+    id: 'student1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    enrollments: [
+      {
+        id: 'enrollment1',
+        courseType: 'ai' as CourseType,
+        planType: 'pro',
+        startDate: new Date(2024, 11, 1),
+        progress: 60,
+        nextSession: new Date(2025, 0, 22, 14, 0),
+        instructor: 'Dr. Sarah Wilson'
+      }
+    ]
+  }
+
+  // Quick stats for the overview
+  const getQuickStats = () => {
+    const enrollment = mockUser.enrollments[0]
+    return {
+      progress: enrollment.progress,
+      nextSession: enrollment.nextSession,
+      courseName: enrollment.courseType === 'ai' ? 'AI Mastery Course' : 'Dropshipping Success',
+      instructor: enrollment.instructor,
+      plan: enrollment.planType
     }
   }
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
+  const stats = getQuickStats()
+
+  if (selectedCourse) {
+    const enrollment = mockUser.enrollments.find(e => e.courseType === selectedCourse)
+    if (enrollment) {
+      return (
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedCourse(null)}
+              className="mb-4"
+            >
+              ← Back to Dashboard
+            </Button>
+          </div>
+          <StudentCourseContent
+            userRole="student"
+            userId={mockUser.id}
+            courseType={selectedCourse}
+            enrollmentId={enrollment.id}
+          />
+        </div>
+      )
+    }
   }
 
   return (
-    <div className="container mx-auto px-6 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Willkommen zurück, {appUser?.profile?.firstName || appUser?.displayName || 'Student'}!
-          </p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm">
-            <Bell className="h-4 w-4 mr-2" />
-            Benachrichtigungen
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Abmelden
-          </Button>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Welcome back, {mockUser.name}!</h1>
+        <p className="text-gray-600 mt-1">
+          Continue your learning journey and track your progress
+        </p>
       </div>
 
-      {/* User Profile Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={appUser?.photoURL || ''} />
-              <AvatarFallback>
-                {getInitials(appUser?.displayName || 'Student')}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
+      {/* Quick Overview */}
+      <div className="grid gap-6 mb-8">
+        {/* Main Course Card */}
+        <Card className="col-span-full">
+          <CardHeader>
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">
-                  {appUser?.displayName || `${appUser?.profile?.firstName} ${appUser?.profile?.lastName}`}
-                </h2>
-                <p className="text-muted-foreground">{appUser?.email}</p>
+                <CardTitle className="text-xl mb-2">Your Active Course</CardTitle>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-2xl font-bold text-blue-600">
+                    {stats.courseName}
+                  </h2>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                    {stats.plan.toUpperCase()} Plan
+                  </Badge>
+                </div>
+                <p className="text-gray-600 mt-1">
+                  Instructor: {stats.instructor}
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary">
-                  {appUser?.role === 'admin' ? 'Administrator' : 
-                   appUser?.role === 'instructor' ? 'Dozent' : 'Student'}
-                </Badge>
-                {user?.emailVerified ? (
-                  <Badge variant="default">E-Mail verifiziert</Badge>
-                ) : (
-                  <Badge variant="destructive">E-Mail nicht verifiziert</Badge>
-                )}
+              <div className="text-right">
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-600">{stats.progress}%</p>
+                    <p className="text-sm text-gray-500">Complete</p>
+                  </div>
+                  <div className="w-20 h-20 relative">
+                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" stroke="#e5e7eb" strokeWidth="4" fill="none" />
+                      <circle 
+                        cx="32" 
+                        cy="32" 
+                        r="28" 
+                        stroke="#10b981" 
+                        strokeWidth="4" 
+                        fill="none"
+                        strokeDasharray={`${stats.progress * 1.76} 176`}
+                        className="transition-all duration-300"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktive Kurse</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              Noch keine Kurse gebucht
-            </p>
-          </CardContent>
-        </Card>
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Next Session */}
+              <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+                <CalendarIcon className="h-8 w-8 text-blue-600" />
+                <div>
+                  <p className="font-medium">Next Session</p>
+                  <p className="text-sm text-gray-600">
+                    {stats.nextSession.toLocaleDateString()} at {stats.nextSession.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </p>
+                  <Button size="sm" className="mt-2">
+                    <ExternalLinkIcon className="h-3 w-3 mr-1" />
+                    Join Session
+                  </Button>
+                </div>
+              </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lernzeit</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0h</div>
-            <p className="text-xs text-muted-foreground">
-              Diese Woche
-            </p>
-          </CardContent>
-        </Card>
+              {/* Current Module */}
+              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
+                <BookOpenIcon className="h-8 w-8 text-green-600" />
+                <div>
+                  <p className="font-medium">Current Module</p>
+                  <p className="text-sm text-gray-600">Week 3: Deep Learning Foundations</p>
+                  <Button size="sm" variant="outline" className="mt-2" onClick={() => setSelectedCourse('ai')}>
+                    Continue Learning
+                  </Button>
+                </div>
+              </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Abgeschlossen</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              Module abgeschlossen
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fortschritt</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0%</div>
-            <p className="text-xs text-muted-foreground">
-              Durchschnittlicher Fortschritt
-            </p>
+              {/* This Week */}
+              <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg">
+                <ClockIcon className="h-8 w-8 text-yellow-600" />
+                <div>
+                  <p className="font-medium">This Week's Goal</p>
+                  <p className="text-sm text-gray-600">Complete Neural Networks module</p>
+                  <div className="flex items-center gap-1 mt-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '70%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 ml-2">70%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Get Started Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+      {/* Course Access */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedCourse('ai')}>
           <CardHeader>
-            <CardTitle>Kurse entdecken</CardTitle>
-            <CardDescription>
-              Starten Sie Ihre Reise mit unseren professionellen Kursen
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <BookOpenIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              AI Mastery Course
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <h4 className="font-medium">Verfügbare Kurse:</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">AI Kurs</p>
-                    <p className="text-sm text-muted-foreground">Künstliche Intelligenz für Ihr Business</p>
-                  </div>
-                  <Button size="sm" asChild>
-                    <Link href="/courses/ai">
-                      <Play className="h-4 w-4 mr-2" />
-                      Ansehen
-                    </Link>
-                  </Button>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Progress</span>
+                <span className="text-sm font-medium">{stats.progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${stats.progress}%` }}></div>
+              </div>
+              
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                  <span className="text-sm text-gray-600">2 modules completed</span>
                 </div>
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Dropshipping Kurs</p>
-                    <p className="text-sm text-muted-foreground">E-Commerce ohne Lagerkosten</p>
-                  </div>
-                  <Button size="sm" asChild>
-                    <Link href="/courses/dropshipping">
-                      <Play className="h-4 w-4 mr-2" />
-                      Ansehen
-                    </Link>
-                  </Button>
-                </div>
+                <Button size="sm">
+                  Enter Course
+                </Button>
               </div>
             </div>
-            <Button asChild className="w-full">
-              <Link href="/courses">
-                Alle Kurse ansehen
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Placeholder for additional course */}
+        <Card className="opacity-50">
           <CardHeader>
-            <CardTitle>Community & Support</CardTitle>
-            <CardDescription>
-              Vernetzen Sie sich mit anderen Studenten und erhalten Sie Hilfe
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <BookOpenIcon className="h-5 w-5 text-gray-400" />
+              </div>
+              Additional Course
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                WhatsApp Community
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Discord Server
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <User className="mr-2 h-4 w-4" />
-                1-zu-1 Mentoring
+              <p className="text-sm text-gray-500">
+                Unlock additional courses as you progress through your current studies.
+              </p>
+              <Button size="sm" variant="outline" disabled>
+                Coming Soon
               </Button>
             </div>
-            <Button asChild className="w-full">
-              <Link href="/community">
-                Community beitreten
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
           </CardContent>
         </Card>
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Letzte Aktivitäten</CardTitle>
-          <CardDescription>
-            Hier sehen Sie Ihre neuesten Aktivitäten und Fortschritte
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Noch keine Aktivitäten vorhanden</p>
-            <p className="text-sm">Starten Sie einen Kurs, um hier Fortschritte zu sehen</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-4">
-        <Button asChild>
-          <Link href="/profile">
-            <Settings className="mr-2 h-4 w-4" />
-            Profil bearbeiten
-          </Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link href="/support">
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Support kontaktieren
-          </Link>
-        </Button>
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUpIcon className="h-5 w-5" />
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Completed: Machine Learning Basics</p>
+                  <p className="text-xs text-gray-500">Week 2 • 3 days ago</p>
+                </div>
+                <Badge variant="outline" className="bg-green-50 text-green-700">Completed</Badge>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <PlayIcon className="h-5 w-5 text-blue-500" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Started: Deep Learning Foundations</p>
+                  <p className="text-xs text-gray-500">Week 3 • Yesterday</p>
+                </div>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700">In Progress</Badge>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <CalendarIcon className="h-5 w-5 text-yellow-500" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Upcoming Session with Dr. Sarah Wilson</p>
+                  <p className="text-xs text-gray-500">Jan 22, 2025 at 2:00 PM</p>
+                </div>
+                <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Scheduled</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  )
-}
-
-export default function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
   )
 }
