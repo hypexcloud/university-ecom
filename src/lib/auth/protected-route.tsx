@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from './auth-context'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, Lock, LogIn } from 'lucide-react'
@@ -11,7 +11,7 @@ import Link from 'next/link'
 interface ProtectedRouteProps {
   children: ReactNode
   requireAuth?: boolean
-  requireRole?: 'student' | 'instructor' | 'admin'
+  requireRole?: 'admin' | 'mentor' | 'teilnehmer'
   redirectTo?: string
   fallback?: ReactNode
 }
@@ -23,7 +23,7 @@ export function ProtectedRoute({
   redirectTo = '/login',
   fallback 
 }: ProtectedRouteProps) {
-  const { user, appUser, loading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export function ProtectedRoute({
   }
 
   // Check role requirement
-  if (requireRole && appUser && appUser.role !== requireRole) {
-    return <RoleRequiredFallback requiredRole={requireRole} userRole={appUser.role} />
+  if (requireRole && user && user.role !== requireRole) {
+    return <RoleRequiredFallback requiredRole={requireRole} userRole={user.role} />
   }
 
   // Render protected content
@@ -144,14 +144,14 @@ export function withAuth<P extends object>(
 
 // Hook for conditional rendering based on auth state
 export function useAuthGuard() {
-  const { user, appUser, loading } = useAuth()
+  const { user, loading } = useAuth()
 
   return {
     isAuthenticated: !!user,
     isLoading: loading,
-    hasRole: (role: string) => appUser?.role === role,
-    isStudent: appUser?.role === 'student',
-    isInstructor: appUser?.role === 'instructor',
-    isAdmin: appUser?.role === 'admin',
+    hasRole: (role: string) => user?.role === role,
+    isTeilnehmer: user?.role === 'teilnehmer',
+    isMentor: user?.role === 'mentor',
+    isAdmin: user?.role === 'admin',
   }
 }

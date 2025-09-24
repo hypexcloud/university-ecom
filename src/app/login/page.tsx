@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/auth-context'
+import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
@@ -13,7 +13,14 @@ export default function LoginPage() {
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
     if (!loading && user) {
-      router.push('/dashboard')
+      // Redirect based on role
+      if (user.role === 'admin') {
+        router.push('/admin')
+      } else if (user.role === 'mentor') {
+        router.push('/mentor/dashboard')
+      } else {
+        router.push('/dashboard')
+      }
     }
   }, [user, loading, router])
 

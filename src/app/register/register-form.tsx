@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useAuth } from '@/lib/auth/auth-context'
+import { useAuth } from '@/contexts/AuthContext'
 import { UserPlus, Eye, EyeOff, Mail, Lock, User, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
@@ -39,7 +39,8 @@ export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
-  const { signUp, signInWithGoogle, error, clearError } = useAuth()
+  const [error, setError] = useState<string | null>(null)
+  const { login } = useAuth() // Using mock auth
   const router = useRouter()
 
   const {
@@ -62,21 +63,28 @@ export default function RegisterForm() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true)
-      clearError()
+      setError(null)
       
-      await signUp(data.email, data.password, {
-        firstName: data.firstName,
-        lastName: data.lastName
-      })
+      // Since we're using mock auth, simulate registration
+      // In real app, this would call Firebase signUp
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setRegistrationSuccess(true)
+      // For demo purposes, automatically log in the user
+      const success = await login('student@uniec.com', 'student123')
       
-      // Redirect after short delay
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 2000)
+      if (success) {
+        setRegistrationSuccess(true)
+        
+        // Redirect after short delay
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 2000)
+      } else {
+        setError('Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      }
     } catch (error: any) {
       console.error('Registration failed:', error)
+      setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.')
     } finally {
       setIsLoading(false)
     }
@@ -85,12 +93,19 @@ export default function RegisterForm() {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true)
-      clearError()
+      setError(null)
       
-      await signInWithGoogle()
-      router.push('/dashboard')
+      // Simulate Google sign in with demo account
+      const success = await login('student@uniec.com', 'student123')
+      
+      if (success) {
+        router.push('/dashboard')
+      } else {
+        setError('Google-Anmeldung fehlgeschlagen.')
+      }
     } catch (error: any) {
       console.error('Google sign in failed:', error)
+      setError('Google-Anmeldung fehlgeschlagen.')
     } finally {
       setIsGoogleLoading(false)
     }

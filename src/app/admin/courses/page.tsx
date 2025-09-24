@@ -1,16 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import AdminCourseManagement from '@/components/AdminCourseManagement'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function AdminCoursePage() {
+export default function CoursesPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/admin/termine')
+  }, [router])
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <AdminCourseManagement 
-          userRole="admin" 
-          userId="admin1" 
-        />
+    <div className="flex items-center justify-center h-64">
+      <div className="text-center">
+        <p className="text-gray-600">Weiterleitung zur neuen Termine-Seite...</p>
       </div>
     </div>
   )

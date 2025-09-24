@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useAuth } from '@/lib/auth/auth-context'
+import { useAuth } from '@/contexts/AuthContext'
 import { LogIn, Eye, EyeOff, Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,7 +26,9 @@ function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const { signIn, signInWithGoogle, error, clearError } = useAuth()
+  const [error, setError] = useState('')
+  
+  const { login, loginWithGoogle } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -43,12 +45,17 @@ function LoginFormContent() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true)
-      clearError()
+      setError('')
       
-      await signIn(data.email, data.password)
-      router.push(redirectTo)
+      const success = await login(data.email, data.password)
+      if (success) {
+        // Auth context will handle redirect based on user role
+        router.push('/admin') // Default redirect, will be overridden by useEffect in page.tsx
+      } else {
+        setError('Ungültige E-Mail oder Passwort')
+      }
     } catch (error: any) {
-      // Error is handled by auth context
+      setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.')
       console.error('Login failed:', error)
     } finally {
       setIsLoading(false)
@@ -58,12 +65,16 @@ function LoginFormContent() {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true)
-      clearError()
+      setError('')
       
-      await signInWithGoogle()
-      router.push(redirectTo)
+      const success = await loginWithGoogle()
+      if (success) {
+        router.push('/admin') // Default redirect, will be overridden by useEffect in page.tsx
+      } else {
+        setError('Google Anmeldung fehlgeschlagen')
+      }
     } catch (error: any) {
-      // Error is handled by auth context
+      setError('Google Anmeldung fehlgeschlagen')
       console.error('Google sign in failed:', error)
     } finally {
       setIsGoogleLoading(false)
@@ -219,6 +230,58 @@ function LoginFormContent() {
               </>
             )}
           </Button>
+
+          {/* Demo Accounts for MVP */}
+          <div className="pt-4 border-t">
+            <p className="text-sm text-muted-foreground text-center mb-3">Demo-Konten für Tests:</p>
+            <div className="grid gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const emailField = document.getElementById('email') as HTMLInputElement
+                  const passwordField = document.getElementById('password') as HTMLInputElement
+                  emailField.value = 'admin@uniec.com'
+                  passwordField.value = 'admin123'
+                  emailField.dispatchEvent(new Event('input', { bubbles: true }))
+                  passwordField.dispatchEvent(new Event('input', { bubbles: true }))
+                }}
+                className="text-xs"
+              >
+                Admin: admin@uniec.com / admin123
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const emailField = document.getElementById('email') as HTMLInputElement
+                  const passwordField = document.getElementById('password') as HTMLInputElement
+                  emailField.value = 'mentor@uniec.com'
+                  passwordField.value = 'mentor123'
+                  emailField.dispatchEvent(new Event('input', { bubbles: true }))
+                  passwordField.dispatchEvent(new Event('input', { bubbles: true }))
+                }}
+                className="text-xs"
+              >
+                Mentor: mentor@uniec.com / mentor123
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const emailField = document.getElementById('email') as HTMLInputElement
+                  const passwordField = document.getElementById('password') as HTMLInputElement
+                  emailField.value = 'student@uniec.com'
+                  passwordField.value = 'student123'
+                  emailField.dispatchEvent(new Event('input', { bubbles: true }))
+                  passwordField.dispatchEvent(new Event('input', { bubbles: true }))
+                }}
+                className="text-xs"
+              >
+                Teilnehmer: student@uniec.com / student123
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
