@@ -11,15 +11,17 @@ interface ConditionalLayoutProps {
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname()
   
-  // Check if current route is an admin route
-  const isAdminRoute = pathname.startsWith('/admin')
+  // Check if current route is a dashboard route (admin, mentor, or student)
+  const isDashboardRoute = pathname.startsWith('/admin') || 
+                          pathname.startsWith('/mentor') || 
+                          pathname.startsWith('/student')
   
-  // For admin routes, render children directly without homepage header/footer
-  if (isAdminRoute) {
+  // For dashboard routes, render children directly without homepage header/footer
+  if (isDashboardRoute) {
     return <>{children}</>
   }
   
-  // For non-admin routes, render with homepage layout
+  // For non-dashboard routes, render with homepage layout
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
