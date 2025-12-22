@@ -5,14 +5,22 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { hasAdminPrivileges } from "@/lib/role-utils";
+import MentorLayout from "@/components/MentorLayout";
+import '../dashboard-globals.css'
 
-export default function MentorLayout({
+export default function MentorRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    // Force light mode for dashboard
+    document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = 'light'
+  }, [])
 
   useEffect(() => {
     if (loading) return;
@@ -32,10 +40,10 @@ export default function MentorLayout({
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Überprüfe Berechtigung...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+          <p className="text-gray-600">Überprüfe Berechtigung...</p>
         </div>
       </div>
     );
@@ -46,5 +54,5 @@ export default function MentorLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return <MentorLayout>{children}</MentorLayout>;
 }

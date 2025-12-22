@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force light mode for dashboards */
+@layer base {
+  :root {
+    color-scheme: light;
+    
+    /* Standard Dashboard Theme - Blue Primary */
+    --background: 0 0% 100% !important;
+    --foreground: 0 0% 3.9% !important;
+    
+    --card: 0 0% 100% !important;
+    --card-foreground: 0 0% 3.9% !important;
+    
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 0 0% 3.9% !important;
+    
+    /* Primary = Blue (not gold) */
+    --primary: 221.2 83.2% 53.3% !important;
+    --primary-foreground: 210 40% 98% !important;
+    
+    /* Secondary = Gray */
+    --secondary: 210 40% 96.1% !important;
+    --secondary-foreground: 222.2 47.4% 11.2% !important;
+    
+    --muted: 210 40% 96.1% !important;
+    --muted-foreground: 215.4 16.3% 46.9% !important;
+    
+    /* Accent = Blue */
+    --accent: 210 40% 96.1% !important;
+    --accent-foreground: 222.2 47.4% 11.2% !important;
+    
+    --destructive: 0 84.2% 60.2% !important;
+    --destructive-foreground: 210 40% 98% !important;
+    
+    --border: 214.3 31.8% 91.4% !important;
+    --input: 214.3 31.8% 91.4% !important;
+    --ring: 221.2 83.2% 53.3% !important;
+    
+    --radius: 0.5rem;
+  }
+
+  /* Force light mode even if dark class exists */
+  .dark {
+    color-scheme: light;
+    
+    --background: 0 0% 100% !important;
+    --foreground: 0 0% 3.9% !important;
+    
+    --card: 0 0% 100% !important;
+    --card-foreground: 0 0% 3.9% !important;
+    
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 0 0% 3.9% !important;
+    
+    --primary: 221.2 83.2% 53.3% !important;
+    --primary-foreground: 210 40% 98% !important;
+    
+    --secondary: 210 40% 96.1% !important;
+    --secondary-foreground: 222.2 47.4% 11.2% !important;
+    
+    --muted: 210 40% 96.1% !important;
+    --muted-foreground: 215.4 16.3% 46.9% !important;
+    
+    --accent: 210 40% 96.1% !important;
+    --accent-foreground: 222.2 47.4% 11.2% !important;
+    
+    --destructive: 0 84.2% 60.2% !important;
+    --destructive-foreground: 210 40% 98% !important;
+    
+    --border: 214.3 31.8% 91.4% !important;
+    --input: 214.3 31.8% 91.4% !important;
+    --ring: 221.2 83.2% 53.3% !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Override any dark mode styles */
+  .dark body {
+    @apply bg-white text-gray-900;
+  }
+  
+  /* Use standard sans-serif fonts for dashboards - NOT Playfair */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    font-weight: 700;
+  }
+  
+  /* Ensure body uses standard font too */
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  }
+}

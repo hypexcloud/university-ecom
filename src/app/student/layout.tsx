@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import StudentLayout from "@/components/StudentLayout";
 import { hasCustomerAccess } from "@/lib/role-utils";
+import '../dashboard-globals.css'
 
 export default function StudentRootLayout({
   children,
@@ -14,6 +15,12 @@ export default function StudentRootLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    // Force light mode for dashboard
+    document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = 'light'
+  }, [])
 
   useEffect(() => {
     if (loading) return;
