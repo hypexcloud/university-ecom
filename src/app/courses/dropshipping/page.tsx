@@ -1,317 +1,344 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, TrendingUp, Star, Clock, Users, CheckCircle, ShoppingCart, Target, Truck } from 'lucide-react'
+import { ArrowRight, TrendingUp, CheckCircle2, Crown, Clock, Users, Star, Shield, Euro } from 'lucide-react'
 import Link from 'next/link'
-import type { Metadata } from 'next'
+import { DROPSHIPPING_COURSE_DATA } from '@/lib/courses-data'
 
-export const metadata: Metadata = {
-  title: 'Dropshipping Kurs - Erfolgreiches E-Commerce ohne Lagerkosten',
-  description: 'Lernen Sie profitable Dropshipping-Strategien für den EU-Markt. 16 Wochen intensive Ausbildung mit praktischen Fallstudien.',
+export const metadata = {
+  title: 'EU Dropshipping Kurs - 2 Monate Intensive Ausbildung',
+  description: 'Bauen Sie ein profitables EU-konformes Dropshipping Business. 2 Monate intensive Ausbildung mit rechtlicher Compliance.',
 }
 
-export default function DropshippingCourse() {
+export default function DropshippingCoursePage() {
+  const course = DROPSHIPPING_COURSE_DATA
+
   return (
-    <div className="container mx-auto px-6 py-12 space-y-16">
+    <div className="min-h-screen bg-prestige-black">
       {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-          <TrendingUp className="h-12 w-12 text-primary" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold">
-          Dropshipping Kurs
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Bauen Sie ein profitables E-Commerce Business ohne Lagerkosten auf. 
-          Lernen Sie bewährte Strategien für den EU-Markt mit vollständiger 
-          rechtlicher Compliance.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-          <Button asChild size="lg" className="text-lg px-8 py-6">
-            <Link href="/pricing/dropshipping">
-              Jetzt einschreiben
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-            <Link href="#curriculum">
-              Lehrplan ansehen
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Course Overview */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        <Card>
-          <CardHeader className="text-center">
-            <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>16 Wochen</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Umfassende Ausbildung von den Grundlagen bis zur Skalierung</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="text-center">
-            <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>300+ Studenten</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Erfolgreiche Dropshipper in unserer Community</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="text-center">
-            <Star className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>4.8/5 Bewertung</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Durchschnittliche Studentenbewertung</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* What You'll Learn */}
-      <div className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Was Sie lernen werden</h2>
-          <p className="text-xl text-muted-foreground">
-            Alles was Sie für ein erfolgreiches Dropshipping Business brauchen
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {[
-            {
-              title: 'Nischen- & Produktanalyse',
-              description: 'Identifizieren Sie profitable Nischen und Winning Products mit bewährten Research-Methoden.',
-              icon: Target
-            },
-            {
-              title: 'EU-konformer Shop-Aufbau',
-              description: 'Erstellen Sie rechtssichere Online-Shops die allen EU-Vorschriften entsprechen.',
-              icon: ShoppingCart
-            },
-            {
-              title: 'Lieferantenmanagement',
-              description: 'Finden und verwalten Sie zuverlässige Lieferanten für konsistente Qualität und Lieferzeiten.',
-              icon: Truck
-            },
-            {
-              title: 'Marketing & Kundenakquise',
-              description: 'Meistern Sie Facebook Ads, Google Ads und organische Marketing-Strategien.',
-              icon: Users
-            },
-            {
-              title: 'Automatisierung & Tools',
-              description: 'Automatisieren Sie Ihre Prozesse mit den besten Tools für Effizienz und Skalierung.',
-              icon: CheckCircle
-            },
-            {
-              title: 'Skalierung & Optimierung',
-              description: 'Skalieren Sie Ihr Business systematisch und optimieren Sie kontinuierlich Ihre Prozesse.',
-              icon: TrendingUp
-            }
-          ].map((item, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
+      <section className="section-prestige px-6 py-20 md:py-28">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column */}
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="inline-flex items-center space-x-2 bg-prestige-gold-500/10 border border-prestige-gold-500/30 rounded-full px-4 py-2">
+                <TrendingUp className="h-4 w-4 text-prestige-gold-500" />
+                <span className="text-prestige-gold-500 text-sm font-semibold">2 Monate Intensiv-Programm</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl font-display font-bold text-prestige-white">
+                EU Dropshipping
+                <br />
+                <span className="text-gradient-gold">Kurs</span>
+              </h1>
+              
+              <p className="text-xl text-prestige-gray-300 leading-relaxed">
+                Bauen Sie ein profitables, rechtssicheres Dropshipping Business im europäischen Markt. Von der Produktauswahl bis zur Skalierung.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 pt-4">
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Clock className="h-5 w-5 text-prestige-gold-500" />
+                  <span>60 Tage</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{item.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Why EU Focus */}
-      <div className="bg-muted/30 rounded-lg p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-4">Warum EU-fokussiert?</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Unser Kurs ist speziell für den europäischen Markt entwickelt
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-            <h3 className="font-semibold mb-2">DSGVO Compliance</h3>
-            <p className="text-sm text-muted-foreground">
-              Vollständige Einhaltung aller Datenschutzbestimmungen
-            </p>
-          </div>
-          <div className="text-center">
-            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-            <h3 className="font-semibold mb-2">EU-VAT Integration</h3>
-            <p className="text-sm text-muted-foreground">
-              Automatisierte Mehrwertsteuer-Abwicklung für alle EU-Länder
-            </p>
-          </div>
-          <div className="text-center">
-            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-            <h3 className="font-semibold mb-2">Rechtssicherheit</h3>
-            <p className="text-sm text-muted-foreground">
-              Vollständige Compliance mit Verbraucherrechten und Widerrufsgesetzen
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Curriculum */}
-      <div id="curriculum" className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Lehrplan</h2>
-          <p className="text-xl text-muted-foreground">
-            16 Wochen strukturiertes Lernen
-          </p>
-        </div>
-
-        <div className="grid gap-4">
-          {[
-            {
-              week: '1-2',
-              title: 'Dropshipping Grundlagen & Marktanalyse',
-              topics: ['Business Model verstehen', 'EU-Markt Analyse', 'Nischenfindung', 'Konkurrenzanalyse']
-            },
-            {
-              week: '3-4',
-              title: 'Produktrecherche & Lieferanten',
-              topics: ['Winning Products finden', 'Lieferanten bewerten', 'Qualitätskontrolle', 'Verhandlungsstrategien']
-            },
-            {
-              week: '5-6',
-              title: 'Shop-Erstellung & Design',
-              topics: ['Shopify/WooCommerce Setup', 'Conversion-optimiertes Design', 'Mobile Optimierung', 'Payment Integration']
-            },
-            {
-              week: '7-8',
-              title: 'Rechtliche Compliance',
-              topics: ['DSGVO Umsetzung', 'AGB & Impressum', 'Widerrufsrecht', 'VAT Registration']
-            },
-            {
-              week: '9-10',
-              title: 'Marketing & Traffic Generation',
-              topics: ['Facebook Ads Mastery', 'Google Ads Setup', 'Influencer Marketing', 'Content Marketing']
-            },
-            {
-              week: '11-12',
-              title: 'Conversion Optimierung',
-              topics: ['A/B Testing', 'Landing Page Optimization', 'Email Marketing', 'Retargeting Campaigns']
-            }
-          ].map((module, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">Woche {module.week}: {module.title}</CardTitle>
-                  </div>
-                  <div className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                    Woche {module.week}
-                  </div>
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Users className="h-5 w-5 text-prestige-gold-500" />
+                  <span>Max. 5 Teilnehmer</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {module.topics.map((topic, topicIndex) => (
-                    <div key={topicIndex} className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{topic}</span>
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Shield className="h-5 w-5 text-prestige-gold-500" />
+                  <span>100% EU-Konform</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <Button asChild size="lg" className="btn-gold text-lg px-8 py-6">
+                  <Link href="#plaene">
+                    Jetzt starten
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="btn-prestige text-lg px-8 py-6">
+                  <Link href="/contact">
+                    Erstgespräch buchen
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            {/* Right Column */}
+            <div className="relative">
+              <div className="card-prestige p-8 space-y-4">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-display font-bold text-prestige-white">Kurs-Highlights</h3>
+                  <Crown className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                {[
+                  'Profitable Nischen finden',
+                  'Zuverlässige Lieferanten',
+                  'Professioneller Shop-Aufbau',
+                  'Conversion-Optimierung',
+                  'DSGVO & VAT Compliance',
+                  'Skalierungs-Strategien'
+                ].map((highlight, i) => (
+                  <div key={i} className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-prestige-gold-500 mt-1 flex-shrink-0" />
+                    <span className="text-prestige-gray-200">{highlight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Course Modules */}
+      <section className="px-6 py-20 bg-prestige-black">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Kurs-Module
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300 max-w-2xl mx-auto">
+              6 umfassende Module über 8 Wochen
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {course.modules.map((module, i) => (
+              <Card key={module.id} className="card-prestige hover:border-prestige-gold-500/60 transition-all">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-prestige-gold-500 text-sm font-semibold">Woche {module.week}</span>
+                    <div className="w-8 h-8 bg-prestige-gold-500/10 rounded-full flex items-center justify-center text-prestige-gold-500 text-sm font-bold">
+                      {i + 1}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+                  <CardTitle className="text-prestige-white">{module.titleDE}</CardTitle>
+                  <CardDescription className="text-prestige-gray-400">
+                    {module.descriptionDE}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {module.topics.map((topic, j) => (
+                      <div key={j} className="flex items-start space-x-2 text-sm text-prestige-gray-300">
+                        <Euro className="h-4 w-4 text-prestige-gold-500 mt-0.5 flex-shrink-0" />
+                        <span>{topic}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">
-            + 4 weitere Wochen mit Skalierung, Automatisierung und fortgeschrittenen Strategien
-          </p>
-          <Button asChild variant="outline">
-            <Link href="/pricing/dropshipping">
-              Vollständigen Lehrplan anzeigen
-            </Link>
-          </Button>
+      {/* Plans Section */}
+      <section id="plaene" className="section-prestige px-6 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Wählen Sie Ihren Plan
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300">
+              Von Selbstlerner bis Done-For-You
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {course.plans.map((plan, i) => {
+              const isPopular = plan.name === 'business'
+              const isInfinity = plan.name === 'infinity'
+              return (
+                <Card 
+                  key={plan.id} 
+                  className={`card-prestige text-center relative ${
+                    isPopular ? 'border-prestige-gold-500 shadow-gold' : ''
+                  } ${isInfinity ? 'border-prestige-gold-600' : ''}`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-prestige-gold-500 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
+                      BELIEBT
+                    </div>
+                  )}
+                  {isInfinity && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-prestige-gold-500 to-prestige-gold-600 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
+                      PREMIUM
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-prestige-gold-500 text-2xl mb-2">
+                      {plan.displayNameDE}
+                    </CardTitle>
+                    <div className="text-5xl font-bold text-prestige-white mb-4">
+                      €{plan.price.toLocaleString('de-DE')}
+                    </div>
+                    <CardDescription className="text-prestige-gray-400">
+                      {plan.descriptionDE}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3 mb-6">
+                      {plan.featuresDE.map((feature, j) => (
+                        <div key={j} className="flex items-start text-left text-sm text-prestige-gray-300">
+                          <CheckCircle2 className="h-4 w-4 text-prestige-gold-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button 
+                      asChild 
+                      className={isInfinity || isPopular ? 'btn-gold w-full' : 'btn-prestige w-full'}
+                    >
+                      <Link href="/contact">
+                        Plan wählen
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+          
+          {/* Infinity Plan Highlight */}
+          <div className="mt-12 card-prestige p-8 text-center border-prestige-gold-500/50">
+            <Crown className="w-12 h-12 text-prestige-gold-500 mx-auto mb-4" />
+            <h3 className="text-2xl font-display font-bold text-prestige-white mb-3">
+              Infinity Plan - Das Komplett-Paket
+            </h3>
+            <p className="text-prestige-gray-300 max-w-2xl mx-auto mb-6">
+              Winning Product Research + Custom Website (vollständig gecoded) + Premium 1:1 Coaching. 
+              Wir bauen gemeinsam Ihr erfolgreiches Dropshipping Business.
+            </p>
+            <Button asChild className="btn-gold">
+              <Link href="/contact">
+                Mehr über Infinity erfahren
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Success Stories Preview */}
-      <div className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">Erfolgsgeschichten</h2>
-          <p className="text-xl text-muted-foreground">
-            Unsere Studenten erzielen echte Ergebnisse
-          </p>
+      {/* Legal Compliance Section */}
+      <section className="px-6 py-20 bg-prestige-black">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              100% EU-Konform
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300 max-w-2xl mx-auto">
+              Rechtssicherheit ist unser höchstes Gebot
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { title: 'DSGVO', desc: 'Datenschutz-Grundverordnung vollständig implementiert' },
+              { title: 'AGB & Impressum', desc: 'Rechtssichere Texte für Ihren Shop' },
+              { title: 'Widerrufsrecht', desc: 'EU-konforme Widerrufsbelehrung' },
+              { title: 'VAT & Steuern', desc: 'Umsatzsteuer korrekt abwickeln' },
+            ].map((item, i) => (
+              <Card key={i} className="card-prestige text-center">
+                <CardHeader>
+                  <Shield className="h-12 w-12 text-prestige-gold-500 mx-auto mb-3" />
+                  <CardTitle className="text-prestige-gold-500 text-lg">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-prestige-gray-400 text-sm">{item.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            {
-              name: 'Maria K.',
-              result: '€15.000 Monatsumsatz',
-              timeframe: 'nach 4 Monaten',
-              testimonial: 'Der EU-fokussierte Ansatz war genau das was ich brauchte.'
-            },
-            {
-              name: 'Thomas S.',
-              result: '€8.500 Profit',
-              timeframe: 'im ersten Monat',
-              testimonial: 'Die rechtlichen Aspekte haben mir viel Kopfzerbrechen erspart.'
-            },
-            {
-              name: 'Anna L.',
-              result: '3 erfolgreiche Shops',
-              timeframe: 'in 6 Monaten',
-              testimonial: 'Skalierung war einfacher als gedacht mit den richtigen Strategien.'
-            }
-          ].map((story, index) => (
-            <Card key={index} className="text-center">
+      {/* Why This Course */}
+      <section className="px-6 py-20 section-prestige">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Warum dieser Kurs?
+            </h2>
+            <div className="accent-line-gold mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="card-prestige text-center">
               <CardHeader>
-                <CardTitle className="text-lg">{story.name}</CardTitle>
-                <CardDescription className="text-2xl font-bold text-primary">
-                  {story.result}
-                </CardDescription>
-                <p className="text-sm text-muted-foreground">{story.timeframe}</p>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <TrendingUp className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                <CardTitle className="text-prestige-gold-500">Bewährte Strategien</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm italic">"{story.testimonial}"</p>
+                <p className="text-prestige-gray-300">
+                  Profitieren Sie von erprobten Methoden, die bereits hunderte erfolgreiche Shops hervorgebracht haben.
+                </p>
               </CardContent>
             </Card>
-          ))}
+
+            <Card className="card-prestige text-center">
+              <CardHeader>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                <CardTitle className="text-prestige-gold-500">Kleine Gruppen</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-prestige-gray-300">
+                  Maximal 5 Teilnehmer pro Kohorte für intensive, persönliche Betreuung durch Esat.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="card-prestige text-center">
+              <CardHeader>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Shield className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                <CardTitle className="text-prestige-gold-500">Rechtssicher</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-prestige-gray-300">
+                  Keine Abmahnungen, keine rechtlichen Probleme. Wir zeigen Ihnen, wie es richtig geht.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* CTA Section */}
-      <div className="bg-primary/5 rounded-lg p-8 text-center">
-        <h2 className="text-3xl font-bold mb-4">Bereit für Ihr Dropshipping Business?</h2>
-        <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-          Starten Sie noch heute Ihre Reise zum erfolgreichen E-Commerce Unternehmer 
-          mit unserem bewährten, EU-konformen System.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" className="text-lg px-8 py-6">
-            <Link href="/pricing/dropshipping">
-              Jetzt einschreiben
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-            <Link href="/courses/ai">
-              AI Kurs ansehen
-            </Link>
-          </Button>
+      <section className="px-6 py-24 bg-prestige-black">
+        <div className="container mx-auto max-w-4xl text-center">
+          <Crown className="w-16 h-16 text-prestige-gold-500 mx-auto mb-6" />
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-6">
+            Starten Sie Ihr Dropshipping Business
+          </h2>
+          <div className="accent-line-gold mx-auto mb-6"></div>
+          <p className="text-xl text-prestige-gray-300 mb-8 max-w-2xl mx-auto">
+            Werden Sie Teil der erfolgreichen Dropshipping-Community und bauen Sie Ihr eigenes profitables Online-Business.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="btn-gold text-lg px-10 py-7">
+              <Link href="/contact">
+                Erstgespräch buchen
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="btn-prestige text-lg px-10 py-7">
+              <Link href="/pricing">
+                Alle Pläne vergleichen
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

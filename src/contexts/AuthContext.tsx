@@ -17,10 +17,9 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase/config"; // Updated import path
-
-// Types
-type UserRole = "admin" | "mentor" | "teilnehmer" | "guest";
+import { auth, db } from "@/lib/firebase/config";
+// Import UserRole from centralized types
+import { UserRole } from "@/lib/types";
 
 interface User {
   id: string;
@@ -34,7 +33,7 @@ export interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>; // Add this line
+  loginWithGoogle: () => Promise<boolean>;
   register: (
     email: string,
     password: string,
@@ -46,7 +45,7 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Mock users for demo - in production this would be Firebase Auth
+// Mock users for demo - updated with new roles
 const MOCK_USERS: Array<User & { password: string }> = [
   {
     id: "admin-1",
@@ -57,19 +56,19 @@ const MOCK_USERS: Array<User & { password: string }> = [
     isActive: true,
   },
   {
-    id: "mentor-1",
-    name: "Dr. Sarah Müller",
-    email: "mentor@uniec.com",
-    password: "mentor123",
-    role: "mentor",
+    id: "kunde-1",
+    name: "Max Mustermann",
+    email: "kunde@uniec.com",
+    password: "kunde123",
+    role: "kunde",
     isActive: true,
   },
   {
-    id: "student-1",
-    name: "Max Mustermann",
-    email: "student@uniec.com",
-    password: "student123",
-    role: "teilnehmer",
+    id: "affiliate-1",
+    name: "Maria Schmidt",
+    email: "affiliate@uniec.com",
+    password: "affiliate123",
+    role: "affiliate",
     isActive: true,
   },
 ];
@@ -149,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
-          role: "student",
+          role: "kunde", // New users default to kunde
           createdAt: new Date(),
           lastLoginAt: new Date(),
         });
@@ -166,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name:
           result.user.displayName || result.user.email?.split("@")[0] || "User",
         email: result.user.email || "",
-        role: "teilnehmer",
+        role: "kunde", // New users default to kunde
         isActive: true,
       };
 
@@ -202,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         uid: result.user.uid,
         email: email,
         displayName: userData.name || email.split("@")[0],
-        role: "student",
+        role: "kunde", // New users default to kunde
         createdAt: new Date(),
         lastLoginAt: new Date(),
         ...userData,
@@ -213,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: result.user.uid,
         name: userData.name || email.split("@")[0],
         email: email,
-        role: "teilnehmer",
+        role: "kunde", // New users default to kunde
         isActive: true,
       };
 
@@ -265,7 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     loading,
     login,
-    loginWithGoogle, // Add this line
+    loginWithGoogle,
     register,
     logout,
     updateUserProfile,

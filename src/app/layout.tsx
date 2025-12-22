@@ -1,19 +1,29 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ConditionalLayout } from '@/components/layout/conditional-layout'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const playfair = Playfair_Display({ 
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
-    default: 'University Ecom - AI & Dropshipping Kurse',
+    default: 'University Ecom - Premium AI & Dropshipping Ausbildung',
     template: '%s | University Ecom'
   },
-  description: 'Professionelle AI & Dropshipping Kurse für Unternehmer in Europa. Praktisches Wissen ohne Hype.',
-  keywords: ['AI Kurs', 'Dropshipping Kurs', 'E-Commerce', 'Unternehmer', 'Europa', 'Online Business'],
+  description: 'Exklusive Ausbildung in AI-Automation und EU-Dropshipping für ambitionierte Unternehmer. Premium Coaching mit garantierten Ergebnissen.',
+  keywords: ['AI Kurs', 'Dropshipping Kurs', 'E-Commerce', 'Unternehmer', 'Europa', 'Online Business', 'Premium Coaching'],
   authors: [{ name: 'University Ecom' }],
   creator: 'University Ecom',
   publisher: 'University Ecom',
@@ -34,21 +44,21 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US'],
     url: 'https://university-ecom.com',
     siteName: 'University Ecom',
-    title: 'University Ecom - AI & Dropshipping Kurse',
-    description: 'Professionelle AI & Dropshipping Kurse für Unternehmer in Europa. Praktisches Wissen ohne Hype.',
+    title: 'University Ecom - Premium AI & Dropshipping Ausbildung',
+    description: 'Exklusive Ausbildung in AI-Automation und EU-Dropshipping für ambitionierte Unternehmer.',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'University Ecom - AI & Dropshipping Kurse',
+        alt: 'University Ecom - Premium AI & Dropshipping Ausbildung',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'University Ecom - AI & Dropshipping Kurse',
-    description: 'Professionelle AI & Dropshipping Kurse für Unternehmer in Europa.',
+    title: 'University Ecom - Premium AI & Dropshipping Ausbildung',
+    description: 'Exklusive Ausbildung für ambitionierte Unternehmer.',
     images: ['/og-image.svg'],
   },
   robots: {
@@ -73,11 +83,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

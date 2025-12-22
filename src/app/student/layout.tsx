@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import StudentLayout from "@/components/StudentLayout";
+import { hasCustomerAccess } from "@/lib/role-utils";
 
 export default function StudentRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth(); // removed isAuthenticated
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,11 +23,12 @@ export default function StudentRootLayout({
       return;
     }
 
-    if (user.role !== "teilnehmer") {
+    // Allow kunde and admin to access student dashboard
+    if (!hasCustomerAccess(user.role)) {
       router.push("/dashboard");
       return;
     }
-  }, [user, loading, router]); // removed isAuthenticated from deps
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -41,7 +43,7 @@ export default function StudentRootLayout({
     );
   }
 
-  if (!user || user.role !== "teilnehmer") {
+  if (!user || !hasCustomerAccess(user.role)) {
     return null; // Will redirect
   }
 

@@ -1,76 +1,40 @@
 import { Timestamp } from 'firebase/firestore'
 import { FirestoreService, CourseService } from './firestore'
-import { COLLECTIONS, Course, CourseModule, AdminSettings, EmailTemplate } from '../types'
+import { COLLECTIONS, Course, AdminSettings, EmailTemplate } from '../types'
+import { AI_COURSE_DATA, DROPSHIPPING_COURSE_DATA } from '../courses-data'
 
-// Seed initial course data
+// Seed initial course data using the centralized course data
 export async function seedCourses() {
   console.log('🌱 Seeding courses...')
 
-  // AI Course
+  // AI Course - using data from courses-data.ts
   const aiCourse: Omit<Course, 'id' | 'createdAt' | 'updatedAt'> = {
     type: 'ai',
-    title: 'AI Kurs - Künstliche Intelligenz für Ihr Business',
-    description: 'Lernen Sie, wie Sie ChatGPT und andere AI-Tools professionell für Ihr Business einsetzen. 12 Wochen intensive Ausbildung mit praktischen Übungen.',
-    price: {
-      pro: 497,
-      max: 997
-    },
-    duration: 12,
-    modules: [
-      {
-        id: 'ai-week-1',
-        week: 1,
-        title: 'AI Grundlagen & ChatGPT Einführung',
-        description: 'Verstehen Sie die AI-Landschaft und lernen Sie ChatGPT professionell zu nutzen.',
-        topics: ['AI Landschaft verstehen', 'ChatGPT Setup', 'Erste Prompts', 'Sicherheit & Ethik'],
-        resources: [],
-        isLocked: false
-      },
-      {
-        id: 'ai-week-2',
-        week: 2,
-        title: 'Advanced Prompting Techniken',
-        description: 'Meistern Sie fortgeschrittene Prompt-Engineering Techniken für bessere Ergebnisse.',
-        topics: ['Prompt Engineering', 'Context Management', 'Multi-Step Prompts', 'Output Optimierung'],
-        resources: [],
-        isLocked: true
-      }
-    ],
-    features: [
-      'ChatGPT und AI-Tools professionell einsetzen',
-      'Automatisierung von Geschäftsprozessen',
-      'AI-gestützte Kundenbetreuung und Marketing'
-    ],
-    isActive: true
+    name: AI_COURSE_DATA.name,
+    nameDE: AI_COURSE_DATA.nameDE,
+    description: AI_COURSE_DATA.description,
+    descriptionDE: AI_COURSE_DATA.descriptionDE,
+    duration: AI_COURSE_DATA.duration,
+    isActive: true,
+    modules: AI_COURSE_DATA.modules,
+    plans: AI_COURSE_DATA.plans,
+    features: AI_COURSE_DATA.features,
+    featuresDE: AI_COURSE_DATA.featuresDE,
   }
 
-  // Dropshipping Course
+  // Dropshipping Course - using data from courses-data.ts
   const dropshippingCourse: Omit<Course, 'id' | 'createdAt' | 'updatedAt'> = {
     type: 'dropshipping',
-    title: 'Dropshipping Kurs - Erfolgreiches E-Commerce ohne Lagerkosten',
-    description: 'Lernen Sie profitable Dropshipping-Strategien für den EU-Markt. 16 Wochen intensive Ausbildung mit praktischen Fallstudien.',
-    price: {
-      pro: 497,
-      max: 997
-    },
-    duration: 16,
-    modules: [
-      {
-        id: 'ds-week-1-2',
-        week: 1,
-        title: 'Dropshipping Grundlagen & Marktanalyse',
-        description: 'Verstehen Sie das Dropshipping Business Model und analysieren Sie den EU-Markt.',
-        topics: ['Business Model verstehen', 'EU-Markt Analyse', 'Nischenfindung', 'Konkurrenzanalyse'],
-        resources: [],
-        isLocked: false
-      }
-    ],
-    features: [
-      'Profitable Nischen und Produkte identifizieren',
-      'EU-konforme Online-Shops erstellen',
-      'Effektives Marketing und Kundenakquise'
-    ],
-    isActive: true
+    name: DROPSHIPPING_COURSE_DATA.name,
+    nameDE: DROPSHIPPING_COURSE_DATA.nameDE,
+    description: DROPSHIPPING_COURSE_DATA.description,
+    descriptionDE: DROPSHIPPING_COURSE_DATA.descriptionDE,
+    duration: DROPSHIPPING_COURSE_DATA.duration,
+    isActive: true,
+    modules: DROPSHIPPING_COURSE_DATA.modules,
+    plans: DROPSHIPPING_COURSE_DATA.plans,
+    features: DROPSHIPPING_COURSE_DATA.features,
+    featuresDE: DROPSHIPPING_COURSE_DATA.featuresDE,
   }
 
   try {

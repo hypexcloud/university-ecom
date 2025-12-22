@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import MentorDashboard from '@/components/MentorDashboard'
+import { hasAdminPrivileges } from '@/lib/role-utils'
 
 export default function MentorDashboardPage() {
   const { user, loading } = useAuth()
@@ -14,8 +15,8 @@ export default function MentorDashboardPage() {
     if (!loading) {
       if (!user) {
         router.push('/login')
-      } else if (user.role !== 'mentor' && user.role !== 'admin') {
-        router.push('/dashboard') // Redirect non-mentors to student dashboard
+      } else if (!hasAdminPrivileges(user.role)) {
+        router.push('/dashboard') // Redirect non-admins
       }
     }
   }, [user, loading, router])
@@ -31,7 +32,7 @@ export default function MentorDashboardPage() {
     )
   }
 
-  if (!user || (user.role !== 'mentor' && user.role !== 'admin')) {
+  if (!user || !hasAdminPrivileges(user.role)) {
     return null // Will redirect
   }
 

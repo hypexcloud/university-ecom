@@ -1,44 +1,132 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { MapPin, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+export const metadata = {
+  title: 'Impressum - University Ecom',
+  description: 'Impressum und rechtliche Angaben von University Ecom.',
+}
 
 export default function ImpressumPage() {
   return (
-    <div className="container mx-auto px-6 py-12 max-w-4xl">
-      <div className="text-center space-y-6 mb-12">
-        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-          <MapPin className="h-8 w-8 text-primary" />
-        </div>
-        <h1 className="text-4xl font-bold">Impressum</h1>
-        <p className="text-xl text-muted-foreground">
-          Rechtliche Angaben zu University Ecom
-        </p>
-      </div>
+    <div className="min-h-screen bg-prestige-black">
+      <section className="px-6 py-20">
+        <div className="container mx-auto max-w-4xl">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-8">
+            Impressum
+          </h1>
+          <div className="accent-line-gold mb-12"></div>
+          
+          <div className="prose prose-invert prose-gold max-w-none">
+            <div className="space-y-8 text-prestige-gray-300">
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Angaben gemäß § 5 TMG
+                </h2>
+                <p className="mb-2"><strong className="text-prestige-gold-500">University Ecom</strong></p>
+                <p className="mb-2">[Firmenname / Inhaber]</p>
+                <p className="mb-2">[Straße und Hausnummer]</p>
+                <p className="mb-2">[PLZ und Ort]</p>
+                <p className="mb-2">[Land]</p>
+              </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>🚧 In Entwicklung</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-6">
-            Das Impressum wird in Phase 1 / Step 10 implementiert mit:
-          </p>
-          <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-            <li>• Vollständige Unternehmensangaben</li>
-            <li>• Geschäftsführer und Verantwortliche</li>
-            <li>• Registereintragungen und Umsatzsteuer-ID</li>
-            <li>• Kontaktdaten und Anschrift</li>
-            <li>• Zuständige Aufsichtsbehörde</li>
-          </ul>
-          <Button asChild>
-            <Link href="/">
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Zur Startseite
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Kontakt
+                </h2>
+                <p className="mb-2">Telefon: +49 170 123 456 78</p>
+                <p className="mb-2">E-Mail: info@universityecom.de</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Umsatzsteuer-ID
+                </h2>
+                <p className="mb-2">
+                  Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:
+                </p>
+                <p>[USt-IdNr.]</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  EU-Streitschlichtung
+                </h2>
+                <p className="mb-4">
+                  Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
+                  <a 
+                    href="https://ec.europa.eu/consumers/odr/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-prestige-gold-500 hover:underline ml-1"
+                  >
+                    https://ec.europa.eu/consumers/odr/
+                  </a>.
+                </p>
+                <p>Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Verbraucherstreitbeilegung/Universalschlichtungsstelle
+                </h2>
+                <p>
+                  Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer 
+                  Verbraucherschlichtungsstelle teilzunehmen.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Haftung für Inhalte
+                </h2>
+                <p className="mb-4">
+                  Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten 
+                  nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als 
+                  Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde 
+                  Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige 
+                  Tätigkeit hinweisen.
+                </p>
+                <p className="mb-4">
+                  Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den 
+                  allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch 
+                  erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei 
+                  Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend 
+                  entfernen.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Haftung für Links
+                </h2>
+                <p className="mb-4">
+                  Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen 
+                  Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. 
+                  Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der 
+                  Seiten verantwortlich.
+                </p>
+                <p className="mb-4">
+                  Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße 
+                  überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-display font-bold text-prestige-white mb-4">
+                  Urheberrecht
+                </h2>
+                <p>
+                  Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen 
+                  dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art 
+                  der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen 
+                  Zustimmung des jeweiligen Autors bzw. Erstellers.
+                </p>
+              </section>
+
+              <p className="text-sm text-prestige-gray-500 mt-12">
+                Zuletzt aktualisiert: Dezember 2024
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

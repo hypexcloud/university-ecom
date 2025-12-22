@@ -4,13 +4,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { hasAdminPrivileges } from "@/lib/role-utils";
 
 export default function MentorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth(); // Remove isAuthenticated
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,12 +22,12 @@ export default function MentorLayout({
       return;
     }
 
-    // Check if user has mentor role
-    if (user.role !== "mentor") {
+    // Only admins can access mentor routes (mentors are now admins in new system)
+    if (!hasAdminPrivileges(user.role)) {
       router.push("/dashboard");
       return;
     }
-  }, [user, loading, router]); // Remove isAuthenticated from dependency array
+  }, [user, loading, router]);
 
   // Show loading while checking auth
   if (loading) {
@@ -40,8 +41,8 @@ export default function MentorLayout({
     );
   }
 
-  // Don't render if user is not authenticated or not a mentor
-  if (!user || user.role !== "mentor") {
+  // Don't render if user is not authenticated or not an admin
+  if (!user || !hasAdminPrivileges(user.role)) {
     return null;
   }
 

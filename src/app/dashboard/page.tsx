@@ -6,33 +6,38 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth(); // Remove isAuthenticated
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
 
     if (!user) {
-      // Change from !isAuthenticated || !user to just !user
       router.push("/login");
       return;
     }
 
-    // Route to appropriate dashboard based on user role
+    // Route to appropriate dashboard based on user role (NEW ROLE SYSTEM)
     switch (user.role) {
       case "admin":
         router.push("/admin");
         break;
-      case "mentor":
-        router.push("/mentor");
-        break;
-      case "teilnehmer":
+      case "kunde":
+        // Kunde (customers) go to student dashboard for now
         router.push("/student");
+        break;
+      case "affiliate":
+        // Affiliates will have their own dashboard in Phase 3
+        router.push("/affiliate");
+        break;
+      case "besucher":
+        // Visitors shouldn't reach here, redirect to home
+        router.push("/");
         break;
       default:
         router.push("/login");
     }
-  }, [user, loading, router]); // Remove isAuthenticated from dependency array
+  }, [user, loading, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

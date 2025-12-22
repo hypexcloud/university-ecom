@@ -5,22 +5,17 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import LoginForm from './login-form'
+import { getDashboardRoute } from '@/lib/role-utils'
 
 export default function LoginPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    // If user is already logged in, redirect to dashboard
+    // If user is already logged in, redirect to appropriate dashboard
     if (!loading && user) {
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.push('/admin')
-      } else if (user.role === 'mentor') {
-        router.push('/mentor/dashboard')
-      } else {
-        router.push('/dashboard')
-      }
+      const dashboardRoute = getDashboardRoute(user.role)
+      router.push(dashboardRoute)
     }
   }, [user, loading, router])
 

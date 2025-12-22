@@ -1,20 +1,7 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-
+// Server-side redirect - this happens during build/SSR
 export default function CoursesPage() {
-  const router = useRouter()
-
-  useEffect(() => {
-    router.replace('/admin/termine')
-  }, [router])
-
-  return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <p className="text-gray-600">Weiterleitung zur neuen Termine-Seite...</p>
-      </div>
-    </div>
-  )
+  // Use Next.js redirect instead of client-side router
+  redirect('/admin/termine')
 }

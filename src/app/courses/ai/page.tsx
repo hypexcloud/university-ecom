@@ -1,237 +1,286 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, BookOpen, Star, Clock, Users, CheckCircle, Video, FileText, MessageSquare } from 'lucide-react'
+import { ArrowRight, BookOpen, CheckCircle2, Crown, Clock, Users, Star, Zap } from 'lucide-react'
 import Link from 'next/link'
-import type { Metadata } from 'next'
+import { AI_COURSE_DATA } from '@/lib/courses-data'
 
-export const metadata: Metadata = {
-  title: 'AI Kurs - Künstliche Intelligenz für Ihr Business',
-  description: 'Lernen Sie, wie Sie ChatGPT und andere AI-Tools professionell für Ihr Business einsetzen. 12 Wochen intensive Ausbildung mit praktischen Übungen.',
+export const metadata = {
+  title: 'AI Automations Kurs - 3 Monate Premium Ausbildung',
+  description: 'Meistern Sie Künstliche Intelligenz für Ihr Business. 3 Monate intensive Ausbildung in AI-Automation, Prompt Engineering und mehr.',
 }
 
-export default function AICourse() {
+export default function AICursePage() {
+  const course = AI_COURSE_DATA
+
   return (
-    <div className="container mx-auto px-6 py-12 space-y-16">
+    <div className="min-h-screen bg-prestige-black">
       {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-          <BookOpen className="h-12 w-12 text-primary" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold">
-          AI Kurs
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Meistern Sie Künstliche Intelligenz für Ihr Business. Von ChatGPT bis zur 
-          vollständigen Automatisierung - lernen Sie praktische AI-Anwendungen, die 
-          Ihren Geschäftserfolg steigern.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-          <Button asChild size="lg" className="text-lg px-8 py-6">
-            <Link href="/pricing/ai">
-              Jetzt einschreiben
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-            <Link href="#curriculum">
-              Lehrplan ansehen
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Course Overview */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        <Card>
-          <CardHeader className="text-center">
-            <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>12 Wochen</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Intensive Ausbildung mit wöchentlichen Modulen</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="text-center">
-            <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>250+ Studenten</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Aktive Community von AI-Enthusiasten</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="text-center">
-            <Star className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <CardTitle>4.9/5 Bewertung</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Durchschnittliche Studentenbewertung</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* What You'll Learn */}
-      <div className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Was Sie lernen werden</h2>
-          <p className="text-xl text-muted-foreground">
-            Praktische AI-Fähigkeiten für moderne Unternehmer
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {[
-            {
-              title: 'ChatGPT Mastery',
-              description: 'Professioneller Umgang mit ChatGPT für Business-Anwendungen, Prompt Engineering und beste Praktiken.',
-              icon: MessageSquare
-            },
-            {
-              title: 'Business Automatisierung',
-              description: 'Automatisieren Sie wiederkehrende Aufgaben mit AI-Tools und steigern Sie Ihre Produktivität.',
-              icon: CheckCircle
-            },
-            {
-              title: 'Content Creation',
-              description: 'Erstellen Sie hochwertige Inhalte für Marketing, Social Media und Kundenkommunikation.',
-              icon: FileText
-            },
-            {
-              title: 'Kundenservice AI',
-              description: 'Implementieren Sie AI-gestützte Chatbots und automatisierte Kundenbetreuung.',
-              icon: Users
-            },
-            {
-              title: 'Datenanalyse mit AI',
-              description: 'Nutzen Sie AI für Business Intelligence und datengestützte Entscheidungen.',
-              icon: BookOpen
-            },
-            {
-              title: 'AI Tool Integration',
-              description: 'Integrieren Sie verschiedene AI-Tools in Ihre bestehenden Geschäftsprozesse.',
-              icon: Video
-            }
-          ].map((item, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
+      <section className="section-prestige px-6 py-20 md:py-28">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column */}
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="inline-flex items-center space-x-2 bg-prestige-gold-500/10 border border-prestige-gold-500/30 rounded-full px-4 py-2">
+                <BookOpen className="h-4 w-4 text-prestige-gold-500" />
+                <span className="text-prestige-gold-500 text-sm font-semibold">3 Monate Intensiv-Programm</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl font-display font-bold text-prestige-white">
+                AI Automations
+                <br />
+                <span className="text-gradient-gold">Kurs</span>
+              </h1>
+              
+              <p className="text-xl text-prestige-gray-300 leading-relaxed">
+                Meistern Sie Künstliche Intelligenz und automatisieren Sie Ihr Business. Von den Grundlagen bis zur vollständigen Implementation.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 pt-4">
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Clock className="h-5 w-5 text-prestige-gold-500" />
+                  <span>90 Tage</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{item.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Curriculum */}
-      <div id="curriculum" className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Lehrplan</h2>
-          <p className="text-xl text-muted-foreground">
-            12 Wochen strukturiertes Lernen
-          </p>
-        </div>
-
-        <div className="grid gap-4">
-          {[
-            {
-              week: 1,
-              title: 'AI Grundlagen & ChatGPT Einführung',
-              topics: ['AI Landschaft verstehen', 'ChatGPT Setup', 'Erste Prompts', 'Sicherheit & Ethik']
-            },
-            {
-              week: 2,
-              title: 'Advanced Prompting Techniken',
-              topics: ['Prompt Engineering', 'Context Management', 'Multi-Step Prompts', 'Output Optimierung']
-            },
-            {
-              week: 3,
-              title: 'Business Process Automation',
-              topics: ['Workflow Analyse', 'Automatisierungsstrategien', 'Tool Integration', 'ROI Messung']
-            },
-            {
-              week: 4,
-              title: 'Content Creation Mastery',
-              topics: ['Marketing Content', 'Social Media Posts', 'Blog Artikel', 'E-Mail Kampagnen']
-            },
-            {
-              week: 5,
-              title: 'Kundenservice Revolution',
-              topics: ['Chatbot Entwicklung', 'Ticket Automatisierung', 'FAQ Generation', 'Sentiment Analyse']
-            },
-            {
-              week: 6,
-              title: 'Datenanalyse & Insights',
-              topics: ['Data Processing', 'Report Generation', 'Trend Analyse', 'Predictive Analytics']
-            }
-          ].map((module, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">Woche {module.week}: {module.title}</CardTitle>
-                  </div>
-                  <div className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                    Woche {module.week}
-                  </div>
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Users className="h-5 w-5 text-prestige-gold-500" />
+                  <span>Max. 28 Teilnehmer</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {module.topics.map((topic, topicIndex) => (
-                    <div key={topicIndex} className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{topic}</span>
+                <div className="flex items-center space-x-2 text-prestige-gray-300">
+                  <Star className="h-5 w-5 text-prestige-gold-500" />
+                  <span>1:1 Mentoring verfügbar</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <Button asChild size="lg" className="btn-gold text-lg px-8 py-6">
+                  <Link href="#plaene">
+                    Jetzt starten
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="btn-prestige text-lg px-8 py-6">
+                  <Link href="/contact">
+                    Erstgespräch buchen
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            {/* Right Column */}
+            <div className="relative">
+              <div className="card-prestige p-8 space-y-4">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-display font-bold text-prestige-white">Kurs-Highlights</h3>
+                  <Crown className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                {[
+                  'AI Grundlagen & Theorie',
+                  'Praktisches Prompt Engineering',
+                  'Business Automationen',
+                  'Content & Marketing AI',
+                  'Chatbot-Entwicklung',
+                  'Performance-Optimierung'
+                ].map((highlight, i) => (
+                  <div key={i} className="flex items-start space-x-3">
+                    <CheckCircle2 className="h-5 w-5 text-prestige-gold-500 mt-1 flex-shrink-0" />
+                    <span className="text-prestige-gray-200">{highlight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Course Modules */}
+      <section className="px-6 py-20 bg-prestige-black">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Kurs-Module
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300 max-w-2xl mx-auto">
+              6 umfassende Module über 12 Wochen
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {course.modules.map((module, i) => (
+              <Card key={module.id} className="card-prestige hover:border-prestige-gold-500/60 transition-all">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-prestige-gold-500 text-sm font-semibold">Woche {module.week}-{module.week! + 1}</span>
+                    <div className="w-8 h-8 bg-prestige-gold-500/10 rounded-full flex items-center justify-center text-prestige-gold-500 text-sm font-bold">
+                      {i + 1}
                     </div>
-                  ))}
+                  </div>
+                  <CardTitle className="text-prestige-white">{module.titleDE}</CardTitle>
+                  <CardDescription className="text-prestige-gray-400">
+                    {module.descriptionDE}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {module.topics.map((topic, j) => (
+                      <div key={j} className="flex items-start space-x-2 text-sm text-prestige-gray-300">
+                        <Zap className="h-4 w-4 text-prestige-gold-500 mt-0.5 flex-shrink-0" />
+                        <span>{topic}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section id="plaene" className="section-prestige px-6 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Wählen Sie Ihren Plan
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300">
+              Drei Optionen für Ihren Erfolg
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {course.plans.map((plan, i) => {
+              const isPopular = plan.name === 'business'
+              return (
+                <Card 
+                  key={plan.id} 
+                  className={`card-prestige text-center relative ${
+                    isPopular ? 'border-prestige-gold-500 shadow-gold' : ''
+                  }`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-prestige-gold-500 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
+                      BELIEBT
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-prestige-gold-500 text-2xl mb-2">
+                      {plan.displayNameDE}
+                    </CardTitle>
+                    <div className="text-5xl font-bold text-prestige-white mb-4">
+                      €{plan.price.toLocaleString('de-DE')}
+                    </div>
+                    <CardDescription className="text-prestige-gray-400">
+                      {plan.descriptionDE}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3 mb-6">
+                      {plan.featuresDE.map((feature, j) => (
+                        <div key={j} className="flex items-start text-left text-sm text-prestige-gray-300">
+                          <CheckCircle2 className="h-4 w-4 text-prestige-gold-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button 
+                      asChild 
+                      className={isPopular ? 'btn-gold w-full' : 'btn-prestige w-full'}
+                    >
+                      <Link href="/contact">
+                        Plan wählen
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Course */}
+      <section className="px-6 py-20 bg-prestige-black">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Warum dieser Kurs?
+            </h2>
+            <div className="accent-line-gold mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="card-prestige text-center">
+              <CardHeader>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Zap className="h-8 w-8 text-prestige-gold-500" />
                 </div>
+                <CardTitle className="text-prestige-gold-500">Praxisorientiert</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-prestige-gray-300">
+                  Keine Theorie-Schlacht. Jedes Modul beinhaltet direkt umsetzbare Projekte für Ihr Business.
+                </p>
               </CardContent>
             </Card>
-          ))}
-        </div>
 
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">
-            + 6 weitere Wochen mit fortgeschrittenen Themen und praktischen Projekten
-          </p>
-          <Button asChild variant="outline">
-            <Link href="/pricing/ai">
-              Vollständigen Lehrplan anzeigen
-            </Link>
-          </Button>
+            <Card className="card-prestige text-center">
+              <CardHeader>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                <CardTitle className="text-prestige-gold-500">1:1 Mentoring</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-prestige-gray-300">
+                  Persönliche Betreuung durch erfahrene AI-Experten. Ihre Fragen, Ihre Lösungen.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="card-prestige text-center">
+              <CardHeader>
+                <div className="mx-auto w-16 h-16 bg-prestige-gold-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Crown className="h-8 w-8 text-prestige-gold-500" />
+                </div>
+                <CardTitle className="text-prestige-gold-500">Exklusiv</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-prestige-gray-300">
+                  Limitierte Teilnehmerzahl für maximale Qualität und individuelle Aufmerksamkeit.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* CTA Section */}
-      <div className="bg-primary/5 rounded-lg p-8 text-center">
-        <h2 className="text-3xl font-bold mb-4">Bereit, AI zu meistern?</h2>
-        <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-          Schließen Sie sich hunderten erfolgreicher Unternehmer an und transformieren 
-          Sie Ihr Business mit Künstlicher Intelligenz.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" className="text-lg px-8 py-6">
-            <Link href="/pricing/ai">
-              Jetzt einschreiben
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
-            <Link href="/courses/dropshipping">
-              Dropshipping Kurs ansehen
-            </Link>
-          </Button>
+      <section className="px-6 py-24 section-prestige">
+        <div className="container mx-auto max-w-4xl text-center">
+          <Crown className="w-16 h-16 text-prestige-gold-500 mx-auto mb-6" />
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-6">
+            Bereit für die AI-Revolution?
+          </h2>
+          <div className="accent-line-gold mx-auto mb-6"></div>
+          <p className="text-xl text-prestige-gray-300 mb-8 max-w-2xl mx-auto">
+            Starten Sie jetzt und transformieren Sie Ihr Business mit Künstlicher Intelligenz.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="btn-gold text-lg px-10 py-7">
+              <Link href="/contact">
+                Erstgespräch buchen
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="btn-prestige text-lg px-10 py-7">
+              <Link href="/pricing">
+                Alle Pläne vergleichen
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

@@ -7,11 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Loader2, Lock, LogIn } from 'lucide-react'
 import Link from 'next/link'
+import { UserRole } from '@/lib/types'
+import { hasAdminPrivileges, hasCustomerAccess, hasAffiliateAccess } from '@/lib/role-utils'
 
 interface ProtectedRouteProps {
   children: ReactNode
   requireAuth?: boolean
-  requireRole?: 'admin' | 'mentor' | 'teilnehmer'
+  requireRole?: UserRole
   redirectTo?: string
   fallback?: ReactNode
 }
@@ -142,16 +144,22 @@ export function withAuth<P extends object>(
   }
 }
 
-// Hook for conditional rendering based on auth state
+// Hook for conditional rendering based on auth state - UPDATED FOR NEW ROLES
 export function useAuthGuard() {
   const { user, loading } = useAuth()
 
   return {
     isAuthenticated: !!user,
     isLoading: loading,
-    hasRole: (role: string) => user?.role === role,
-    isTeilnehmer: user?.role === 'teilnehmer',
-    isMentor: user?.role === 'mentor',
+    hasRole: (role: UserRole) => user?.role === role,
+    // New role system helpers
+    isKunde: user?.role === 'kunde',
+    isAffiliate: user?.role === 'affiliate',
     isAdmin: user?.role === 'admin',
+    isBesucher: user?.role === 'besucher',
+    // Permission helpers
+    hasAdminAccess: user ? hasAdminPrivileges(user.role) : false,
+    hasCustomerAccess: user ? hasCustomerAccess(user.role) : false,
+    hasAffiliateAccess: user ? hasAffiliateAccess(user.role) : false,
   }
 }

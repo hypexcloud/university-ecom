@@ -4,48 +4,73 @@
 
 @layer base {
   :root {
+    /* Updated to Prestige Theme - Black + Royal Gold */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 0%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 0%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 9% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 0 0% 0%;
+    
+    /* Primary = Royal Gold */
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 0%;
+    
+    /* Secondary = Black */
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    
+    /* Accent = Gold Lighter */
+    --accent: 43 100% 59%;
+    --accent-foreground: 0 0% 0%;
+    
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 43 74% 49%;
+    
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    /* Dark mode optimized for prestige */
+    --background: 0 0% 0%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    
+    /* Primary = Royal Gold */
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 0%;
+    
+    /* Secondary = Dark Gray */
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+    
+    /* Accent = Gold */
+    --accent: 43 100% 59%;
+    --accent-foreground: 0 0% 0%;
+    
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 43 74% 49%;
   }
 }
 
@@ -53,7 +78,110 @@
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Prestige Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+  
+  /* Smooth animations */
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Prestige Button Styles */
+  .btn-prestige {
+    @apply bg-prestige-black text-prestige-gold-500 border-2 border-prestige-gold-500;
+    @apply hover:bg-prestige-gold-500 hover:text-prestige-black;
+    @apply transition-all duration-300 ease-in-out;
+    @apply shadow-prestige hover:shadow-gold;
+  }
+  
+  .btn-gold {
+    @apply bg-prestige-gold-500 text-prestige-black border-2 border-prestige-gold-600;
+    @apply hover:bg-prestige-gold-600 hover:shadow-gold-lg;
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Prestige Card */
+  .card-prestige {
+    @apply bg-prestige-black border border-prestige-gold-500/20;
+    @apply hover:border-prestige-gold-500/40 hover:shadow-prestige;
+    @apply transition-all duration-300;
+  }
+  
+  /* Gold Gradient Text */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-prestige-gold-400 via-prestige-gold-500 to-prestige-gold-600;
+    @apply bg-clip-text text-transparent;
+  }
+  
+  /* Prestige Section */
+  .section-prestige {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+  }
+  
+  /* Gold Accent Line */
+  .accent-line-gold {
+    @apply w-20 h-1 bg-gradient-to-r from-transparent via-prestige-gold-500 to-transparent;
+  }
+  
+  /* Hover Glow Effect */
+  .hover-glow {
+    @apply relative;
+    transition: all 0.3s ease;
+  }
+  
+  .hover-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-prestige-glow opacity-0 transition-opacity duration-300;
+    pointer-events: none;
+  }
+  
+  .hover-glow:hover::before {
+    @apply opacity-100;
+  }
+  
+  /* Animated Underline */
+  .underline-gold {
+    @apply relative inline-block;
+  }
+  
+  .underline-gold::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-prestige-gold-500;
+    transition: width 0.3s ease;
+  }
+  
+  .underline-gold:hover::after {
+    @apply w-full;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar for prestige theme */
+  .scrollbar-prestige::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-prestige::-webkit-scrollbar-track {
+    @apply bg-prestige-black;
+  }
+  
+  .scrollbar-prestige::-webkit-scrollbar-thumb {
+    @apply bg-prestige-gold-500/30 rounded;
+  }
+  
+  .scrollbar-prestige::-webkit-scrollbar-thumb:hover {
+    @apply bg-prestige-gold-500/50;
   }
 }

@@ -1,59 +1,108 @@
 import { Timestamp } from 'firebase/firestore'
 
-// Course Types
-export type CourseType = 'ai' | 'dropshipping'
+// ==========================================
+// NEW ROLE SYSTEM (Phase 1 Update)
+// ==========================================
+export type UserRole = 'besucher' | 'kunde' | 'affiliate' | 'admin'
 
-export type PlanType = 'pro' | 'max'
+// Legacy role support for migration
+export type LegacyRole = 'student' | 'instructor' | 'mentor' | 'teilnehmer'
 
-export interface Course {
-  id: string
-  type: CourseType
-  title: string
-  description: string
-  price: {
-    pro: number
-    max: number
-  }
-  duration: number // weeks
-  modules: CourseModule[]
-  features: string[]
-  isActive: boolean
-  createdAt: Timestamp
-  updatedAt: Timestamp
-}
+// Course Types - Updated for new structure
+export type CourseType = 'ai' | 'dropshipping' | 'creator-tiktok' | 'creator-youtube'
 
-export interface CourseModule {
-  id: string
-  week: number
-  title: string
-  description: string
-  topics: string[]
-  videoUrl?: string
-  resources: Resource[]
-  isLocked: boolean
-}
+export type PlanType = 'fast' | 'business' | 'infinity'
 
-export interface Resource {
-  id: string
-  title: string
-  type: 'pdf' | 'video' | 'link' | 'template'
-  url: string
-  description?: string
-}
-
-// User Types
+// ==========================================
+// USER TYPES (UPDATED)
+// ==========================================
 export interface User {
   uid: string
   email: string
+  
+  // New required fields
+  role: UserRole
+  firstName: string
+  lastName: string
+  
+  // Optional contact
+  phone?: string
+  discord?: string
+  
+  // Optional profile
   displayName?: string
   photoURL?: string
-  role: 'student' | 'admin' | 'instructor'
-  profile: UserProfile
+  address?: Address
+  birthDate?: Timestamp
+  
+  // Role-specific data
+  kundeData?: KundeData
+  affiliateData?: AffiliateData
+  
+  // Attribution & tracking
+  leadSource?: LeadSource
+  
+  // Metadata
   createdAt: Timestamp
   updatedAt: Timestamp
   lastLoginAt?: Timestamp
+  
+  // Migration support
+  version: number
+  _legacy_role?: LegacyRole
+  _legacy_name?: string
+  
+  // Legacy fields (kept for backward compatibility)
+  profile?: UserProfile
 }
 
+export interface Address {
+  street: string
+  zipCode: string
+  city: string
+  country: string
+}
+
+export interface KundeData {
+  enrolledCourses: string[] // courseEnrollment IDs
+  totalSpent: number
+  lastPurchaseDate?: Timestamp
+  preferences?: {
+    language: 'de' | 'en'
+    notifications: {
+      email: boolean
+      whatsapp: boolean
+      discord: boolean
+    }
+  }
+}
+
+export interface AffiliateData {
+  status: 'pending' | 'approved' | 'active' | 'suspended' | 'banned'
+  applicationDate: Timestamp
+  approvalDate?: Timestamp
+  testScore?: number
+  testDate?: Timestamp
+  level: 'neuling' | 'experte' | 'master' | 'prestige'
+  commissionRate: number
+  stats: {
+    invitedLeads: number
+    convertedLeads: number
+    activeLeads: number
+    totalEarnings: number
+    paidEarnings: number
+    pendingEarnings: number
+  }
+}
+
+export interface LeadSource {
+  type: 'google' | 'youtube' | 'social_media' | 'creator' | 'direct'
+  affiliateId?: string
+  timestamp: Timestamp
+  details?: string
+}
+
+// Legacy User Profile (kept for backward compatibility)
 export interface UserProfile {
   firstName?: string
   lastName?: string
@@ -71,15 +120,97 @@ export interface UserProfile {
   }
 }
 
-// Enrollment Types
+// ==========================================
+// COURSE TYPES (UPDATED FOR V2)
+// ==========================================
+export interface Course {
+  id: string
+  type: CourseType
+  name: string
+  nameDE: string
+  description: string
+  descriptionDE: string
+  duration: number // days: 60, 90, or 30
+  isActive: boolean
+  
+  modules: CourseModule[]
+  plans: CoursePlan[]
+  
+  // Marketing
+  features: string[]
+  featuresDE: string[]
+  
+  // Metadata
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface CoursePlan {
+  id: string
+  name: PlanType
+  nameDE: string
+  displayName: string
+  displayNameDE: string
+  price: number
+  currency: 'EUR'
+  features: string[]
+  featuresDE: string[]
+  includes1to1: boolean
+  maxSlots?: number
+  mentorId?: string
+  description?: string
+  descriptionDE?: string
+}
+
+export interface CourseModule {
+  id: string
+  order: number
+  week?: number
+  title: string
+  titleDE?: string
+  description: string
+  descriptionDE?: string
+  durationWeeks?: number
+  topics: string[]
+  resources: Resource[]
+  videoUrl?: string
+  isLocked: boolean
+}
+
+export interface Resource {
+  id: string
+  title: string
+  titleDE?: string
+  type: 'pdf' | 'video' | 'link' | 'template'
+  url: string
+  description?: string
+  descriptionDE?: string
+}
+
+// ==========================================
+// ENROLLMENT TYPES
+// ==========================================
 export interface Enrollment {
   id: string
   userId: string
   courseId: string
   courseType: CourseType
   planType: PlanType
+  orderId: string
+  
   status: 'active' | 'completed' | 'cancelled' | 'refunded'
   progress: CourseProgress
+  
+  // Dates
+  startDate: Timestamp
+  endDate: Timestamp
+  completionDate?: Timestamp
+  
+  // For plans with 1:1
+  mentorId?: string
+  scheduledSessions?: number
+  completedSessions?: number
+  
   purchaseDetails: {
     amount: number
     currency: string
@@ -87,22 +218,24 @@ export interface Enrollment {
     transactionId: string
     purchaseDate: Timestamp
   }
+  
   accessDetails: {
-    startDate: Timestamp
-    expiryDate?: Timestamp // null for lifetime access
+    expiryDate?: Timestamp
     whatsappAccess: boolean
     discordAccess: boolean
     mentoringSessionsRemaining?: number
   }
+  
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
 export interface CourseProgress {
   currentWeek: number
-  completedModules: string[] // module IDs
-  totalProgress: number // percentage 0-100
-  weeklyFeedback: WeeklyFeedback[]
+  currentModule?: number
+  completedModules: string[]
+  totalProgress: number // 0-100
+  weeklyFeedback?: WeeklyFeedback[]
   lastAccessedAt: Timestamp
 }
 
@@ -111,9 +244,9 @@ export interface WeeklyFeedback {
   submitted: boolean
   submittedAt?: Timestamp
   responses: {
-    understanding: number // 1-5 scale
-    implementation: number // 1-5 scale
-    satisfaction: number // 1-5 scale
+    understanding: number
+    implementation: number
+    satisfaction: number
     challenges: string
     wins: string
     questions: string
@@ -121,7 +254,237 @@ export interface WeeklyFeedback {
   }
 }
 
-// Support Types
+// ==========================================
+// AFFILIATE SYSTEM (NEW)
+// ==========================================
+export interface Affiliate {
+  userId: string
+  
+  // Application
+  applicationData: {
+    socialMedia: SocialMediaHandle[]
+    motivation?: string
+    applicationDate: Timestamp
+  }
+  
+  // Status
+  status: 'pending' | 'approved' | 'active' | 'suspended' | 'banned'
+  approvalDate?: Timestamp
+  suspensionReason?: string
+  
+  // Test
+  testScore?: number
+  testDate?: Timestamp
+  testPassed: boolean
+  
+  // Level & Commission
+  level: 'neuling' | 'experte' | 'master' | 'prestige'
+  commissionRate: number
+  
+  // Stats
+  stats: {
+    invitedLeads: number
+    convertedLeads: number
+    activeLeads: number
+    totalEarnings: number
+    paidEarnings: number
+    pendingEarnings: number
+    currentMonthInvitations: number
+    currentWeekInvitations: number
+  }
+  
+  // Payout
+  payoutMethod: 'paypal' | 'bank'
+  payoutDetails: PayoutDetails
+  
+  // Achievements
+  badges: ('gold' | 'diamond' | 'prestige')[]
+  monthlyRank?: number
+  
+  // Permissions
+  canSelfClose: boolean
+  
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface SocialMediaHandle {
+  platform: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'linkedin' | 'xing' | 'telegram' | 'discord'
+  handle: string
+  url?: string
+}
+
+export interface PayoutDetails {
+  paypal?: {
+    email: string
+  }
+  bank?: {
+    accountHolder: string
+    iban: string
+    bic?: string
+    bankName: string
+  }
+}
+
+export interface Lead {
+  id: string
+  userId: string
+  affiliateId?: string
+  
+  source: 'google' | 'youtube' | 'social_media' | 'creator' | 'direct'
+  sourceDetail?: string
+  
+  status: 'invited' | 'contacted' | 'converted' | 'lost'
+  
+  // Journey
+  invitedAt: Timestamp
+  contactedAt?: Timestamp
+  convertedAt?: Timestamp
+  lostAt?: Timestamp
+  
+  // Conversion
+  orderId?: string
+  conversionValue?: number
+  commissionAmount?: number
+  commissionPaid: boolean
+  
+  // Erstgespräch
+  erstgespraechBooked: boolean
+  erstgespraechDate?: Timestamp
+  erstgespraechCompleted: boolean
+  
+  notes?: string
+  
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface Payout {
+  id: string
+  affiliateId: string
+  
+  // Period
+  periodStart: Timestamp
+  periodEnd: Timestamp
+  month: string
+  
+  // Amount
+  totalEarnings: number
+  previousBalance: number
+  amount: number
+  
+  // Method
+  method: 'paypal' | 'bank'
+  payoutDetails: PayoutDetails
+  
+  // Status
+  status: 'pending' | 'approved' | 'processing' | 'completed' | 'failed'
+  approvedBy?: string
+  approvedAt?: Timestamp
+  transactionId?: string
+  completedAt?: Timestamp
+  
+  // Reference
+  includedLeads: string[]
+  notes?: string
+  
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+// ==========================================
+// ORDER & PAYMENT TYPES (NEW)
+// ==========================================
+export interface Order {
+  id: string
+  orderNumber: string
+  userId: string
+  
+  // Products
+  items: OrderItem[]
+  
+  // Pricing
+  subtotal: number
+  tax: number
+  total: number
+  currency: 'EUR'
+  
+  // Payment
+  paymentMethod: 'stripe' | 'paypal' | 'crypto' | 'invoice'
+  paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+  paymentId?: string
+  
+  // Invoice
+  invoiceGenerated: boolean
+  invoiceUrl?: string
+  invoiceNumber?: string
+  
+  // Billing
+  billingAddress: Address
+  
+  // Attribution
+  affiliateId?: string
+  leadId?: string
+  commissionDue: number
+  commissionRate: number
+  commissionPaid: boolean
+  
+  // Erstgespräch
+  erstgespraechRequested: boolean
+  erstgespraechAppointmentId?: string
+  
+  // Status
+  status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled' | 'refunded'
+  
+  // Fulfillment
+  courseEnrollmentId?: string
+  accessGranted: boolean
+  accessGrantedAt?: Timestamp
+  
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface OrderItem {
+  type: 'course' | 'creator-program'
+  courseId: string
+  planId: string
+  name: string
+  quantity: number
+  price: number
+}
+
+export interface Payment {
+  id: string
+  userId: string
+  orderId: string
+  enrollmentId?: string
+  
+  amount: number
+  currency: string
+  
+  status: 'pending' | 'completed' | 'failed' | 'refunded'
+  paymentMethod: 'stripe' | 'paypal' | 'coinbase' | 'crypto' | 'invoice'
+  
+  providerPaymentId: string
+  providerCustomerId?: string
+  
+  metadata: {
+    courseType: CourseType
+    planType: PlanType
+    customerEmail: string
+    customerName?: string
+  }
+  
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  completedAt?: Timestamp
+  refundedAt?: Timestamp
+}
+
+// ==========================================
+// SUPPORT TYPES
+// ==========================================
 export interface SupportTicket {
   id: string
   userId: string
@@ -130,7 +493,7 @@ export interface SupportTicket {
   category: 'technical' | 'course' | 'billing' | 'general'
   priority: 'low' | 'medium' | 'high' | 'urgent'
   status: 'open' | 'in_progress' | 'waiting_response' | 'resolved' | 'closed'
-  assignedTo?: string // admin/instructor uid
+  assignedTo?: string
   messages: SupportMessage[]
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -141,14 +504,49 @@ export interface SupportMessage {
   id: string
   ticketId: string
   senderId: string
-  senderRole: 'student' | 'admin' | 'instructor'
+  senderRole: UserRole
   message: string
   attachments?: string[]
-  isInternal: boolean // internal notes for staff
+  isInternal: boolean
   createdAt: Timestamp
 }
 
-// Community Types
+// ==========================================
+// INTAKE TYPES
+// ==========================================
+export interface IntakeResponse {
+  id: string
+  email: string
+  responses: {
+    firstName: string
+    lastName: string
+    company?: string
+    industry?: string
+    currentExperience: 'none' | 'beginner' | 'intermediate' | 'advanced'
+    primaryGoal: string
+    timeCommitment: 'part-time' | 'full-time' | 'weekends'
+    budget: 'under-1k' | '1k-5k' | '5k-10k' | '10k-plus'
+    interestedCourse: CourseType[]
+    preferredPlan: PlanType
+    motivation: string
+    expectedOutcome: string
+    challenges: string[]
+    timeZone: string
+    country: string
+    preferredLanguage: 'de' | 'en'
+    howDidYouHear: string
+    marketingConsent: boolean
+  }
+  status: 'pending' | 'reviewed' | 'approved' | 'rejected'
+  reviewNotes?: string
+  reviewedBy?: string
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+// ==========================================
+// COMMUNITY TYPES
+// ==========================================
 export interface CommunityAccess {
   userId: string
   whatsappGroups: {
@@ -172,76 +570,13 @@ export interface CommunityAccess {
   updatedAt: Timestamp
 }
 
-// Payment Types
-export interface Payment {
-  id: string
-  userId: string
-  enrollmentId: string
-  amount: number
-  currency: string
-  status: 'pending' | 'completed' | 'failed' | 'refunded'
-  paymentMethod: 'stripe' | 'paypal' | 'coinbase'
-  providerPaymentId: string
-  providerCustomerId?: string
-  metadata: {
-    courseType: CourseType
-    planType: PlanType
-    customerEmail: string
-    customerName?: string
-  }
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  completedAt?: Timestamp
-  refundedAt?: Timestamp
-}
-
-// Intake Types (Pre-purchase questionnaire)
-export interface IntakeResponse {
-  id: string
-  email: string
-  responses: {
-    // Personal Information
-    firstName: string
-    lastName: string
-    company?: string
-    industry?: string
-    
-    // Experience & Goals
-    currentExperience: 'none' | 'beginner' | 'intermediate' | 'advanced'
-    primaryGoal: string
-    timeCommitment: 'part-time' | 'full-time' | 'weekends'
-    budget: 'under-1k' | '1k-5k' | '5k-10k' | '10k-plus'
-    
-    // Course Specific
-    interestedCourse: CourseType[]
-    preferredPlan: PlanType
-    
-    // Motivation & Expectations
-    motivation: string
-    expectedOutcome: string
-    challenges: string[]
-    
-    // Logistics
-    timeZone: string
-    country: string
-    preferredLanguage: 'de' | 'en'
-    
-    // Marketing
-    howDidYouHear: string
-    marketingConsent: boolean
-  }
-  status: 'pending' | 'reviewed' | 'approved' | 'rejected'
-  reviewNotes?: string
-  reviewedBy?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-}
-
-// Analytics Types
+// ==========================================
+// ANALYTICS & ADMIN TYPES
+// ==========================================
 export interface UserActivity {
   id: string
   userId: string
-  action: 'login' | 'logout' | 'module_start' | 'module_complete' | 'feedback_submit' | 'support_ticket' | 'community_join'
+  action: 'login' | 'logout' | 'module_start' | 'module_complete' | 'feedback_submit' | 'support_ticket' | 'community_join' | 'purchase' | 'affiliate_apply'
   details: Record<string, any>
   metadata: {
     userAgent?: string
@@ -251,7 +586,6 @@ export interface UserActivity {
   createdAt: Timestamp
 }
 
-// Admin Types
 export interface AdminSettings {
   id: 'global'
   courses: {
@@ -287,10 +621,10 @@ export interface AdminSettings {
   }
   support: {
     businessHours: {
-      start: string // "09:00"
-      end: string // "17:00"
+      start: string
+      end: string
       timezone: string
-      workingDays: number[] // [1,2,3,4,5] for Mon-Fri
+      workingDays: number[]
     }
     autoResponder: {
       enabled: boolean
@@ -301,15 +635,17 @@ export interface AdminSettings {
   updatedBy: string
 }
 
-// Email Types
+// ==========================================
+// EMAIL TYPES
+// ==========================================
 export interface EmailTemplate {
   id: string
   name: string
   subject: string
   htmlContent: string
   textContent: string
-  variables: string[] // placeholder variables
-  category: 'welcome' | 'course' | 'support' | 'marketing' | 'system'
+  variables: string[]
+  category: 'welcome' | 'course' | 'support' | 'marketing' | 'system' | 'affiliate'
   isActive: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -330,7 +666,9 @@ export interface EmailLog {
   clickedAt?: Timestamp
 }
 
-// Utility Types
+// ==========================================
+// UTILITY TYPES
+// ==========================================
 export type FirestoreTimestamp = Timestamp
 export type DocumentId = string
 
@@ -347,6 +685,12 @@ export const COLLECTIONS = {
   ADMIN_SETTINGS: 'admin_settings',
   EMAIL_TEMPLATES: 'email_templates',
   EMAIL_LOGS: 'email_logs',
+  // New collections
+  AFFILIATES: 'affiliates',
+  LEADS: 'leads',
+  ORDERS: 'orders',
+  PAYOUTS: 'payouts',
+  LEADERBOARD: 'leaderboard',
 } as const
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS]

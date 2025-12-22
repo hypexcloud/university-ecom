@@ -65,11 +65,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (!existingUser) {
         // Create new user profile with UID as document ID
         const newUserData: Omit<AppUser, 'createdAt' | 'updatedAt'> = {
-          uid: firebaseUser.uid, // Include UID for document creation
+          uid: firebaseUser.uid,
           email: firebaseUser.email!,
           displayName: firebaseUser.displayName || additionalData?.displayName || '',
           photoURL: firebaseUser.photoURL || additionalData?.photoURL || '',
-          role: 'student',
+          // NEW ROLE SYSTEM: Default to 'kunde' for new users
+          role: 'kunde',
+          // Required fields for new role system
+          firstName: additionalData?.profile?.firstName || '',
+          lastName: additionalData?.profile?.lastName || '',
+          version: 2,
           profile: {
             firstName: additionalData?.profile?.firstName || '',
             lastName: additionalData?.profile?.lastName || '',

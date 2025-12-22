@@ -1,8 +1,8 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Navbar } from '@/components/layout/navbar'
-import { Footer } from '@/components/layout/footer'
+import { PrestigeHeader } from '@/components/prestige-header'
+import { PrestigeFooter } from '@/components/prestige-footer'
 
 interface ConditionalLayoutProps {
   children: React.ReactNode
@@ -11,24 +11,27 @@ interface ConditionalLayoutProps {
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname()
   
-  // Check if current route is a dashboard route (admin, mentor, or student)
+  // Check if current route is a dashboard route (admin, mentor, student, dashboard, or login)
   const isDashboardRoute = pathname.startsWith('/admin') || 
                           pathname.startsWith('/mentor') || 
-                          pathname.startsWith('/student')
+                          pathname.startsWith('/student') ||
+                          pathname.startsWith('/dashboard') ||
+                          pathname.startsWith('/login') ||
+                          pathname.startsWith('/register')
   
   // For dashboard routes, render children directly without homepage header/footer
   if (isDashboardRoute) {
     return <>{children}</>
   }
   
-  // For non-dashboard routes, render with homepage layout
+  // For non-dashboard routes, render with prestige homepage layout
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
+    <div className="flex min-h-screen flex-col bg-prestige-black">
+      <PrestigeHeader />
       <main className="flex-1">
         {children}
       </main>
-      <Footer />
+      <PrestigeFooter />
     </div>
   )
 }
