@@ -16,7 +16,8 @@ import {
   MenuIcon,
   XIcon,
   TrendingUp,
-  Video
+  FileText,
+  Sparkles
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -34,10 +35,10 @@ const navigation = [
     description: 'Kursinhalte und Module'
   },
   {
-    name: 'Termine',
+    name: 'Sessions',
     href: '/student/termine',
     icon: CalendarIcon,
-    description: 'Mentoring-Termine'
+    description: 'Coaching-Termine'
   },
   {
     name: 'Fortschritt',
@@ -49,13 +50,25 @@ const navigation = [
     name: 'Erfolge',
     href: '/student/erfolge',
     icon: Award,
-    description: 'Errungenschaften und Zertifikate'
+    description: 'Errungenschaften'
+  },
+  {
+    name: 'Rechnungen',
+    href: '/student/rechnungen',
+    icon: FileText,
+    description: 'Zahlungen & Rechnungen'
+  },
+  {
+    name: 'Custom AI',
+    href: '/student/custom-ai',
+    icon: Sparkles,
+    description: 'Dein persönlicher AI-Assistent'
   },
   {
     name: 'Nachrichten',
     href: '/student/nachrichten',
     icon: MessageSquare,
-    description: 'Kommunikation mit Mentor'
+    description: 'Chat mit Coach'
   },
   {
     name: 'Einstellungen',
@@ -86,10 +99,10 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">S</span>
+              <span className="text-white font-bold text-sm">UE</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">Student Portal</h1>
+              <h1 className="font-bold text-gray-900">University Ecom</h1>
               <p className="text-xs text-gray-500">{user?.name}</p>
             </div>
           </div>
@@ -113,11 +126,11 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">S</span>
+                <span className="text-white font-bold text-sm">UE</span>
               </div>
               <div>
-                <h1 className="font-bold text-gray-900">Student Portal</h1>
-                <p className="text-xs text-gray-500">Lernsystem</p>
+                <h1 className="font-bold text-gray-900">University Ecom</h1>
+                <p className="text-xs text-gray-500">Kunden-Portal</p>
               </div>
             </div>
           </div>
@@ -165,11 +178,11 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-blue-600 font-medium text-sm">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'S'}
+                  {user?.name?.charAt(0)?.toUpperCase() || 'K'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Student'}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Kunde'}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
             </div>

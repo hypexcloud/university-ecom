@@ -13,34 +13,42 @@ import {
   HomeIcon,
   LogOut,
   MenuIcon,
-  XIcon
+  XIcon,
+  Award,
+  ShoppingCart
 } from 'lucide-react'
 import { useState } from 'react'
 
 const navigation = [
   {
-    name: 'Übersicht',
+    name: 'Dashboard',
     href: '/admin',
     icon: HomeIcon,
-    description: 'Dashboard-Übersicht'
+    description: 'Übersicht & Sessions'
   },
   {
-    name: 'Termine',
+    name: 'Sessions',
     href: '/admin/termine',
     icon: CalendarIcon,
-    description: 'Mentoring-Termine verwalten'
+    description: 'Coaching-Termine verwalten'
   },
   {
-    name: 'Benutzer',
+    name: 'Kunden',
     href: '/admin/benutzer',
     icon: Users,
-    description: 'Mentoren und Teilnehmer verwalten'
+    description: 'Kunden verwalten'
   },
   {
     name: 'Intake',
     href: '/admin/intake',
     icon: BarChart3,
-    description: 'Bewerbungen verwalten'
+    description: 'Bewerbungen prüfen'
+  },
+  {
+    name: 'Performance',
+    href: '/admin/performance',
+    icon: Award,
+    description: 'Meine Statistiken'
   },
   {
     name: 'Einstellungen',
@@ -74,8 +82,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <span className="text-white font-bold text-sm">UE</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">UniEC</h1>
-              <p className="text-xs text-gray-500">Admin Portal</p>
+              <h1 className="font-bold text-gray-900">University Ecom</h1>
+              <p className="text-xs text-gray-500">Admin & Coach Portal</p>
             </div>
           </div>
           <Button
@@ -101,8 +109,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <span className="text-white font-bold text-sm">UE</span>
               </div>
               <div>
-                <h1 className="font-bold text-gray-900">UniEC</h1>
-                <p className="text-xs text-gray-500">Mentoring MVP</p>
+                <h1 className="font-bold text-gray-900">University Ecom</h1>
+                <p className="text-xs text-gray-500">Admin & Coach</p>
               </div>
             </div>
           </div>
@@ -155,7 +163,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Admin'}</p>
-                <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@uniec.com'}</p>
+                <p className="text-xs text-gray-500 truncate">Admin & Coach</p>
               </div>
             </div>
             <Button 

@@ -24,7 +24,10 @@ import {
   Target,
   MessageCircle,
   Download,
-  Lock
+  Lock,
+  Star,
+  Mail,
+  User
 } from 'lucide-react'
 import moment from 'moment'
 import 'moment/locale/de'
@@ -36,8 +39,17 @@ const mockStudentData = {
   student: {
     id: '1',
     name: 'Max Mustermann',
-    course: 'AI & Machine Learning Grundlagen',
-    mentor: 'Dr. Maria Schmidt',
+    course: 'AI Automatisierung Kurs',
+    plan: 'Business Plan',
+    mentor: {
+      name: 'Amin (Admin)',
+      role: 'Dein Coach & Mentor',
+      email: 'amin@university-ecom.com',
+      rating: 4.9,
+      totalSessions: 47,
+      bio: 'Experte für AI-Automatisierung mit 5+ Jahren Erfahrung',
+      availability: 'Mo-Fr, 9:00-18:00'
+    },
     startDate: '2025-01-01',
     overallProgress: 75
   },
@@ -47,7 +59,7 @@ const mockStudentData = {
     time: '10:00',
     duration: 60,
     type: 'Wöchentlicher Check-in',
-    mentor: 'Dr. Maria Schmidt',
+    mentor: 'Amin',
     meetingType: 'zoom',
     meetingLink: 'https://zoom.us/j/123456789',
     agenda: 'Fortschrittsbesprechung, Fragen klären, nächste Schritte planen'
@@ -65,12 +77,12 @@ const mockStudentData = {
       date: '05.02.2025',
       time: '10:00',
       type: 'Fortschrittsgespräch',
-      meetingType: 'präsenz'
+      meetingType: 'zoom'
     }
   ],
   courseProgress: {
     currentWeek: 3,
-    totalWeeks: 8,
+    totalWeeks: 12,
     modules: [
       {
         id: 1,
@@ -223,7 +235,7 @@ export default function StudentDashboardPage() {
                       <span className="text-gray-600">{nextSession.type}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-gray-500" />
+                      <User className="h-4 w-4 text-gray-500" />
                       <span className="text-gray-600">mit {nextSession.mentor}</span>
                     </div>
                   </div>
@@ -328,8 +340,68 @@ export default function StudentDashboardPage() {
           </Card>
         </div>
 
-        {/* Right Column - Upcoming Sessions & Achievements */}
+        {/* Right Column - Coach/Mentor & Other Info */}
         <div className="space-y-6">
+          {/* Coach/Mentor Profile Card */}
+          <Card className="bg-white shadow-sm border-l-4 border-l-green-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Dein Coach
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Mentor Info */}
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">
+                    {student.mentor.name.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <div className="font-bold text-gray-900">{student.mentor.name}</div>
+                  <div className="text-sm text-gray-600">{student.mentor.role}</div>
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2 py-2 border-t">
+                <Star className="h-5 w-5 text-yellow-600 fill-yellow-600" />
+                <span className="font-bold text-yellow-600">{student.mentor.rating}/5.0</span>
+                <span className="text-sm text-gray-500">
+                  ({student.mentor.totalSessions} Sessions)
+                </span>
+              </div>
+
+              {/* Bio */}
+              <div className="text-sm text-gray-600 py-2 border-t">
+                {student.mentor.bio}
+              </div>
+
+              {/* Availability */}
+              <div className="flex items-center gap-2 text-sm text-gray-600 py-2 border-t">
+                <Clock className="h-4 w-4" />
+                <span>{student.mentor.availability}</span>
+              </div>
+
+              {/* Contact Actions */}
+              <div className="space-y-2 pt-2">
+                <Button size="sm" className="w-full" variant="outline">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Nachricht schreiben
+                </Button>
+                <Button size="sm" className="w-full" variant="outline">
+                  <Mail className="h-4 w-4 mr-2" />
+                  E-Mail senden
+                </Button>
+                <Button size="sm" className="w-full" variant="outline">
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  Termin buchen
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Upcoming Sessions */}
           <Card className="bg-white shadow-sm">
             <CardHeader>
@@ -430,8 +502,8 @@ export default function StudentDashboardPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Mentor</span>
-                <Badge variant="outline">{student.mentor}</Badge>
+                <span className="text-gray-600">Plan</span>
+                <Badge variant="outline">{student.plan}</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nächstes Ziel</span>

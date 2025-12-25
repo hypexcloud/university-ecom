@@ -1,13 +1,14 @@
 /**
- * Role Migration Utilities
+ * Role Utilities - Phase 1 (Admin + Kunde Only)
  * 
- * These utilities help with the transition from the old role system to the new one.
- * 
- * OLD ROLES: 'admin', 'mentor', 'teilnehmer', 'student', 'guest'
- * NEW ROLES: 'admin', 'kunde', 'affiliate', 'besucher'
+ * Simplified role system for MVP:
+ * - Admin: Full system access (manages everything + acts as mentor)
+ * - Kunde: Customer/Student access (learning dashboard)
+ * - Besucher: Visitor (public website only)
+ * - Affiliate: Reserved for Phase 2
  */
 
-import { UserRole, LegacyRole } from './types'
+import { UserRole } from './types'
 
 /**
  * Map legacy roles to new roles
@@ -17,7 +18,7 @@ export function mapLegacyRole(legacyRole: string): UserRole {
     // Admin stays the same
     'admin': 'admin',
     
-    // Mentors become admins (or keep as separate if needed)
+    // Mentors become admins (unified for Phase 1)
     'mentor': 'admin',
     
     // Students/Teilnehmer become Kunde (customers)
@@ -42,14 +43,16 @@ export function hasAdminPrivileges(role: UserRole): boolean {
 }
 
 /**
- * Check if a role can access customer features
+ * Check if a role can access customer/student features
  */
 export function hasCustomerAccess(role: UserRole): boolean {
+  // Admin can access kunde features for testing/support
+  // Kunde can access their own features
   return role === 'kunde' || role === 'admin'
 }
 
 /**
- * Check if a role can access affiliate features
+ * Check if a role can access affiliate features (Phase 2)
  */
 export function hasAffiliateAccess(role: UserRole): boolean {
   return role === 'affiliate' || role === 'admin'
@@ -63,9 +66,9 @@ export function getDashboardRoute(role: UserRole): string {
     case 'admin':
       return '/admin'
     case 'kunde':
-      return '/student' // Kunde use student dashboard for now
+      return '/student' // Kunde use student dashboard
     case 'affiliate':
-      return '/affiliate' // Will be created in Phase 3
+      return '/affiliate' // Phase 2
     case 'besucher':
       return '/' // Visitors go to homepage
     default:
@@ -88,14 +91,15 @@ export function getRoleDisplayName(role: UserRole): string {
 }
 
 /**
- * Get all available roles for selection (admin use)
+ * Get available roles for user creation (admin use)
+ * Phase 1: Only admin and kunde
  */
 export function getAvailableRoles(): { value: UserRole; label: string }[] {
   return [
-    { value: 'besucher', label: 'Besucher' },
     { value: 'kunde', label: 'Kunde' },
-    { value: 'affiliate', label: 'Affiliate Partner' },
     { value: 'admin', label: 'Administrator' },
+    // Phase 2: Uncomment when affiliate system is ready
+    // { value: 'affiliate', label: 'Affiliate Partner' },
   ]
 }
 
@@ -105,4 +109,32 @@ export function getAvailableRoles(): { value: UserRole; label: string }[] {
 export function isValidRole(role: string): role is UserRole {
   const validRoles: UserRole[] = ['admin', 'kunde', 'affiliate', 'besucher']
   return validRoles.includes(role as UserRole)
+}
+
+/**
+ * Check if user can manage other users
+ */
+export function canManageUsers(role: UserRole): boolean {
+  return role === 'admin'
+}
+
+/**
+ * Check if user can view analytics
+ */
+export function canViewAnalytics(role: UserRole): boolean {
+  return role === 'admin'
+}
+
+/**
+ * Check if user can manage courses
+ */
+export function canManageCourses(role: UserRole): boolean {
+  return role === 'admin'
+}
+
+/**
+ * Check if user can access intake review
+ */
+export function canReviewIntake(role: UserRole): boolean {
+  return role === 'admin'
 }

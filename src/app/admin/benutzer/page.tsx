@@ -28,7 +28,7 @@ interface User {
   id: string
   name: string
   email: string
-  role: 'admin' | 'mentor' | 'teilnehmer'
+  role: 'admin' | 'kunde'
   isActive: boolean
   createdAt: string
 }
@@ -37,27 +37,35 @@ export default function BenutzerPage() {
   const [users, setUsers] = useState<User[]>([
     {
       id: 'admin-1',
-      name: 'Admin User',
-      email: 'admin@uniec.com',
+      name: 'Amin (Admin)',
+      email: 'admin@university-ecom.com',
       role: 'admin',
       isActive: true,
       createdAt: '2024-01-15'
     },
     {
-      id: 'mentor-1',
-      name: 'Dr. Sarah Müller',
-      email: 'mentor@uniec.com',
-      role: 'mentor',
-      isActive: true,
-      createdAt: '2024-01-20'
-    },
-    {
-      id: 'student-1',
+      id: 'kunde-1',
       name: 'Max Mustermann',
-      email: 'student@uniec.com',
-      role: 'teilnehmer',
+      email: 'max@example.com',
+      role: 'kunde',
       isActive: true,
       createdAt: '2024-01-25'
+    },
+    {
+      id: 'kunde-2',
+      name: 'Anna Schmidt',
+      email: 'anna@example.com',
+      role: 'kunde',
+      isActive: true,
+      createdAt: '2024-01-28'
+    },
+    {
+      id: 'kunde-3',
+      name: 'Tom Weber',
+      email: 'tom@example.com',
+      role: 'kunde',
+      isActive: true,
+      createdAt: '2024-02-01'
     }
   ])
 
@@ -69,10 +77,8 @@ export default function BenutzerPage() {
     switch (role) {
       case 'admin':
         return <Badge variant="destructive">Admin</Badge>
-      case 'mentor':
-        return <Badge variant="default">Mentor</Badge>
-      case 'teilnehmer':
-        return <Badge variant="secondary">Teilnehmer</Badge>
+      case 'kunde':
+        return <Badge variant="default">Kunde</Badge>
       default:
         return <Badge variant="outline">Unbekannt</Badge>
     }
@@ -114,19 +120,19 @@ export default function BenutzerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Benutzerverwaltung</h1>
+          <h1 className="text-3xl font-bold">Kundenverwaltung</h1>
           <p className="text-muted-foreground">
-            Verwalten Sie Admins, Mentoren und Teilnehmer
+            Verwalten Sie Admins und Kunden
           </p>
         </div>
         <Button onClick={() => setShowAddUser(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Benutzer hinzufügen
+          Kunde hinzufügen
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Gesamt</CardTitle>
@@ -145,29 +151,18 @@ export default function BenutzerPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{getRoleCount('admin')}</div>
-            <p className="text-xs text-muted-foreground">Administratoren</p>
+            <p className="text-xs text-muted-foreground">Administratoren & Coaches</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mentoren</CardTitle>
+            <CardTitle className="text-sm font-medium">Kunden</CardTitle>
             <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{getRoleCount('mentor')}</div>
-            <p className="text-xs text-muted-foreground">Mentoring-Experten</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teilnehmer</CardTitle>
-            <Users className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getRoleCount('teilnehmer')}</div>
-            <p className="text-xs text-muted-foreground">Kurs-Teilnehmer</p>
+            <div className="text-2xl font-bold">{getRoleCount('kunde')}</div>
+            <p className="text-xs text-muted-foreground">Aktive Kunden</p>
           </CardContent>
         </Card>
       </div>
@@ -201,8 +196,7 @@ export default function BenutzerPage() {
                 <SelectContent>
                   <SelectItem value="all">Alle Rollen</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="mentor">Mentor</SelectItem>
-                  <SelectItem value="teilnehmer">Teilnehmer</SelectItem>
+                  <SelectItem value="kunde">Kunde</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -292,7 +286,7 @@ export default function BenutzerPage() {
           <CardHeader>
             <CardTitle>Neuen Benutzer hinzufügen</CardTitle>
             <CardDescription>
-              Erstellen Sie einen neuen Admin, Mentor oder Teilnehmer
+              Erstellen Sie einen neuen Admin oder Kunde
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
