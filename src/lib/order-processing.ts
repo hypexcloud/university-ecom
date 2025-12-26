@@ -4,7 +4,7 @@
  * Handles order creation, kunde account creation, and post-payment processing
  */
 
-import { db, auth } from './firebase'
+import { db, auth } from './firebase/config'
 import { 
   collection, 
   addDoc, 
