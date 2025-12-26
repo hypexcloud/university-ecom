@@ -5,6 +5,7 @@ import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, CreditCard, AlertCircle } from 'lucide-react'
+import { getCurrentAffiliateAttribution } from '@/lib/affiliate-tracking'
 
 interface PaymentFormProps {
   customerData: any
@@ -45,12 +46,16 @@ export default function PaymentForm({ customerData, onSuccess, onError }: Paymen
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Payment successful - now process the order
         try {
+          // Get affiliate code from cookie if exists
+          const affiliateCode = getCurrentAffiliateAttribution()
+          
           const response = await fetch('/api/process-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               paymentIntentId: paymentIntent.id,
-              customerData
+              customerData,
+              affiliateCode // Include affiliate code
             })
           })
 
