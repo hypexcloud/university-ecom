@@ -7,27 +7,38 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const userId = searchParams.get('userId')
     const enrollmentId = searchParams.get('enrollmentId')
+    const coachId = searchParams.get('coachId')
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Missing userId' },
-        { status: 400 }
-      )
-    }
+    // Build query based on parameters
+    let sessionsQuery
 
-    // Build query
-    let sessionsQuery = query(
-      collection(db, 'sessions'),
-      where('userId', '==', userId),
-      orderBy('scheduledAt', 'desc')
-    )
-
-    if (enrollmentId) {
+    if (coachId) {
+      // Get all sessions for a coach
       sessionsQuery = query(
         collection(db, 'sessions'),
-        where('userId', '==', userId),
-        where('enrollmentId', '==', enrollmentId),
+        where('coachId', '==', coachId),
         orderBy('scheduledAt', 'desc')
+      )
+    } else if (userId) {
+      // Get sessions for a user
+      if (enrollmentId) {
+        sessionsQuery = query(
+          collection(db, 'sessions'),
+          where('userId', '==', userId),
+          where('enrollmentId', '==', enrollmentId),
+          orderBy('scheduledAt', 'desc')
+        )
+      } else {
+        sessionsQuery = query(
+          collection(db, 'sessions'),
+          where('userId', '==', userId),
+          orderBy('scheduledAt', 'desc')
+        )
+      }
+    } else {
+      return NextResponse.json(
+        { error: 'Missing userId or coachId' },
+        { status: 400 }
       )
     }
 
