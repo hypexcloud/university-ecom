@@ -1,242 +1,317 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Calendar, dateFnsLocalizer, Event, View, EventPropGetter } from 'react-big-calendar'
-import { format, parse, startOfWeek, getDay } from 'date-fns'
-import { enUS } from 'date-fns/locale'
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card'
-import { 
-  Button 
-} from '@/components/ui/button'
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs'
 import {
-  CalendarIcon,
-  ClockIcon,
-  UserIcon,
-  BookOpenIcon,
-  PlusIcon,
-  SettingsIcon
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  BookOpen,
+  Plus,
+  Edit,
+  Trash2,
+  FileVideo,
+  FileText,
+  Link as LinkIcon,
+  Download,
+  Loader2,
+  Check,
+  X,
+  Eye,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react'
-import { MentoringSession, MentoringProgress, CourseType } from '@/lib/types'
+import type { CourseModule, CourseResource } from '@/lib/course-types'
 
-// Import CSS for react-big-calendar
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-
-// Calendar setup
-const locales = {
-  'en-US': enUS,
-}
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-})
-
-// Helper function to handle both Timestamp and Date objects
-const getDateFromTimestamp = (timestamp: any): Date => {
-  if (timestamp && typeof timestamp.seconds === 'number') {
-    return new Date(timestamp.seconds * 1000)
-  }
-  return timestamp instanceof Date ? timestamp : new Date(timestamp)
-}
-
-// Calendar event interface - simplified status to match what we use in calendar
-interface CalendarEvent extends Event {
-  id: string
-  sessionId: string
-  studentName: string
-  courseType: CourseType
-  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled'
-  meetingUrl?: string
-  type: 'initial_consultation' | 'weekly_check_in' | 'progress_review' | 'final_review' | 'ad_hoc'
-}
-
-interface CourseContentManagementProps {
-  userRole: 'student' | 'admin' | 'instructor'
-  userId: string
-}
-
-export default function CourseContentManagement({ userRole, userId }: CourseContentManagementProps) {
-  const [currentView, setCurrentView] = useState<View>('month')
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [sessions, setSessions] = useState<MentoringSession[]>([])
-  const [selectedSession, setSelectedSession] = useState<MentoringSession | null>(null)
-  const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false)
+export default function CourseContentManagement() {
+  const [selectedCourse, setSelectedCourse] = useState<'ai' | 'dropshipping'>('ai')
+  const [modules, setModules] = useState<CourseModule[]>([])
   const [loading, setLoading] = useState(true)
-
-  // Mock data for demonstration - replace with actual Firebase calls
-  useEffect(() => {
-    const mockSessions: MentoringSession[] = [
-      {
-        id: '1',
-        studentId: 'student1',
-        instructorId: 'instructor1',
-        courseId: 'ai-course-1',
-        courseType: 'ai',
-        title: 'Initial Consultation - AI Course',
-        description: 'First session to understand goals and create learning plan',
-        type: 'initial_consultation',
-        week: 1,
-        scheduledStart: new Date(2025, 0, 15, 10, 0) as any, // Jan 15, 10:00 AM
-        scheduledEnd: new Date(2025, 0, 15, 11, 0) as any,   // Jan 15, 11:00 AM
-        timeZone: 'Europe/Berlin',
-        status: 'scheduled',
-        isRescheduled: false,
-        meetingType: 'zoom',
-        meetingUrl: 'https://zoom.us/j/123456789',
-        agenda: [
-          'Introduction and goal setting',
-          'Course overview',
-          'Learning plan creation',
-          'Q&A session'
-        ],
-        remindersSent: {
-          student24h: false,
-          student1h: false,
-          instructor24h: false,
-          instructor15min: false,
-        },
-        createdAt: new Date() as any,
-        updatedAt: new Date() as any,
-        createdBy: 'admin1',
-      },
-      {
-        id: '2',
-        studentId: 'student2',
-        instructorId: 'instructor1',
-        courseId: 'dropshipping-course-1',
-        courseType: 'dropshipping',
-        title: 'Weekly Check-in - Dropshipping',
-        description: 'Review progress on product research',
-        type: 'weekly_check_in',
-        week: 3,
-        scheduledStart: new Date(2025, 0, 18, 14, 0) as any, // Jan 18, 2:00 PM
-        scheduledEnd: new Date(2025, 0, 18, 15, 0) as any,   // Jan 18, 3:00 PM
-        timeZone: 'Europe/Berlin',
-        status: 'confirmed',
-        isRescheduled: false,
-        meetingType: 'zoom',
-        meetingUrl: 'https://zoom.us/j/987654321',
-        agenda: [
-          'Progress review',
-          'Product research discussion',
-          'Supplier validation',
-          'Next week planning'
-        ],
-        remindersSent: {
-          student24h: true,
-          student1h: false,
-          instructor24h: true,
-          instructor15min: false,
-        },
-        createdAt: new Date() as any,
-        updatedAt: new Date() as any,
-        createdBy: 'admin1',
-      },
-    ]
-
-    setSessions(mockSessions)
-    setLoading(false)
-  }, [])
-
-  // Convert sessions to calendar events
-  const calendarEvents: CalendarEvent[] = sessions.map(session => {
-    // Map session status to simplified calendar status
-    let calendarStatus: CalendarEvent['status'] = 'scheduled'
-    if (session.status === 'confirmed') calendarStatus = 'confirmed'
-    else if (session.status === 'completed') calendarStatus = 'completed'
-    else if (session.status === 'cancelled') calendarStatus = 'cancelled'
-    else if (session.status === 'in_progress') calendarStatus = 'confirmed' // Show in-progress as confirmed
-    else if (session.status === 'no_show') calendarStatus = 'cancelled' // Show no-show as cancelled
-
-    return {
-      id: session.id,
-      sessionId: session.id,
-      title: session.title,
-      start: getDateFromTimestamp(session.scheduledStart),
-      end: getDateFromTimestamp(session.scheduledEnd),
-      studentName: 'John Doe', // This would come from user lookup
-      courseType: session.courseType,
-      status: calendarStatus,
-      meetingUrl: session.meetingUrl,
-      type: session.type,
-    }
+  
+  // Module dialog state
+  const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false)
+  const [editingModule, setEditingModule] = useState<CourseModule | null>(null)
+  const [moduleForm, setModuleForm] = useState({
+    week: 1,
+    title: '',
+    description: '',
+    objectives: [''],
+    duration: '',
+    hasSession: false,
+    sessionRequired: false,
+    requiresPreviousModule: true,
+    status: 'draft' as 'draft' | 'published',
   })
 
-  // Event style getter for calendar
-  const eventStyleGetter: EventPropGetter<CalendarEvent> = (event) => {
-    let backgroundColor = '#3174ad'
-    
-    switch (event.status) {
-      case 'scheduled':
-        backgroundColor = '#fbbf24' // yellow
-        break
-      case 'confirmed':
-        backgroundColor = '#10b981' // green
-        break
-      case 'completed':
-        backgroundColor = '#6b7280' // gray
-        break
-      case 'cancelled':
-        backgroundColor = '#ef4444' // red
-        break
-    }
+  // Resource dialog state
+  const [isResourceDialogOpen, setIsResourceDialogOpen] = useState(false)
+  const [selectedModuleForResource, setSelectedModuleForResource] = useState<string | null>(null)
+  const [resources, setResources] = useState<CourseResource[]>([])
+  const [resourceForm, setResourceForm] = useState({
+    title: '',
+    description: '',
+    type: 'video' as 'video' | 'pdf' | 'link' | 'template' | 'document',
+    url: '',
+    videoProvider: 'youtube' as 'youtube' | 'vimeo' | 'custom',
+    duration: '',
+    isRequired: true,
+    estimatedTime: '',
+  })
 
-    return {
-      style: {
-        backgroundColor,
-        borderRadius: '4px',
-        opacity: 0.8,
-        color: 'white',
-        border: '0px',
-        display: 'block'
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    loadModules()
+  }, [selectedCourse])
+
+  const loadModules = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/admin/course-modules?courseType=${selectedCourse}`)
+      if (response.ok) {
+        const data = await response.json()
+        setModules(data.modules || [])
       }
+    } catch (error) {
+      console.error('Error loading modules:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleSelectEvent = (event: CalendarEvent) => {
-    const session = sessions.find(s => s.id === event.sessionId)
-    if (session) {
-      setSelectedSession(session)
-      setIsSessionDialogOpen(true)
+  const loadResources = async (moduleId: string) => {
+    try {
+      const response = await fetch(`/api/admin/course-resources?moduleId=${moduleId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setResources(data.resources || [])
+      }
+    } catch (error) {
+      console.error('Error loading resources:', error)
     }
   }
 
-  const handleNavigate = (newDate: Date) => {
-    setCurrentDate(newDate)
+  const handleCreateModule = () => {
+    setEditingModule(null)
+    setModuleForm({
+      week: modules.length + 1,
+      title: '',
+      description: '',
+      objectives: [''],
+      duration: '',
+      hasSession: false,
+      sessionRequired: false,
+      requiresPreviousModule: true,
+      status: 'draft',
+    })
+    setIsModuleDialogOpen(true)
   }
 
-  const handleViewChange = (view: View) => {
-    setCurrentView(view)
+  const handleEditModule = (module: CourseModule) => {
+    setEditingModule(module)
+    setModuleForm({
+      week: module.week,
+      title: module.title,
+      description: module.description,
+      objectives: module.objectives,
+      duration: module.duration,
+      hasSession: module.hasSession,
+      sessionRequired: module.sessionRequired,
+      requiresPreviousModule: module.requiresPreviousModule,
+      status: module.status,
+    })
+    setIsModuleDialogOpen(true)
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
+  const handleSaveModule = async () => {
+    setSaving(true)
+    try {
+      const url = editingModule
+        ? `/api/admin/course-modules/${editingModule.id}`
+        : '/api/admin/course-modules'
+
+      const response = await fetch(url, {
+        method: editingModule ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...moduleForm,
+          courseType: selectedCourse,
+          order: moduleForm.week,
+        }),
+      })
+
+      if (response.ok) {
+        await loadModules()
+        setIsModuleDialogOpen(false)
+      }
+    } catch (error) {
+      console.error('Error saving module:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteModule = async (moduleId: string) => {
+    if (!confirm('Are you sure you want to delete this module? All resources will be deleted.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/course-modules/${moduleId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await loadModules()
+      }
+    } catch (error) {
+      console.error('Error deleting module:', error)
+    }
+  }
+
+  const handleAddResource = (moduleId: string) => {
+    setSelectedModuleForResource(moduleId)
+    setResourceForm({
+      title: '',
+      description: '',
+      type: 'video',
+      url: '',
+      videoProvider: 'youtube',
+      duration: '',
+      isRequired: true,
+      estimatedTime: '',
+    })
+    loadResources(moduleId)
+    setIsResourceDialogOpen(true)
+  }
+
+  const handleSaveResource = async () => {
+    if (!selectedModuleForResource) return
+
+    setSaving(true)
+    try {
+      const response = await fetch('/api/admin/course-resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...resourceForm,
+          moduleId: selectedModuleForResource,
+          order: resources.length + 1,
+        }),
+      })
+
+      if (response.ok) {
+        await loadResources(selectedModuleForResource)
+        setResourceForm({
+          title: '',
+          description: '',
+          type: 'video',
+          url: '',
+          videoProvider: 'youtube',
+          duration: '',
+          isRequired: true,
+          estimatedTime: '',
+        })
+      }
+    } catch (error) {
+      console.error('Error saving resource:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteResource = async (resourceId: string) => {
+    if (!selectedModuleForResource) return
+
+    try {
+      const response = await fetch(`/api/admin/course-resources/${resourceId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await loadResources(selectedModuleForResource)
+      }
+    } catch (error) {
+      console.error('Error deleting resource:', error)
+    }
+  }
+
+  const handlePublishModule = async (moduleId: string) => {
+    try {
+      const response = await fetch(`/api/admin/course-modules/${moduleId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'published' }),
+      })
+
+      if (response.ok) {
+        await loadModules()
+      }
+    } catch (error) {
+      console.error('Error publishing module:', error)
+    }
+  }
+
+  const addObjective = () => {
+    setModuleForm({
+      ...moduleForm,
+      objectives: [...moduleForm.objectives, ''],
+    })
+  }
+
+  const removeObjective = (index: number) => {
+    setModuleForm({
+      ...moduleForm,
+      objectives: moduleForm.objectives.filter((_, i) => i !== index),
+    })
+  }
+
+  const updateObjective = (index: number, value: string) => {
+    const newObjectives = [...moduleForm.objectives]
+    newObjectives[index] = value
+    setModuleForm({ ...moduleForm, objectives: newObjectives })
+  }
+
+  const getResourceIcon = (type: string) => {
+    switch (type) {
+      case 'video':
+        return <FileVideo className="h-4 w-4" />
+      case 'pdf':
+      case 'document':
+        return <FileText className="h-4 w-4" />
+      case 'link':
+        return <LinkIcon className="h-4 w-4" />
+      case 'template':
+        return <Download className="h-4 w-4" />
+      default:
+        return <FileText className="h-4 w-4" />
+    }
   }
 
   return (
@@ -244,311 +319,491 @@ export default function CourseContentManagement({ userRole, userId }: CourseCont
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Course Management</h1>
-          <p className="text-gray-600 mt-1">
-            Manage your {userRole === 'student' ? 'learning sessions' : 'mentoring sessions'} and track progress
-          </p>
+          <h1 className="text-3xl font-bold">Kursverwaltung</h1>
+          <p className="text-gray-600 mt-1">Verwalten Sie Module, Lektionen und Ressourcen</p>
         </div>
-        {(userRole === 'admin' || userRole === 'instructor') && (
-          <Button className="flex items-center gap-2">
-            <PlusIcon className="h-4 w-4" />
-            Schedule Session
+        <div className="flex items-center gap-4">
+          <Select value={selectedCourse} onValueChange={(value: any) => setSelectedCourse(value)}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ai">KI Automation Kurs</SelectItem>
+              <SelectItem value="dropshipping">EU Dropshipping Kurs</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleCreateModule}>
+            <Plus className="h-4 w-4 mr-2" />
+            Neues Modul
           </Button>
-        )}
+        </div>
       </div>
 
-      {/* Main Content */}
-      <Tabs defaultValue="calendar" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="content">Course Content</TabsTrigger>
-          <TabsTrigger value="progress">Progress Tracking</TabsTrigger>
-          {(userRole === 'admin' || userRole === 'instructor') && (
-            <TabsTrigger value="management">Session Management</TabsTrigger>
-          )}
-        </TabsList>
-
-        {/* Calendar Tab */}
-        <TabsContent value="calendar">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  Session Calendar
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-400 rounded"></div>
-                      <span>Scheduled</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded"></div>
-                      <span>Confirmed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-gray-500 rounded"></div>
-                      <span>Completed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded"></div>
-                      <span>Cancelled</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-96 md:h-[600px]">
-                <Calendar
-                  localizer={localizer}
-                  events={calendarEvents}
-                  startAccessor="start"
-                  endAccessor="end"
-                  view={currentView}
-                  onView={handleViewChange}
-                  date={currentDate}
-                  onNavigate={handleNavigate}
-                  onSelectEvent={handleSelectEvent}
-                  eventPropGetter={eventStyleGetter}
-                  className="h-full"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Course Content Tab */}
-        <TabsContent value="content">
-          <div className="grid gap-6">
+      {/* Modules List */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {modules.length === 0 ? (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpenIcon className="h-5 w-5" />
-                  Course Modules
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Mock course modules */}
-                  {[1, 2, 3, 4].map((week) => (
-                    <div key={week} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">Week {week}: Module Title</h3>
-                        <span className="text-sm text-gray-500">
-                          {week <= 2 ? 'Completed' : week === 3 ? 'In Progress' : 'Locked'}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 text-sm mb-3">
-                        Description of what will be covered in this module.
-                      </p>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="flex items-center gap-1">
-                          <ClockIcon className="h-4 w-4" />
-                          2 hours
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <UserIcon className="h-4 w-4" />
-                          1-on-1 Session
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <CardContent className="py-12 text-center">
+                <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">Noch keine Module für diesen Kurs</p>
+                <Button onClick={handleCreateModule}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Erstes Modul erstellen
+                </Button>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
-
-        {/* Progress Tracking Tab */}
-        <TabsContent value="progress">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overall Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Course Completion</span>
-                      <span>60%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Sessions Completed</span>
-                      <span>3/6</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: '50%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Deadlines</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">Week 4 Assignment</p>
-                      <p className="text-xs text-gray-600">Due in 3 days</p>
-                    </div>
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-sm">Progress Review Session</p>
-                      <p className="text-xs text-gray-600">Jan 22, 2025</p>
-                    </div>
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Session Management Tab (Admin/Instructor only) */}
-        {(userRole === 'admin' || userRole === 'instructor') && (
-          <TabsContent value="management">
-            <div className="grid gap-6">
-              <Card>
+          ) : (
+            modules.map((module) => (
+              <Card key={module.id}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Session Management</CardTitle>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <SettingsIcon className="h-4 w-4" />
-                      Availability Settings
-                    </Button>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <CardTitle>
+                          Woche {module.week}: {module.title}
+                        </CardTitle>
+                        <Badge variant={module.status === 'published' ? 'default' : 'secondary'}>
+                          {module.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
+                        </Badge>
+                        {module.hasSession && (
+                          <Badge variant="outline" className="bg-blue-50">
+                            Mit Session
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription>{module.description}</CardDescription>
+                      <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
+                        <span>📚 {module.objectives.length} Lernziele</span>
+                        <span>⏱️ {module.duration}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {module.status === 'draft' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handlePublishModule(module.id)}
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Veröffentlichen
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAddResource(module.id)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Ressource
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditModule(module)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteModule(module.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {sessions.map((session) => (
-                      <div key={session.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold">{session.title}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              session.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                              session.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' :
-                              session.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {session.status}
-                            </span>
-                            <Button size="sm" variant="outline">
-                              Edit
-                            </Button>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 text-sm mb-3">{session.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>{format(getDateFromTimestamp(session.scheduledStart), 'PPP p')}</span>
-                          <span>{session.courseType.toUpperCase()}</span>
-                          <span>Week {session.week}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
               </Card>
-            </div>
-          </TabsContent>
-        )}
-      </Tabs>
+            ))
+          )}
+        </div>
+      )}
 
-      {/* Session Details Dialog */}
-      <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
-        <DialogContent className="max-w-2xl">
+      {/* Module Dialog */}
+      <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedSession?.title}</DialogTitle>
+            <DialogTitle>
+              {editingModule ? 'Modul bearbeiten' : 'Neues Modul erstellen'}
+            </DialogTitle>
             <DialogDescription>
-              {selectedSession?.description}
+              Erstellen Sie ein neues Kursmodul mit Lernzielen und Ressourcen
             </DialogDescription>
           </DialogHeader>
-          
-          {selectedSession && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Date & Time</label>
-                  <p className="text-sm">
-                    {format(getDateFromTimestamp(selectedSession.scheduledStart), 'PPP p')} - 
-                    {format(getDateFromTimestamp(selectedSession.scheduledEnd), 'p')}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Status</label>
-                  <p className="text-sm">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      selectedSession.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                      selectedSession.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' :
-                      selectedSession.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {selectedSession.status}
-                    </span>
-                  </p>
-                </div>
-              </div>
 
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Meeting Link</label>
-                {selectedSession.meetingUrl ? (
-                  <div className="mt-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => window.open(selectedSession.meetingUrl, '_blank')}
-                    >
-                      Join Meeting
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">No meeting link available</p>
-                )}
+                <Label>Woche</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={moduleForm.week}
+                  onChange={(e) =>
+                    setModuleForm({ ...moduleForm, week: parseInt(e.target.value) })
+                  }
+                />
               </div>
-
               <div>
-                <label className="text-sm font-medium text-gray-700">Session Agenda</label>
-                <ul className="mt-1 text-sm space-y-1">
-                  {selectedSession.agenda.map((item, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                {(userRole === 'admin' || userRole === 'instructor') && (
-                  <>
-                    <Button variant="outline">
-                      Reschedule
-                    </Button>
-                    <Button variant="outline">
-                      Cancel Session
-                    </Button>
-                  </>
-                )}
-                <Button onClick={() => setIsSessionDialogOpen(false)}>
-                  Close
-                </Button>
+                <Label>Dauer</Label>
+                <Input
+                  placeholder="z.B. 2 Stunden"
+                  value={moduleForm.duration}
+                  onChange={(e) => setModuleForm({ ...moduleForm, duration: e.target.value })}
+                />
               </div>
             </div>
-          )}
+
+            <div>
+              <Label>Titel</Label>
+              <Input
+                placeholder="z.B. Einführung in KI Grundlagen"
+                value={moduleForm.title}
+                onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <Label>Beschreibung</Label>
+              <Textarea
+                placeholder="Beschreiben Sie die Inhalte dieses Moduls..."
+                value={moduleForm.description}
+                onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Lernziele</Label>
+                <Button type="button" size="sm" variant="outline" onClick={addObjective}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Hinzufügen
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {moduleForm.objectives.map((objective, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="z.B. Verstehen der Grundlagen von Machine Learning"
+                      value={objective}
+                      onChange={(e) => updateObjective(index, e.target.value)}
+                    />
+                    {moduleForm.objectives.length > 1 && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => removeObjective(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="hasSession"
+                  checked={moduleForm.hasSession}
+                  onChange={(e) =>
+                    setModuleForm({ ...moduleForm, hasSession: e.target.checked })
+                  }
+                  className="rounded"
+                />
+                <Label htmlFor="hasSession" className="font-normal">
+                  Hat Mentoring-Session
+                </Label>
+              </div>
+              {moduleForm.hasSession && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="sessionRequired"
+                    checked={moduleForm.sessionRequired}
+                    onChange={(e) =>
+                      setModuleForm({ ...moduleForm, sessionRequired: e.target.checked })
+                    }
+                    className="rounded"
+                  />
+                  <Label htmlFor="sessionRequired" className="font-normal">
+                    Session erforderlich
+                  </Label>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label>Status</Label>
+              <Select
+                value={moduleForm.status}
+                onValueChange={(value: any) => setModuleForm({ ...moduleForm, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Entwurf</SelectItem>
+                  <SelectItem value="published">Veröffentlicht</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModuleDialogOpen(false)}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleSaveModule} disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Speichern...
+                </>
+              ) : (
+                'Speichern'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Resource Dialog */}
+      <Dialog open={isResourceDialogOpen} onOpenChange={setIsResourceDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Ressourcen verwalten</DialogTitle>
+            <DialogDescription>
+              Fügen Sie Videos, PDFs und andere Lernmaterialien hinzu
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs defaultValue="add">
+            <TabsList>
+              <TabsTrigger value="add">Neue Ressource</TabsTrigger>
+              <TabsTrigger value="list">Alle Ressourcen ({resources.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="add" className="space-y-4">
+              <div>
+                <Label>Typ</Label>
+                <Select
+                  value={resourceForm.type}
+                  onValueChange={(value: any) => setResourceForm({ ...resourceForm, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="pdf">PDF Dokument</SelectItem>
+                    <SelectItem value="document">Dokument</SelectItem>
+                    <SelectItem value="link">Externer Link</SelectItem>
+                    <SelectItem value="template">Vorlage/Template</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Titel</Label>
+                <Input
+                  placeholder="z.B. Einführungsvideo KI Grundlagen"
+                  value={resourceForm.title}
+                  onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label>Beschreibung (optional)</Label>
+                <Textarea
+                  placeholder="Kurze Beschreibung der Ressource..."
+                  value={resourceForm.description}
+                  onChange={(e) =>
+                    setResourceForm({ ...resourceForm, description: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+
+              {resourceForm.type === 'video' && (
+                <>
+                  <div>
+                    <Label>Video Provider</Label>
+                    <Select
+                      value={resourceForm.videoProvider}
+                      onValueChange={(value: any) =>
+                        setResourceForm({ ...resourceForm, videoProvider: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="youtube">YouTube</SelectItem>
+                        <SelectItem value="vimeo">Vimeo</SelectItem>
+                        <SelectItem value="custom">Custom URL</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Video URL</Label>
+                    <Input
+                      placeholder={
+                        resourceForm.videoProvider === 'youtube'
+                          ? 'https://www.youtube.com/watch?v=...'
+                          : resourceForm.videoProvider === 'vimeo'
+                          ? 'https://vimeo.com/...'
+                          : 'Video URL'
+                      }
+                      value={resourceForm.url}
+                      onChange={(e) => setResourceForm({ ...resourceForm, url: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Dauer (optional)</Label>
+                    <Input
+                      placeholder="z.B. 15:30"
+                      value={resourceForm.duration}
+                      onChange={(e) =>
+                        setResourceForm({ ...resourceForm, duration: e.target.value })
+                      }
+                    />
+                  </div>
+                </>
+              )}
+
+              {(resourceForm.type === 'pdf' ||
+                resourceForm.type === 'document' ||
+                resourceForm.type === 'template') && (
+                <div>
+                  <Label>Datei URL</Label>
+                  <Input
+                    placeholder="Firebase Storage URL oder externer Link"
+                    value={resourceForm.url}
+                    onChange={(e) => setResourceForm({ ...resourceForm, url: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Laden Sie die Datei zu Firebase Storage hoch und fügen Sie die URL hier ein
+                  </p>
+                </div>
+              )}
+
+              {resourceForm.type === 'link' && (
+                <div>
+                  <Label>URL</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={resourceForm.url}
+                    onChange={(e) => setResourceForm({ ...resourceForm, url: e.target.value })}
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label>Geschätzte Bearbeitungszeit</Label>
+                <Input
+                  placeholder="z.B. 30 Minuten"
+                  value={resourceForm.estimatedTime}
+                  onChange={(e) =>
+                    setResourceForm({ ...resourceForm, estimatedTime: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isRequired"
+                  checked={resourceForm.isRequired}
+                  onChange={(e) =>
+                    setResourceForm({ ...resourceForm, isRequired: e.target.checked })
+                  }
+                  className="rounded"
+                />
+                <Label htmlFor="isRequired" className="font-normal">
+                  Pflichtressource (muss abgeschlossen werden)
+                </Label>
+              </div>
+
+              <Button onClick={handleSaveResource} disabled={saving} className="w-full">
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Speichern...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Ressource hinzufügen
+                  </>
+                )}
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="list">
+              {resources.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Noch keine Ressourcen für dieses Modul
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Titel</TableHead>
+                      <TableHead>Typ</TableHead>
+                      <TableHead>Pflicht</TableHead>
+                      <TableHead>Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {resources.map((resource) => (
+                      <TableRow key={resource.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getResourceIcon(resource.type)}
+                            <div>
+                              <p className="font-medium">{resource.title}</p>
+                              {resource.description && (
+                                <p className="text-xs text-gray-500">{resource.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{resource.type.toUpperCase()}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {resource.isRequired ? (
+                            <Badge variant="secondary">Pflicht</Badge>
+                          ) : (
+                            <Badge variant="outline">Optional</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteResource(resource.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>

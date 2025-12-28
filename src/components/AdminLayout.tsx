@@ -15,7 +15,7 @@ import {
   MenuIcon,
   XIcon,
   Award,
-  ShoppingCart
+  BookOpen,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -37,6 +37,12 @@ const navigation = [
     href: '/admin/benutzer',
     icon: Users,
     description: 'Kunden verwalten'
+  },
+  {
+    name: 'Kursinhalte',
+    href: '/admin/courses',
+    icon: BookOpen,
+    description: 'Module & Ressourcen'
   },
   {
     name: 'Intake',
