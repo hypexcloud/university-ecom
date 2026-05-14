@@ -9,15 +9,12 @@ import {
   CalendarIcon,
   BookOpen,
   Award,
-  MessageSquare,
   Settings,
   HomeIcon,
   LogOut,
   MenuIcon,
   XIcon,
-  TrendingUp,
-  FileText,
-  Sparkles
+  TrendingUp
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -30,9 +27,15 @@ const navigation = [
   },
   {
     name: 'Meine Kurse',
-    href: '/student/kurse',
+    href: '/student/course',
     icon: BookOpen,
     description: 'Kursinhalte und Module'
+  },
+  {
+    name: 'Fortschritt',
+    href: '/student/progress',
+    icon: TrendingUp,
+    description: 'Lernfortschritt verfolgen'
   },
   {
     name: 'Sessions',
@@ -41,40 +44,16 @@ const navigation = [
     description: 'Coaching-Termine'
   },
   {
-    name: 'Fortschritt',
-    href: '/student/fortschritt',
-    icon: TrendingUp,
-    description: 'Lernfortschritt verfolgen'
-  },
-  {
-    name: 'Erfolge',
-    href: '/student/erfolge',
+    name: 'Session buchen',
+    href: '/student/book-session',
     icon: Award,
-    description: 'Errungenschaften'
+    description: 'Neue Session vereinbaren'
   },
   {
-    name: 'Rechnungen',
-    href: '/student/rechnungen',
-    icon: FileText,
-    description: 'Zahlungen & Rechnungen'
-  },
-  {
-    name: 'Custom AI',
-    href: '/student/custom-ai',
-    icon: Sparkles,
-    description: 'Dein persönlicher AI-Assistent'
-  },
-  {
-    name: 'Nachrichten',
-    href: '/student/nachrichten',
-    icon: MessageSquare,
-    description: 'Chat mit Coach'
-  },
-  {
-    name: 'Einstellungen',
-    href: '/student/einstellungen',
+    name: 'Profil',
+    href: '/student/profile',
     icon: Settings,
-    description: 'Profil und Präferenzen'
+    description: 'Profil und Einstellungen'
   }
 ]
 
