@@ -55,3 +55,10 @@ temp/
 *.history
 .vercel
 .tokensave
+
+# Claude Code — keep rules + plans, ignore everything else
+.claude/cache/
+.claude/sessions/
+.claude/logs/
+.claude/settings.local.json
+.claude/*.tmp
