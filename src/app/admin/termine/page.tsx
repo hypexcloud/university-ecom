@@ -29,7 +29,7 @@ export default function AdminTerminePage() {
         </Button>
       </div>
 
-      <AdminAppointmentView coachId={user?.uid || ''} />
+      <AdminAppointmentView coachId={user?.id || ''} />
     </div>
   )
 }

@@ -3,11 +3,11 @@ import { updateCourseModule, deleteCourseModule } from '@/lib/course-utils'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
-    const moduleId = params.id
+    const { id: moduleId } = await params
 
     await updateCourseModule(moduleId, body)
 
@@ -25,11 +25,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const moduleId = params.id
+    const { id: moduleId } = await params
 
     await deleteCourseModule(moduleId)
 

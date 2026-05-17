@@ -3,11 +3,11 @@ import { db } from '@/lib/firebase/config'
 import { deleteDoc, doc } from 'firebase/firestore'
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resourceId = params.id
+    const { id: resourceId } = await params
 
     await deleteDoc(doc(db, 'courseResources', resourceId))
 

@@ -4,12 +4,12 @@ import { doc, updateDoc, Timestamp } from 'firebase/firestore'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
     const { status, reviewNotes } = body
-    const submissionId = params.id
+    const { id: submissionId } = await params
 
     // TODO: Get admin user ID from session
     const reviewedBy = 'admin' // Replace with actual admin ID

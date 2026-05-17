@@ -43,7 +43,7 @@ export default function BookSessionPage() {
         {/* Main Booking Area */}
         <div className="lg:col-span-2">
           <BookingCalendar
-            userId={user?.uid || ''}
+            userId={user?.id || ''}
             coachId={coachId}
             enrollmentId={enrollmentId}
             onBookingComplete={handleBookingComplete}

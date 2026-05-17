@@ -35,7 +35,7 @@ export default function SessionsPage() {
 
       {/* Session List */}
       <SessionList 
-        userId={user?.uid || ''} 
+        userId={user?.id || ''}
         enrollmentId={enrollmentId}
       />
     </div>

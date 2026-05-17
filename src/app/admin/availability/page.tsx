@@ -18,7 +18,7 @@ export default function AvailabilityPage() {
         </Link>
       </Button>
 
-      <AvailabilityManager coachId={user?.uid || ''} />
+      <AvailabilityManager coachId={user?.id || ''} />
     </div>
   )
 }

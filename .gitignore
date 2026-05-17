@@ -54,3 +54,4 @@ tmp/
 temp/
 *.history
 .vercel
+.tokensave

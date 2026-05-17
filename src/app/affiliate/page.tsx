@@ -27,7 +27,7 @@ export default function AffiliatePage() {
         </p>
       </div>
 
-      <AffiliateDashboard userId={user?.uid || ''} />
+      <AffiliateDashboard userId={user?.id || ''} />
     </div>
   )
 }

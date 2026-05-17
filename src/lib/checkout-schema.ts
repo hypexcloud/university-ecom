@@ -9,10 +9,10 @@ import { z } from 'zod'
 export const checkoutSchema = z.object({
   // Course Selection
   course: z.enum(['ai', 'dropshipping'], {
-    required_error: 'Bitte wählen Sie einen Kurs aus'
+    error: 'Bitte wählen Sie einen Kurs aus'
   }),
   plan: z.enum(['fast', 'business', 'infinity'], {
-    required_error: 'Bitte wählen Sie einen Plan aus'
+    error: 'Bitte wählen Sie einen Plan aus'
   }),
   
   // Personal Information (Required)
@@ -68,7 +68,7 @@ export const checkoutSchema = z.object({
     'friend',
     'other'
   ], {
-    required_error: 'Bitte wählen Sie aus, wie Sie auf uns aufmerksam geworden sind'
+    error: 'Bitte wählen Sie aus, wie Sie auf uns aufmerksam geworden sind'
   }),
   affiliateId: z.string().optional(),
   
@@ -80,7 +80,7 @@ export const checkoutSchema = z.object({
   acceptNewsletter: z.boolean().default(false)
 })
 
-export type CheckoutFormData = z.infer<typeof checkoutSchema>
+export type CheckoutFormData = z.input<typeof checkoutSchema>
 
 /**
  * Lead source options for dropdown

@@ -32,7 +32,7 @@ export default function StudentPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <StudentDashboardPlanBased 
-        userId={user?.uid || 'user-123'} 
+        userId={user?.id || 'user-123'}
         enrollmentId={enrollmentId} 
       />
     </div>

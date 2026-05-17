@@ -38,7 +38,7 @@ export default function ApplyAffiliatePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          userId: user?.uid
+          userId: user?.id
         })
       })
 

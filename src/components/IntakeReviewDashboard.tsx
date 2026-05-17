@@ -285,7 +285,7 @@ export default function IntakeReviewDashboard() {
                           new Date(
                             (submission.submittedAt as any).seconds
                               ? (submission.submittedAt as any).seconds * 1000
-                              : submission.submittedAt
+                              : (submission.submittedAt as unknown as number)
                           ),
                           'dd.MM.yyyy'
                         )}
@@ -322,7 +322,7 @@ export default function IntakeReviewDashboard() {
                   new Date(
                     (selectedSubmission.submittedAt as any).seconds
                       ? (selectedSubmission.submittedAt as any).seconds * 1000
-                      : selectedSubmission.submittedAt
+                      : (selectedSubmission.submittedAt as unknown as number)
                   ),
                   'dd.MM.yyyy HH:mm'
                 )}

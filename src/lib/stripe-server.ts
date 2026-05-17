@@ -7,23 +7,26 @@
 
 import Stripe from 'stripe'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+let _stripe: Stripe | null = null
+
+function getStripe(): Stripe {
+  if (_stripe) return _stripe
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) {
+    throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+  }
+  _stripe = new Stripe(key, {
+    apiVersion: '2025-12-15.clover',
+    typescript: true,
+    appInfo: {
+      name: 'University Ecom',
+      version: '1.0.0',
+      url: 'https://university-ecom.com',
+    },
+  })
+  return _stripe
 }
 
-/**
- * Stripe instance for server-side operations
- * Configured with API version 2024-12-18.acacia
- */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
-  typescript: true,
-  appInfo: {
-    name: 'University Ecom',
-    version: '1.0.0',
-    url: 'https://university-ecom.com'
-  }
-})
 
 /**
  * Create a payment intent for a course purchase
@@ -36,7 +39,7 @@ export async function createPaymentIntent(params: {
   description?: string
 }): Promise<Stripe.PaymentIntent> {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await getStripe().paymentIntents.create({
       amount: Math.round(params.amount * 100), // Convert to cents
       currency: params.currency.toLowerCase(),
       metadata: params.metadata,
@@ -61,7 +64,7 @@ export async function retrievePaymentIntent(
   paymentIntentId: string
 ): Promise<Stripe.PaymentIntent> {
   try {
-    return await stripe.paymentIntents.retrieve(paymentIntentId)
+    return await getStripe().paymentIntents.retrieve(paymentIntentId)
   } catch (error) {
     console.error('Error retrieving payment intent:', error)
     throw error
@@ -79,7 +82,7 @@ export async function createOrRetrieveCustomer(params: {
 }): Promise<Stripe.Customer> {
   try {
     // Try to find existing customer by email
-    const existingCustomers = await stripe.customers.list({
+    const existingCustomers = await getStripe().customers.list({
       email: params.email,
       limit: 1
     })
@@ -89,7 +92,7 @@ export async function createOrRetrieveCustomer(params: {
     }
     
     // Create new customer if not found
-    return await stripe.customers.create({
+    return await getStripe().customers.create({
       email: params.email,
       name: params.name,
       phone: params.phone,
@@ -109,7 +112,7 @@ export async function createRefund(
   reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer'
 ): Promise<Stripe.Refund> {
   try {
-    return await stripe.refunds.create({
+    return await getStripe().refunds.create({
       payment_intent: paymentIntentId,
       reason
     })
@@ -134,7 +137,7 @@ export async function constructWebhookEvent(
   }
   
   try {
-    return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+    return getStripe().webhooks.constructEvent(payload, signature, webhookSecret)
   } catch (error) {
     console.error('Error constructing webhook event:', error)
     throw error

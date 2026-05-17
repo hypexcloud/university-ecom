@@ -5,7 +5,7 @@
  */
 
 import { db } from './firebase/config'
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, getDoc, doc, Timestamp } from 'firebase/firestore'
 import { sendSessionReminderEmail } from './email-utils'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
@@ -50,7 +50,7 @@ export async function sendSessionReminders() {
 
       try {
         // Get user data
-        const userDoc = await db.collection('users').doc(session.userId).get()
+        const userDoc = await getDoc(doc(db, 'users', session.userId))
         const user = userDoc.data()
 
         if (!user || !user.email) {
@@ -60,7 +60,7 @@ export async function sendSessionReminders() {
         }
 
         // Get mentor data
-        const mentorDoc = await db.collection('users').doc(session.mentorId).get()
+        const mentorDoc = await getDoc(doc(db, 'users', session.mentorId))
         const mentor = mentorDoc.data()
 
         if (!mentor) {

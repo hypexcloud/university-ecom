@@ -133,7 +133,8 @@ export default function StudentCoursePlanBased() {
           requiresSession: true,
           sessionCompleted: true,
           sessionDate: new Date('2024-01-22'),
-          unlockCondition: 'Nach 1:1 Session'
+          unlockCondition: 'Nach 1:1 Session',
+          resources: []
         },
         {
           id: 'module-4',
@@ -176,7 +177,8 @@ export default function StudentCoursePlanBased() {
           requiresSession: true,
           sessionCompleted: false,
           sessionDate: enrollment.nextSessionDate,
-          unlockCondition: 'Geplant für 10. Januar 2026'
+          unlockCondition: 'Geplant für 10. Januar 2026',
+          resources: []
         },
         {
           id: 'module-7',

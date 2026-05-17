@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState('')
   const [clientSecret, setClientSecret] = useState('')
   const [stripePromise, setStripePromise] = useState<any>(null)
+  const [customerData, setCustomerData] = useState<CheckoutFormData | null>(null)
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -81,6 +82,7 @@ export default function CheckoutPage() {
 
       const { clientSecret } = await response.json()
       setClientSecret(clientSecret)
+      setCustomerData(data)
       setStep('payment')
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten.')
@@ -117,6 +119,7 @@ export default function CheckoutPage() {
             <CardContent>
               <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
                 <PaymentForm
+                  customerData={customerData}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}
                 />
@@ -172,7 +175,7 @@ export default function CheckoutPage() {
                             <span className="text-xl font-bold">{formatPrice(plan.price)}</span>
                           </div>
                           <ul className="space-y-1 ml-6">
-                            {plan.features.map((f, i) => (<li key={i} className="text-sm text-gray-600 flex items-start gap-2"><Check className="h-4 w-4 text-green-600 mt-0.5" /><span>{f}</span></li>))}
+                            {plan.features.map((f: string, i: number) => (<li key={i} className="text-sm text-gray-600 flex items-start gap-2"><Check className="h-4 w-4 text-green-600 mt-0.5" /><span>{f}</span></li>))}
                           </ul>
                         </div>
                       ))}
