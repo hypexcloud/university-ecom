@@ -1,263 +1,102 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { 
-  BookOpen, 
-  Clock,
-  Loader2,
-  GraduationCap,
-  Calendar,
-  ChevronRight
-} from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { db } from '@/lib/server/db'
+import { entitlements, plans, products, courses, courseModules, courseWeeks, courseResources, moduleProgress } from '@/lib/server/db/schema'
+import { eq, and, isNull, asc } from 'drizzle-orm'
+import { requireAuth } from '@/lib/server/auth'
+import { BookOpen, Video, FileText, Link as LinkIcon, CheckCircle } from 'lucide-react'
 
-type PlanType = 'fast' | 'business' | 'infinity'
+export default async function CoursePage() {
+  const user = await requireAuth()
 
-interface EnrollmentWithCourse {
-  enrollment: {
-    id: string
-    userId: string
-    courseId: string
-    planType: PlanType
-    planDisplayName: string
-    progress: number
-    completedModules: number
-    completedSessions?: number
-    totalSessions?: number
-  }
-  course: {
-    courseId: string
-    title: string
-    description: string
-    thumbnail: string
-    category: string
-    level: string
-    duration: string
-    totalModules: number
-    totalVideos: number
-  }
-}
+  const enrolled = await db
+    .select({
+      entitlementId: entitlements.id,
+      planCode: plans.code,
+      productId: products.id,
+      productTitle: products.title,
+      courseId: courses.id,
+      courseTitle: courses.title,
+    })
+    .from(entitlements)
+    .innerJoin(plans, eq(entitlements.planId, plans.id))
+    .innerJoin(products, eq(plans.productId, products.id))
+    .innerJoin(courses, eq(courses.productId, products.id))
+    .where(and(eq(entitlements.customerUid, user.uid), isNull(entitlements.revokedAt)))
 
-export default function StudentCoursesPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [enrollments, setEnrollments] = useState<EnrollmentWithCourse[]>([])
-
-  useEffect(() => {
-    loadEnrollments()
-  }, [])
-
-  const loadEnrollments = async () => {
-    setLoading(true)
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // Mock data
-    const mockData: EnrollmentWithCourse[] = [
-      {
-        enrollment: {
-          id: 'enrollment-1',
-          userId: 'user-123',
-          courseId: 'ai-automation',
-          planType: 'business',
-          planDisplayName: 'Business Plan',
-          progress: 65,
-          completedModules: 5,
-          completedSessions: 2,
-          totalSessions: 6
-        },
-        course: {
-          courseId: 'ai-automation',
-          title: 'AI Automatisierung für E-Commerce',
-          description: 'Meistern Sie den Einsatz von künstlicher Intelligenz in Ihrem E-Commerce Business. Automatisieren Sie Ihre Prozesse und steigern Sie Ihre Umsätze.',
-          thumbnail: '🤖',
-          category: 'AI & Automatisierung',
-          level: 'Fortgeschritten',
-          duration: '3 Monate',
-          totalModules: 8,
-          totalVideos: 24
-        }
-      },
-      {
-        enrollment: {
-          id: 'enrollment-2',
-          userId: 'user-123',
-          courseId: 'dropshipping-eu',
-          planType: 'fast',
-          planDisplayName: 'Fast Plan',
-          progress: 30,
-          completedModules: 2
-        },
-        course: {
-          courseId: 'dropshipping-eu',
-          title: 'EU-konformes Dropshipping',
-          description: 'Starten Sie Ihr rechtssicheres Dropshipping Business in der EU. Lernen Sie alle wichtigen Aspekte von Produktfindung bis Marketing.',
-          thumbnail: '📦',
-          category: 'Dropshipping',
-          level: 'Anfänger',
-          duration: '2 Monate',
-          totalModules: 6,
-          totalVideos: 18
-        }
-      },
-      {
-        enrollment: {
-          id: 'enrollment-3',
-          userId: 'user-123',
-          courseId: 'social-media-marketing',
-          planType: 'infinity',
-          planDisplayName: 'Infinity Plan',
-          progress: 15,
-          completedModules: 1,
-          completedSessions: 0,
-          totalSessions: 999
-        },
-        course: {
-          courseId: 'social-media-marketing',
-          title: 'Social Media Marketing Masterclass',
-          description: 'Werden Sie zum Social Media Experten. Meistern Sie Instagram, TikTok, Facebook Ads und organisches Wachstum.',
-          thumbnail: '📱',
-          category: 'Marketing',
-          level: 'Fortgeschritten',
-          duration: '4 Monate',
-          totalModules: 10,
-          totalVideos: 32
-        }
-      }
-    ]
-    
-    setEnrollments(mockData)
-    setLoading(false)
-  }
-
-  const getPlanBadge = (planType: PlanType) => {
-    const badges: any = {
-      fast: { label: 'Fast Plan', color: 'bg-gray-600 text-white' },
-      business: { label: 'Business Plan', color: 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white' },
-      infinity: { label: 'Infinity Plan', color: 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' }
-    }
-    return badges[planType] || badges.fast
-  }
-
-  if (loading) {
+  if (enrolled.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Lade deine Kurse...</p>
-        </div>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Kursinhalte</h1>
+        <Card><CardContent className="py-12 text-center">
+          <BookOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-30" />
+          <p className="text-muted-foreground">Du hast noch keine Kurse freigeschaltet.</p>
+        </CardContent></Card>
       </div>
     )
   }
 
-  if (enrollments.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-md mx-auto">
-          <GraduationCap className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Noch keine Kurse</h2>
-          <p className="text-gray-600 mb-6">
-            Du bist noch in keinem Kurs eingeschrieben. Entdecke unsere Kurse und starte deine Lernreise!
-          </p>
-          <Button onClick={() => router.push('/kurse')} size="lg">
-            Kurse entdecken
-          </Button>
-        </div>
-      </div>
-    )
+  const courseIds = [...new Set(enrolled.map((e) => e.courseId))]
+  const allModules = await db.select().from(courseModules).where(eq(courseModules.isActive, true)).orderBy(asc(courseModules.orderIndex))
+  const allWeeks = await db.select().from(courseWeeks).orderBy(asc(courseWeeks.orderIndex))
+  const allResources = await db.select().from(courseResources).orderBy(asc(courseResources.orderIndex))
+
+  const progress = await db.select().from(moduleProgress).where(eq(moduleProgress.customerUid, user.uid))
+  const completedIds = new Set(progress.filter((p) => p.completed).map((p) => p.resourceId))
+
+  const icon = (type: string) => {
+    if (type === 'video') return <Video className="h-4 w-4" />
+    if (type === 'pdf') return <FileText className="h-4 w-4" />
+    return <LinkIcon className="h-4 w-4" />
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Meine Kurse</h1>
-        <p className="text-gray-600">
-          Du bist in {enrollments.length} {enrollments.length === 1 ? 'Kurs' : 'Kursen'} eingeschrieben
-        </p>
-      </div>
-
-      {/* Course Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {enrollments.map(({ enrollment, course }) => {
-          const planBadge = getPlanBadge(enrollment.planType)
-          
-          return (
-            <Card 
-              key={enrollment.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => router.push(`/student/course/${course.courseId}?enrollmentId=${enrollment.id}`)}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="text-5xl">{course.thumbnail}</div>
-                  <Badge className={`${planBadge.color} border-0`}>
-                    {planBadge.label}
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl mb-2">{course.title}</CardTitle>
-                <CardDescription className="line-clamp-2">
-                  {course.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Progress */}
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Fortschritt</span>
-                    <span className="font-semibold text-blue-600">
-                      {enrollment.progress}%
-                    </span>
-                  </div>
-                  <Progress value={enrollment.progress} className="h-2" />
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <BookOpen className="h-4 w-4" />
-                    <span>
-                      {enrollment.completedModules}/{course.totalModules} Module
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span>{course.duration}</span>
-                  </div>
-                  {(enrollment.planType === 'business' || enrollment.planType === 'infinity') && (
-                    <>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="h-4 w-4" />
-                        <span>
-                          {enrollment.completedSessions || 0}/
-                          {enrollment.planType === 'infinity' ? '∞' : enrollment.totalSessions || 0} Sessions
-                        </span>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Kursinhalte</h1>
+      {enrolled.map((e) => {
+        const modules = allModules.filter((m) => m.courseId === e.courseId)
+        return (
+          <Card key={e.entitlementId}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{e.courseTitle}</CardTitle>
+                <Badge variant="outline">{e.planCode}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {modules.length === 0 ? (
+                <p className="text-muted-foreground">Inhalte werden in Kürze freigeschaltet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {modules.map((mod) => {
+                    const weeks = allWeeks.filter((w) => w.moduleId === mod.id)
+                    return (
+                      <div key={mod.id} className="border rounded-lg p-4">
+                        <h3 className="font-medium text-lg mb-2">{mod.title}</h3>
+                        {weeks.map((week) => {
+                          const resources = allResources.filter((r) => r.weekId === week.id)
+                          return (
+                            <div key={week.id} className="pl-4 border-l-2 border-muted mt-2">
+                              <p className="text-sm font-medium mb-1">{week.title}</p>
+                              {resources.map((res) => (
+                                <div key={res.id} className="flex items-center gap-2 text-sm py-1">
+                                  {completedIds.has(res.id) ? <CheckCircle className="h-4 w-4 text-green-500" /> : icon(res.type)}
+                                  <span className={completedIds.has(res.id) ? 'line-through text-muted-foreground' : ''}>{res.title}</span>
+                                  {res.duration && <span className="text-xs text-muted-foreground">({Math.ceil(res.duration / 60)} min)</span>}
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        })}
                       </div>
-                    </>
-                  )}
+                    )
+                  })}
                 </div>
-
-                {/* CTA */}
-                <Button 
-                  className="w-full" 
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push(`/student/course/${course.courseId}?enrollmentId=${enrollment.id}`)
-                  }}
-                >
-                  Kurs öffnen
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+              )}
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }

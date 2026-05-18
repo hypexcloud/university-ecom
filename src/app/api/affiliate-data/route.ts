@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-export async function GET() { return NextResponse.json({ stub: true }) }
-export async function POST() { return NextResponse.json({ stub: true }) }
-export async function PUT() { return NextResponse.json({ stub: true }) }
-export async function DELETE() { return NextResponse.json({ stub: true }) }
 
+// Replaced by /api/affiliate/stats
+export async function GET() {
+  return NextResponse.json({ error: 'Use /api/affiliate/stats instead' }, { status: 301 })
+}

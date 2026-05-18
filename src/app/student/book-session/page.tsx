@@ -1,121 +1,78 @@
-'use client'
-
-import { useAuth } from '@/lib/auth/auth-provider'
-import BookingCalendar from '@/components/BookingCalendar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft, Calendar, Clock, Video } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { db } from '@/lib/server/db'
+import { availability, customers } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
+import { requireAuth } from '@/lib/server/auth'
+import { Calendar } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
-export default function BookSessionPage() {
-  const { user } = useAuth()
-  const router = useRouter()
+export default async function BookSessionPage() {
+  await requireAuth()
 
-  // Mock data - in production, fetch from Firebase
-  const enrollmentId = 'enrollment-123'
-  const coachId = 'admin-1' // Amin's ID
+  // Get all mentors' availability
+  const slots = await db
+    .select({
+      mentorUid: availability.mentorUid,
+      dayOfWeek: availability.dayOfWeek,
+      startTime: availability.startTime,
+      endTime: availability.endTime,
+      mentorFirstName: customers.firstName,
+      mentorLastName: customers.lastName,
+    })
+    .from(availability)
+    .innerJoin(customers, eq(availability.mentorUid, customers.uid))
+    .where(eq(availability.isActive, true))
 
-  const handleBookingComplete = (sessionId: string) => {
-    // Redirect to sessions page after 2 seconds
-    setTimeout(() => {
-      router.push('/student/termine')
-    }, 2000)
-  }
+  const mentors = [...new Map(slots.map((s) => [s.mentorUid, { uid: s.mentorUid, name: `${s.mentorFirstName} ${s.mentorLastName}` }])).values()]
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href="/student">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück zum Dashboard
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">Session buchen</h1>
-        <p className="text-gray-600 mt-2">
-          Buchen Sie eine 1:1 Session mit Ihrem Coach
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold">Session buchen</h1>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Booking Area */}
-        <div className="lg:col-span-2">
-          <BookingCalendar
-            userId={user?.id || ''}
-            coachId={coachId}
-            enrollmentId={enrollmentId}
-            onBookingComplete={handleBookingComplete}
-          />
-        </div>
+      {mentors.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-30" />
+            <p className="text-muted-foreground">Aktuell sind keine Termine verfügbar.</p>
+            <p className="text-sm text-muted-foreground mt-2">Bitte kontaktiere den <Link href="/student/support" className="text-primary hover:underline">Support</Link>.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <p className="text-muted-foreground">Verfügbare Mentoren und ihre Zeiten:</p>
 
-        {/* Sidebar Info */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Buchungsinformationen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-sm">Session-Dauer</div>
-                  <div className="text-sm text-gray-600">60 Minuten</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Video className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-sm">Meeting-Optionen</div>
-                  <div className="text-sm text-gray-600">Zoom, Telefon oder Präsenz</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-sm">Verfügbarkeit</div>
-                  <div className="text-sm text-gray-600">Mo-Fr, 9:00-18:00 Uhr</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {mentors.map((mentor) => {
+            const mentorSlots = slots.filter((s) => s.mentorUid === mentor.uid)
+            const days = [...new Set(mentorSlots.map((s) => s.dayOfWeek))]
 
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-lg">Tipps für Ihre Session</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-1">•</span>
-                  <span>Bereiten Sie spezifische Fragen vor</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-1">•</span>
-                  <span>Testen Sie Ihre Technik vorher (bei Zoom)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-1">•</span>
-                  <span>Halten Sie Notizen bereit</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-1">•</span>
-                  <span>Seien Sie pünktlich</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-gray-600">
-                <strong>Hinweis:</strong> Sie können Sessions bis zu 24 Stunden vorher kostenlos stornieren.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            return (
+              <Card key={mentor.uid}>
+                <CardHeader>
+                  <CardTitle>{mentor.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-2 md:grid-cols-3">
+                    {days.map((day) => {
+                      const daySlots = mentorSlots.filter((s) => s.dayOfWeek === day)
+                      return (
+                        <div key={day} className="border rounded-lg p-3">
+                          <p className="font-medium capitalize mb-1">{day}</p>
+                          {daySlots.map((s, i) => (
+                            <p key={i} className="text-sm text-muted-foreground">{s.startTime} – {s.endTime}</p>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-3">
+                    Um einen Termin zu buchen, erstelle bitte ein <Link href="/student/support" className="text-primary hover:underline">Support-Ticket</Link> mit deinem Wunschtermin.
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </>
+      )}
     </div>
   )
 }
