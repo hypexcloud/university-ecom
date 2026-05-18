@@ -135,69 +135,6 @@ export default function AICursePage() {
         </div>
       </section>
 
-      {/* Plans Section */}
-      <section id="plaene" className="section-prestige px-6 py-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
-              Wählen Sie Ihren Plan
-            </h2>
-            <div className="accent-line-gold mx-auto mb-6"></div>
-            <p className="text-xl text-prestige-gray-300">
-              Drei Optionen für Ihren Erfolg
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {course.plans.map((plan, i) => {
-              const isPopular = plan.name === 'business'
-              return (
-                <Card 
-                  key={plan.id} 
-                  className={`card-prestige text-center relative ${
-                    isPopular ? 'border-prestige-gold-500 shadow-gold' : ''
-                  }`}
-                >
-                  {isPopular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-prestige-gold-500 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
-                      BELIEBT
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-prestige-gold-500 text-2xl mb-2">
-                      {plan.displayNameDE}
-                    </CardTitle>
-                    <div className="text-5xl font-bold text-prestige-white mb-4">
-                      €{plan.price.toLocaleString('de-DE')}
-                    </div>
-                    <CardDescription className="text-prestige-gray-400">
-                      {plan.descriptionDE}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3 mb-6">
-                      {plan.featuresDE.map((feature, j) => (
-                        <div key={j} className="flex items-start text-left text-sm text-prestige-gray-300">
-                          <CheckCircle2 className="h-4 w-4 text-prestige-gold-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <Button 
-                      asChild 
-                      className={isPopular ? 'btn-gold w-full' : 'btn-prestige w-full'}
-                    >
-                      <Link href="/contact">
-                        Plan wählen
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* Why This Course */}
       <section className="px-6 py-20 bg-prestige-black">
