@@ -6,6 +6,7 @@ import { tickets, ticketMessages, customers } from '@/lib/server/db/schema'
 import { eq, and, asc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/server/auth'
 import { TicketReplyForm } from './reply-form'
+import { RealtimeMessages } from './realtime-messages'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -58,22 +59,18 @@ export default async function TicketDetailPage({ params }: Props) {
         <CardHeader>
           <CardTitle>Nachrichten</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {messages.map((msg) => {
-            const isOwn = msg.authorUid === user.uid
-            return (
-              <div
-                key={msg.id}
-                className={`rounded-lg p-4 ${isOwn ? 'bg-primary/5 ml-8' : 'bg-muted mr-8'}`}
-              >
-                <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>{isOwn ? 'Du' : msg.authorFirstName}</span>
-                  <span>{msg.createdAt.toLocaleString('de-DE')}</span>
-                </div>
-                <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
-              </div>
-            )
-          })}
+        <CardContent>
+          <RealtimeMessages
+            ticketId={id}
+            userId={user.uid}
+            initialMessages={messages.map((m) => ({
+              id: m.id,
+              body: m.body,
+              authorUid: m.authorUid,
+              createdAt: m.createdAt.toISOString(),
+              authorFirstName: m.authorFirstName,
+            }))}
+          />
         </CardContent>
       </Card>
 

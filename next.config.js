@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "recharts", "date-fns"],
   },
   images: {
-    domains: ["university-ecom.com"],
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.b-cdn.net' },
+      { protocol: 'https', hostname: 'university-ecom.com' },
+    ],
     formats: ["image/webp", "image/avif"],
   },
   async headers() {

@@ -85,18 +85,20 @@ function CheckoutSuccessContent() {
 
   const fetchOrderDetails = async (id: string) => {
     try {
-      // TODO: Implement API to fetch order details
-      // For now, show mock data
+      const res = await fetch(`/api/orders/${id}`)
+      if (!res.ok) throw new Error('Bestellung nicht gefunden')
+      const data = await res.json()
+      const item = data.items?.[0]
       setOrderInfo({
-        orderId: id,
-        orderNumber: `UE-${Date.now().toString().slice(-8)}`,
-        courseName: 'AI Automatisierung Kurs',
-        planName: 'Business Plan',
-        total: 1190,
-        currency: 'EUR',
+        orderId: data.order.id,
+        orderNumber: data.invoice?.number || `UE-${data.order.id.slice(0, 8)}`,
+        courseName: item?.productTitle || 'Kurs',
+        planName: item?.planCode || 'Plan',
+        total: data.order.totalCents / 100,
+        currency: data.order.currency || 'EUR',
         isNewUser: false,
-        customerEmail: 'kunde@example.com',
-        customerName: 'Max Mustermann'
+        customerEmail: '',
+        customerName: '',
       })
       setLoading(false)
     } catch (err) {
