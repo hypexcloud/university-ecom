@@ -268,6 +268,23 @@ export default function CheckoutPage() {
                   <CardContent className="space-y-4">
                     <div><div className="font-medium mb-1">{courseData.name}</div><Badge variant="outline">{planData.name}</Badge></div>
                     <Separator />
+
+                    {/* Giftcard redemption */}
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Gutschein einlösen</p>
+                      <div className="flex gap-2">
+                        <Input placeholder="Gutschein-Code" className="text-xs" id="giftcard-code" />
+                        <Button type="button" variant="outline" size="sm" onClick={async () => {
+                          const code = (document.getElementById('giftcard-code') as HTMLInputElement)?.value
+                          if (!code) return
+                          const res = await fetch('/api/giftcards/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) })
+                          if (res.ok) { const data = await res.json(); alert(`Gutschein gültig! Guthaben: ${(data.balanceCents / 100).toFixed(2)} €`) }
+                          else { alert('Ungültiger Gutscheincode') }
+                        }}>Einlösen</Button>
+                      </div>
+                    </div>
+
+                    <Separator />
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm"><span>Zwischensumme</span><span className="font-medium">{formatPrice(subtotal)}</span></div>
                       <div className="flex justify-between text-sm"><span>MwSt. (19%)</span><span className="font-medium">{formatPrice(vat)}</span></div>

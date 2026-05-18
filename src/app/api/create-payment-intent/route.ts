@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPaymentIntent } from '@/lib/stripe-server'
+import { createClient } from '@/lib/supabase/server'
 import { calculateTotal } from '@/lib/stripe'
+import { db } from '@/lib/server/db'
+import { plans, products } from '@/lib/server/db/schema'
+import { eq, and } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,33 +12,54 @@ export async function POST(request: NextRequest) {
     const { amount, currency, metadata, customerEmail } = body
 
     if (!amount || !currency) {
-      return NextResponse.json(
-        { error: 'Missing required fields: amount, currency' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Calculate total with VAT
+    // Get authenticated user
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Resolve plan UUID from courseType + planType
+    let planId = metadata?.planId || ''
+    if (!planId && metadata?.courseType && metadata?.planType) {
+      // Map courseType to product slug: 'ai' → 'ai-kurs', 'dropshipping' → 'dropshipping-kurs'
+      const slugMap: Record<string, string> = { ai: 'ai-kurs', dropshipping: 'dropshipping-kurs' }
+      const productSlug = slugMap[metadata.courseType] || metadata.courseType
+
+      const [plan] = await db
+        .select({ id: plans.id })
+        .from(plans)
+        .innerJoin(products, eq(plans.productId, products.id))
+        .where(and(eq(products.slug, productSlug), eq(plans.code, metadata.planType)))
+        .limit(1)
+
+      planId = plan?.id || ''
+    }
+
+    // Read affiliate cookie
+    const affiliateCode = request.cookies.get('affiliate_ref')?.value || null
+
     const totalAmount = calculateTotal(amount)
 
-    // Create payment intent
     const paymentIntent = await createPaymentIntent({
       amount: totalAmount,
       currency: currency || 'EUR',
-      metadata: metadata || {},
-      customerEmail,
-      description: `University Ecom - ${metadata?.courseName} - ${metadata?.planName}`
+      metadata: {
+        ...metadata,
+        customerUid: user?.id || '',
+        planId,
+        affiliateCode: affiliateCode || '',
+      },
+      customerEmail: customerEmail || user?.email,
+      description: `University Ecom - ${metadata?.courseName || 'Kurs'} - ${metadata?.planName || 'Plan'}`,
     })
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      paymentIntentId: paymentIntent.id,
     })
-  } catch (error: any) {
-    console.error('Error creating payment intent:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

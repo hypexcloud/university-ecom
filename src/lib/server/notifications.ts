@@ -32,18 +32,30 @@ interface EmitParams {
 export async function emitNotification(params: EmitParams) {
   const { recipientUid, event, title, body, link, sendEmail = true } = params
 
-  // 1. Insert bell notification
+  // Check user's notification preferences
+  const [customer] = await db
+    .select({ billing: customers.billing })
+    .from(customers)
+    .where(eq(customers.uid, recipientUid))
+    .limit(1)
+
+  const prefs = (customer?.billing as Record<string, unknown>)?.notificationPrefs as Record<string, { email?: boolean; discord?: boolean }> | undefined
+  const eventPrefs = prefs?.[event]
+  const emailEnabled = sendEmail && (eventPrefs?.email !== false) // default true if no prefs set
+  const discordEnabled = eventPrefs?.discord !== false
+
+  // 1. Insert bell notification (always)
   await db.insert(notifications).values({
     recipientUid,
     event,
     title,
     body: body || null,
     link: link || null,
-    channels: { bell: true, email: sendEmail, discord: false },
+    channels: { bell: true, email: emailEnabled, discord: discordEnabled },
   })
 
-  // 2. Send email if enabled
-  if (sendEmail) {
+  // 2. Send email if enabled by user preferences
+  if (emailEnabled) {
     const client = getResend()
     if (client) {
       const [customer] = await db
@@ -74,16 +86,21 @@ export async function emitNotification(params: EmitParams) {
     }
   }
 
-  // 3. Send Discord DM if the user has linked their Discord account
-  const [customerForDm] = await db
+  // 3. Send Discord DM if enabled and user has linked Discord
+  if (!discordEnabled) return
+
+  if (customer?.billing) {
+    // Already fetched customer above, reuse
+  }
+  const discordUserId = (await db
     .select({ discordUserId: customers.discordUserId })
     .from(customers)
     .where(eq(customers.uid, recipientUid))
-    .limit(1)
+    .limit(1))[0]?.discordUserId
 
-  if (customerForDm?.discordUserId) {
+  if (discordUserId) {
     await sendDM(
-      customerForDm.discordUserId,
+      discordUserId,
       `🔔 ${title}\n\n${body || ''}\n\nDashboard: ${appUrl}${link || '/student'}`,
     ).catch(() => {})
   }

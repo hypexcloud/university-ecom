@@ -179,9 +179,16 @@ async function attributeAffiliate(code: string, customerUid: string, orderId: st
  * Call 2: +1 month from Call 1
  */
 async function scheduleCreatorSessions(customerUid: string, planCode: string) {
-  // Find the first admin with mentor permission to assign
-  // For now, use a placeholder — in production this would pick from available mentors
-  const mentorUid = customerUid // Will be reassigned by admin; placeholder so FK is valid
+  // Find an active mentor to assign
+  const { mentors } = await import('@/lib/server/db/schema')
+  const [mentor] = await db
+    .select({ uid: mentors.uid })
+    .from(mentors)
+    .where(eq(mentors.isActive, true))
+    .limit(1)
+
+  // Fall back to customer if no mentors exist (admin will reassign)
+  const mentorUid = mentor?.uid || customerUid
 
   const now = new Date()
 
