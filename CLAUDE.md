@@ -2,7 +2,7 @@
 
 You are working on **University Ecom**, a premium course + CRM + community platform (German market, inspired by TRW). This file is your standing brief. Read it at the start of every session before editing code.
 
-For the full prioritized work plan, see [`docs/CRM_SPEC.md`](./docs/CRM_SPEC.md). For the original client requirements, see [`docs/LASTENHEFT.md`](./docs/LASTENHEFT.md) (the source-of-truth in German). For a categorized breakdown of every requirement plus the gaps the client didn't think about (DSGVO, GoBD, Widerruf, security, video infra, etc.), see [`docs/REQUIREMENTS_ANALYSIS.md`](./docs/REQUIREMENTS_ANALYSIS.md). **Read all three before starting Phase 1.**
+For the full prioritized work plan, see [`docs/CRM_SPEC.md`](./docs/CRM_SPEC.md). For the original client requirements, see [`docs/LASTENHEFT.md`](./docs/LASTENHEFT.md) (the source-of-truth in German). For a categorized breakdown of every requirement plus the gaps the client didn't think about (DSGVO, GoBD, Widerruf, security, video infra, etc.), see [`docs/REQUIREMENTS_ANALYSIS.md`](./docs/REQUIREMENTS_ANALYSIS.md). For the complete student-facing dashboard IA — every page, route, plan-gate, and acceptance criterion — see [`docs/STUDENT_DASHBOARD.md`](./docs/STUDENT_DASHBOARD.md). For the admin + mentor counterpart — every admin route, the per-permission visibility model, and how mentor-only differs — see [`docs/ADMIN_DASHBOARD.md`](./docs/ADMIN_DASHBOARD.md). **Read CRM_SPEC, LASTENHEFT, and REQUIREMENTS_ANALYSIS before starting Phase 1. Consult STUDENT_DASHBOARD whenever building any page under `src/app/student/**`, and ADMIN_DASHBOARD whenever building any page under `src/app/admin/**`.**
 
 ---
 
