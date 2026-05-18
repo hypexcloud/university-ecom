@@ -21,56 +21,39 @@ export default async function StudentDashboard() {
   const user = await requireAuth()
   const uid = user.uid
 
-  // Fetch all data in parallel
-  const [activeEntitlements, upcomingSessions, openTicketResult, unreadNotifResult, recentPosts, affiliateData, progressData] = await Promise.all([
-    db.select({
-      id: entitlements.id,
-      planCode: plans.code,
-      productTitle: products.title,
-      productSlug: products.slug,
-      productKind: products.kind,
-      grantedAt: entitlements.grantedAt,
-    })
-      .from(entitlements)
-      .innerJoin(plans, eq(entitlements.planId, plans.id))
-      .innerJoin(products, eq(plans.productId, products.id))
-      .where(and(eq(entitlements.customerUid, uid), isNull(entitlements.revokedAt))),
+  // Sequential queries (postgres.js with prepare:false can't handle parallel on single connection)
+  const activeEntitlements = await db.select({
+    id: entitlements.id, planCode: plans.code, productTitle: products.title,
+    productSlug: products.slug, productKind: products.kind, grantedAt: entitlements.grantedAt,
+  }).from(entitlements)
+    .innerJoin(plans, eq(entitlements.planId, plans.id))
+    .innerJoin(products, eq(plans.productId, products.id))
+    .where(and(eq(entitlements.customerUid, uid), isNull(entitlements.revokedAt)))
 
-    db.select({
-      id: sessions.id,
-      scheduledAt: sessions.scheduledAt,
-      type: sessions.type,
-      status: sessions.status,
-      meetingUrl: sessions.meetingUrl,
-      mentorFirstName: customers.firstName,
-      mentorLastName: customers.lastName,
-    })
-      .from(sessions)
-      .innerJoin(customers, eq(sessions.mentorUid, customers.uid))
-      .where(and(eq(sessions.customerUid, uid), gte(sessions.scheduledAt, new Date())))
-      .orderBy(sessions.scheduledAt)
-      .limit(3),
+  const upcomingSessions = await db.select({
+    id: sessions.id, scheduledAt: sessions.scheduledAt, type: sessions.type,
+    status: sessions.status, meetingUrl: sessions.meetingUrl,
+    mentorFirstName: customers.firstName, mentorLastName: customers.lastName,
+  }).from(sessions)
+    .innerJoin(customers, eq(sessions.mentorUid, customers.uid))
+    .where(and(eq(sessions.customerUid, uid), gte(sessions.scheduledAt, new Date())))
+    .orderBy(sessions.scheduledAt).limit(3)
 
-    db.select({ value: count() }).from(tickets)
-      .where(and(eq(tickets.customerUid, uid), eq(tickets.status, 'offen'))),
+  const openTicketResult = await db.select({ value: count() }).from(tickets)
+    .where(and(eq(tickets.customerUid, uid), eq(tickets.status, 'offen')))
 
-    db.select({ value: count() }).from(notifications)
-      .where(and(eq(notifications.recipientUid, uid), isNull(notifications.readAt))),
+  const unreadNotifResult = await db.select({ value: count() }).from(notifications)
+    .where(and(eq(notifications.recipientUid, uid), isNull(notifications.readAt)))
 
-    db.select({ id: communityPosts.id, title: communityPosts.title, category: communityPosts.category })
-      .from(communityPosts)
-      .where(isNotNull(communityPosts.publishedAt))
-      .orderBy(desc(communityPosts.publishedAt))
-      .limit(3),
+  const recentPosts = await db.select({ id: communityPosts.id, title: communityPosts.title, category: communityPosts.category })
+    .from(communityPosts).where(isNotNull(communityPosts.publishedAt))
+    .orderBy(desc(communityPosts.publishedAt)).limit(3)
 
-    db.select({ id: affiliateLinks.id, code: affiliateLinks.code })
-      .from(affiliateLinks)
-      .where(eq(affiliateLinks.customerUid, uid))
-      .limit(1),
+  const affiliateData = await db.select({ id: affiliateLinks.id, code: affiliateLinks.code })
+    .from(affiliateLinks).where(eq(affiliateLinks.customerUid, uid)).limit(1)
 
-    db.select({ value: count() }).from(moduleProgress)
-      .where(and(eq(moduleProgress.customerUid, uid), eq(moduleProgress.completed, true))),
-  ])
+  const progressData = await db.select({ value: count() }).from(moduleProgress)
+    .where(and(eq(moduleProgress.customerUid, uid), eq(moduleProgress.completed, true)))
 
   const openTickets = openTicketResult[0]?.value ?? 0
   const unreadNotifs = unreadNotifResult[0]?.value ?? 0
