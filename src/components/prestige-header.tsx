@@ -53,8 +53,9 @@ export function PrestigeHeader() {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex lg:gap-x-4 items-center">
+          <Link href="/contact" className="text-sm text-prestige-gray-400 hover:text-prestige-white transition-colors">Kontakt</Link>
           <Button asChild variant="outline" className="btn-prestige" size="sm">
-            <Link href="/contact">Erstgespräch</Link>
+            <Link href="/intake">Erstgespräch</Link>
           </Button>
           <Button asChild className="btn-gold" size="sm">
             <Link href="/login">Login</Link>
@@ -94,8 +95,11 @@ export function PrestigeHeader() {
               </Link>
             ))}
             <div className="pt-4 space-y-2">
+              <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-center text-sm text-prestige-gray-400 hover:text-prestige-white py-2">
+                Kontakt
+              </Link>
               <Button asChild variant="outline" className="w-full btn-prestige">
-                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/intake" onClick={() => setMobileMenuOpen(false)}>
                   Erstgespräch
                 </Link>
               </Button>
