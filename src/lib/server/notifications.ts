@@ -2,6 +2,7 @@ import { db } from '@/lib/server/db'
 import { notifications, customers } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 import { Resend } from 'resend'
+import { sendDM } from '@/lib/server/discord'
 
 let resend: Resend | null = null
 function getResend(): Resend | null {
@@ -71,5 +72,19 @@ export async function emitNotification(params: EmitParams) {
         })
       }
     }
+  }
+
+  // 3. Send Discord DM if the user has linked their Discord account
+  const [customerForDm] = await db
+    .select({ discordUserId: customers.discordUserId })
+    .from(customers)
+    .where(eq(customers.uid, recipientUid))
+    .limit(1)
+
+  if (customerForDm?.discordUserId) {
+    await sendDM(
+      customerForDm.discordUserId,
+      `🔔 ${title}\n\n${body || ''}\n\nDashboard: ${appUrl}${link || '/student'}`,
+    ).catch(() => {})
   }
 }
