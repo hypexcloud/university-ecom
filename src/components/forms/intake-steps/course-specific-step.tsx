@@ -86,7 +86,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                         </div>
                       </Label>
                     </div>
-                    <Badge variant="secondary">12 Wochen</Badge>
+                    <Badge variant="secondary">3 Monate</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -110,7 +110,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                   <div className="pt-2 border-t">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Ab</span>
-                      <span className="text-lg font-bold">€497</span>
+                      <span className="text-lg font-bold">€200</span>
                     </div>
                   </div>
                 </CardContent>
@@ -137,7 +137,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                         </div>
                       </Label>
                     </div>
-                    <Badge variant="secondary">16 Wochen</Badge>
+                    <Badge variant="secondary">2 Monate</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -161,7 +161,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                   <div className="pt-2 border-t">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Ab</span>
-                      <span className="text-lg font-bold">€497</span>
+                      <span className="text-lg font-bold">€200</span>
                     </div>
                   </div>
                 </CardContent>

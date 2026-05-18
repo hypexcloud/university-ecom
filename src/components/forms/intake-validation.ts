@@ -113,17 +113,23 @@ export const formOptions = {
   ],
 
   planTypes: [
-    { 
-      value: 'pro', 
-      label: 'Pro Plan (€497)', 
-      description: 'Vollständiger Kurszugang + Community',
-      features: ['Alle Lektionen', 'Community-Zugang', 'Email-Support', 'Lebenslanger Zugang']
+    {
+      value: 'fast',
+      label: 'Fast Plan (€200)',
+      description: 'Alle Kursinhalte + Community',
+      features: ['Alle Video-Inhalte', 'WhatsApp & Discord', 'Selbststudium', 'Lebenslanger Zugang']
     },
-    { 
-      value: 'max', 
-      label: 'Max Plan (€997)', 
-      description: 'Pro Plan + persönliche Betreuung',
-      features: ['Alles aus Pro Plan', '1-zu-1 Mentoring', 'Persönlicher Coach', 'Priorisierter Support']
+    {
+      value: 'business',
+      label: 'Business Plan (€1.000)',
+      description: 'Fast + persönliche Betreuung',
+      features: ['Alles aus Fast', '1:1 Mentoring Sessions', 'Persönliche Betreuung', 'Prioritäts-Support']
+    },
+    {
+      value: 'infinity',
+      label: 'Infinity Plan (€3.000)',
+      description: 'Business + unbegrenztes Coaching',
+      features: ['Alles aus Business', 'Unbegrenzte 1:1 Sessions', 'VIP Support', 'Lifetime Updates']
     },
   ],
 
