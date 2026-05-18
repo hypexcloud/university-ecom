@@ -7,18 +7,12 @@ import { verifyCsrf } from '@/lib/server/csrf'
 import { emitNotification } from '@/lib/server/notifications'
 import { z } from 'zod'
 
-const grantSchema = z.object({
-  action: z.literal('grant'),
-  customerUid: z.string().uuid(),
-  planId: z.string().uuid(),
+const bodySchema = z.object({
+  action: z.enum(['grant', 'revoke']),
+  customerUid: z.string().min(1).optional(),
+  planId: z.string().min(1).optional(),
+  entitlementId: z.string().min(1).optional(),
 })
-
-const revokeSchema = z.object({
-  action: z.literal('revoke'),
-  entitlementId: z.string().uuid(),
-})
-
-const bodySchema = z.discriminatedUnion('action', [grantSchema, revokeSchema])
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +24,9 @@ export async function POST(request: NextRequest) {
     const body = bodySchema.parse(raw)
 
     if (body.action === 'grant') {
+      if (!body.customerUid || !body.planId) {
+        return NextResponse.json({ error: 'customerUid und planId erforderlich' }, { status: 400 })
+      }
       const [inserted] = await db.insert(entitlements).values({
         customerUid: body.customerUid,
         planId: body.planId,
@@ -55,6 +52,9 @@ export async function POST(request: NextRequest) {
     }
 
     // action === 'revoke'
+    if (!body.entitlementId) {
+      return NextResponse.json({ error: 'entitlementId erforderlich' }, { status: 400 })
+    }
     await db
       .update(entitlements)
       .set({ revokedAt: new Date() })
