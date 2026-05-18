@@ -4,6 +4,7 @@ import { constructWebhookEvent } from '@/lib/stripe-server'
 import { handleStripePaymentSuccess } from '@/lib/server/order-processing'
 import { db } from '@/lib/server/db'
 import { auditLog } from '@/lib/server/db/schema'
+import { emitNotification } from '@/lib/server/notifications'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
@@ -52,6 +53,18 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
       amount: paymentIntent.amount,
     },
   })
+
+  // Notify customer
+  const customerUid = paymentIntent.metadata.customerUid
+  if (customerUid) {
+    await emitNotification({
+      recipientUid: customerUid,
+      event: 'invoice_ready',
+      title: `Rechnung ${result.invoiceNumber} erstellt`,
+      body: `Deine Zahlung über ${(paymentIntent.amount / 100).toFixed(2)} € wurde bestätigt.`,
+      link: '/student',
+    }).catch(() => {})
+  }
 }
 
 async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {

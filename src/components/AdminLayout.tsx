@@ -19,6 +19,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { NotificationBell } from '@/components/notification-bell'
 
 type PermKey = 'customers' | 'products' | 'payments' | 'affiliate' | 'tickets' | 'videos' | 'analytics' | 'mentor'
 
@@ -176,6 +177,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main Content */}
       <div className="lg:pl-64">
+        <div className="hidden lg:flex items-center justify-end p-4 border-b bg-white">
+          <NotificationBell />
+        </div>
         <main className="w-full min-h-screen">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
             {children}

@@ -4,6 +4,7 @@ import { entitlements, auditLog } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
 import { verifyCsrf } from '@/lib/server/csrf'
+import { emitNotification } from '@/lib/server/notifications'
 import { z } from 'zod'
 
 const grantSchema = z.object({
@@ -41,6 +42,14 @@ export async function POST(request: NextRequest) {
         targetId: inserted.id,
         after: { customerUid: body.customerUid, planId: body.planId },
       })
+
+      await emitNotification({
+        recipientUid: body.customerUid,
+        event: 'entitlement_granted',
+        title: 'Neuer Zugang freigeschaltet',
+        body: 'Ein neues Produkt wurde für dich freigeschaltet.',
+        link: '/student',
+      }).catch(() => {})
 
       return NextResponse.json({ success: true, id: inserted.id })
     }

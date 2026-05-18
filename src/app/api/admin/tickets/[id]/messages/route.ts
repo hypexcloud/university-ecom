@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
 import { verifyCsrf } from '@/lib/server/csrf'
 import { sendTicketReplyEmail } from '@/lib/email/send-ticket-reply'
+import { emitNotification } from '@/lib/server/notifications'
 import { z } from 'zod'
 
 const messageSchema = z.object({
@@ -38,8 +39,17 @@ export async function POST(
 
     await db.update(tickets).set({ lastMessageAt: new Date() }).where(eq(tickets.id, id))
 
-    // Send email to customer if not an internal note
+    // Notify customer if not an internal note
     if (!data.isInternal) {
+      await emitNotification({
+        recipientUid: ticket.customerUid,
+        event: 'ticket_reply',
+        title: `Neue Antwort: ${ticket.subject}`,
+        body: data.body.slice(0, 200),
+        link: `/student/support/${id}`,
+      }).catch(() => {})
+
+      // Also send dedicated ticket-reply email (richer template)
       const [customer] = await db
         .select({ email: customers.email, firstName: customers.firstName })
         .from(customers)
@@ -53,9 +63,7 @@ export async function POST(
           ticketId: id,
           ticketSubject: ticket.subject,
           messagePreview: data.body.slice(0, 200),
-        }).catch(() => {
-          // Email failure should not block the response
-        })
+        }).catch(() => {})
       }
     }
 
