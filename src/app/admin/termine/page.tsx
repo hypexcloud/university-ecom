@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import AdminAppointmentView from '@/components/AdminAppointmentView'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Calendar } from 'lucide-react'

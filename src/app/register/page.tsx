@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
@@ -13,7 +13,7 @@ export default function RegisterPage() {
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
     if (!loading && user) {
-      router.push('/dashboard')
+      router.push('/student')
     }
   }, [user, loading, router])
 

@@ -28,7 +28,7 @@ import {
 } from 'lucide-react'
 import { IntakeService } from '@/lib/firebase/firestore'
 import { EmailAutomation } from '@/lib/email/email-automation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 
 interface IntakeResponse {
   id: string

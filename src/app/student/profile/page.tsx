@@ -24,7 +24,7 @@ import {
   Camera
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 
 interface UserProfile {
   firstName: string

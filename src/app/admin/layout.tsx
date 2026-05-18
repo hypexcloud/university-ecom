@@ -1,6 +1,6 @@
 'use client'
 
-import { AdminGuard } from '@/contexts/AuthContext'
+import { AdminGuard } from '@/lib/auth/auth-provider'
 import AdminLayout from '@/components/AdminLayout'
 import '../dashboard-globals.css'
 import { useEffect } from 'react'

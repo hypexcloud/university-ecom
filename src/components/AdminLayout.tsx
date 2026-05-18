@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import { Button } from '@/components/ui/button'
 import {
   CalendarIcon,
@@ -70,7 +70,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, signOut: logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = () => {

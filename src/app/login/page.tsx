@@ -1,21 +1,17 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import LoginForm from './login-form'
-import { getDashboardRoute } from '@/lib/role-utils'
-
 export default function LoginPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    // If user is already logged in, redirect to appropriate dashboard
     if (!loading && user) {
-      const dashboardRoute = getDashboardRoute(user.role)
-      router.push(dashboardRoute)
+      router.push('/student')
     }
   }, [user, loading, router])
 

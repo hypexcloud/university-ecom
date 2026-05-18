@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from '@/contexts/AuthContext'
+import { AuthProvider } from '@/lib/auth/auth-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ConditionalLayout } from '@/components/layout/conditional-layout'
 

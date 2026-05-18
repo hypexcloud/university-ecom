@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import StudentDashboardPlanBased from '@/components/StudentDashboardPlanBased'
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'

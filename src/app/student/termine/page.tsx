@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import SessionList from '@/components/SessionList'
 import { Button } from '@/components/ui/button'
 import { Calendar, Plus } from 'lucide-react'

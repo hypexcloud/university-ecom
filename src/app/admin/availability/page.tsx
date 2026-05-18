@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import AvailabilityManager from '@/components/AvailabilityManager'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/lib/auth/auth-provider'
 import { Button } from '@/components/ui/button'
 import {
   CalendarIcon,
@@ -63,7 +63,7 @@ interface StudentLayoutProps {
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, signOut: logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = () => {
