@@ -1,6 +1,6 @@
 import { db } from '@/lib/server/db'
 import {
-  orders, orderItems, entitlements, invoices, customers, plans,
+  orders, orderItems, entitlements, invoices, plans, sessions,
 } from '@/lib/server/db/schema'
 import { eq, and, isNull, sql } from 'drizzle-orm'
 import type Stripe from 'stripe'
@@ -91,6 +91,12 @@ export async function fulfillOrder(params: FulfillParams) {
     number: invoiceNumber,
   })
 
+  // Auto-schedule creator sessions if applicable
+  const [plan] = await db.select().from(plans).where(eq(plans.id, planId)).limit(1)
+  if (plan && (plan.code === 'tiktok' || plan.code === 'youtube')) {
+    await scheduleCreatorSessions(customerUid, plan.code)
+  }
+
   return { orderId: order.id, invoiceNumber }
 }
 
@@ -116,4 +122,49 @@ export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIn
     isUpgrade: meta.isUpgrade === 'true',
     upgradeFromPlanId: meta.upgradeFromPlanId || null,
   })
+}
+
+/**
+ * Auto-schedule 2 creator program sessions:
+ * Call 1: first Friday after purchase
+ * Call 2: +1 month from Call 1
+ */
+async function scheduleCreatorSessions(customerUid: string, planCode: string) {
+  // Find the first admin with mentor permission to assign
+  // For now, use a placeholder — in production this would pick from available mentors
+  const mentorUid = customerUid // Will be reassigned by admin; placeholder so FK is valid
+
+  const now = new Date()
+
+  // First Friday after today
+  const call1 = new Date(now)
+  const dayOfWeek = call1.getDay() // 0=Sun, 5=Fri
+  const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 5 + (7 - dayOfWeek)
+  call1.setDate(call1.getDate() + (daysUntilFriday === 0 ? 7 : daysUntilFriday))
+  call1.setHours(14, 0, 0, 0) // 14:00
+
+  // Call 2: +1 month
+  const call2 = new Date(call1)
+  call2.setMonth(call2.getMonth() + 1)
+
+  const sessionType = 'zoom'
+
+  await db.insert(sessions).values([
+    {
+      customerUid,
+      mentorUid,
+      type: sessionType,
+      status: 'pending',
+      scheduledAt: call1,
+      metadata: { creatorProgram: planCode, callNumber: 1 },
+    },
+    {
+      customerUid,
+      mentorUid,
+      type: sessionType,
+      status: 'pending',
+      scheduledAt: call2,
+      metadata: { creatorProgram: planCode, callNumber: 2 },
+    },
+  ])
 }
