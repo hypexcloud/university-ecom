@@ -128,7 +128,7 @@ function CheckoutSuccessContent() {
 
   if (error || !orderInfo) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="checkout-dark min-h-screen bg-prestige-black py-12">
         <div className="container mx-auto px-4 max-w-3xl">
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
@@ -143,7 +143,7 @@ function CheckoutSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="checkout-dark min-h-screen bg-prestige-black py-12">
       <div className="container mx-auto px-4 max-w-3xl">
         {/* Success Header */}
         <div className="text-center mb-8">

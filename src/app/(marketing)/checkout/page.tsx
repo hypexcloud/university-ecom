@@ -138,7 +138,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="checkout-dark min-h-screen bg-prestige-black py-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="mb-8">
           <Link href="/" className="text-blue-600 hover:text-blue-700 mb-4 inline-block">← Zurück</Link>

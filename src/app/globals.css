@@ -185,3 +185,27 @@
     @apply bg-prestige-gold-500/50;
   }
 }
+
+/* Checkout page dark override — makes shadcn components match marketing theme */
+.checkout-dark {
+  --background: 10 10% 5%;
+  --foreground: 40 20% 90%;
+  --card: 10 10% 8%;
+  --card-foreground: 40 20% 90%;
+  --popover: 10 10% 8%;
+  --popover-foreground: 40 20% 90%;
+  --primary: 43 80% 52%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 10 10% 15%;
+  --secondary-foreground: 40 20% 90%;
+  --muted: 10 10% 15%;
+  --muted-foreground: 40 10% 55%;
+  --accent: 10 10% 15%;
+  --accent-foreground: 40 20% 90%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 40 10% 20%;
+  --input: 40 10% 20%;
+  --ring: 43 80% 52%;
+  color: hsl(var(--foreground));
+}
