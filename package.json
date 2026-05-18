@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "npx tsx scripts/setup-supabase.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
