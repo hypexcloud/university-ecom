@@ -68,12 +68,12 @@ export default function AdminTicketsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+        <Select value={categoryFilter || 'alle'} onValueChange={(v) => setCategoryFilter(v === 'alle' ? '' : v)}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Kategorie..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Alle Kategorien</SelectItem>
+            <SelectItem value="alle">Alle Kategorien</SelectItem>
             <SelectItem value="support">Support</SelectItem>
             <SelectItem value="hilfe">Hilfe</SelectItem>
             <SelectItem value="feedback">Feedback</SelectItem>

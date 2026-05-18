@@ -115,9 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: 'Registrierung fehlgeschlagen' }
     }
 
-    // 2. Create customer row — the server verifies the JWT and uses user.id
-    // Retry once on failure to handle transient network issues
+    // 2. Create customer row — server verifies via session or service-role lookup
     const registerBody = JSON.stringify({
+      uid: authData.user.id,
+      email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
       discordUsername: data.discordUsername || null,
