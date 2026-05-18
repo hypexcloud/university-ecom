@@ -29,6 +29,7 @@ const navigation: { name: string; href: string; icon: typeof HomeIcon; descripti
   { name: 'Kursinhalte', href: '/admin/courses', icon: BookOpen, description: 'Module & Ressourcen', perm: 'products' },
   { name: 'Tickets', href: '/admin/tickets', icon: MessageSquare, description: 'Support-Tickets', perm: 'tickets' },
   { name: 'Intake', href: '/admin/intake', icon: BarChart3, description: 'Bewerbungen prüfen', perm: 'customers' },
+  { name: 'Zahlungen', href: '/admin/payments', icon: Award, description: 'Crypto & Zahlungen', perm: 'payments' },
   { name: 'Affiliates', href: '/admin/affiliates', icon: Award, description: 'Affiliate-Verwaltung', perm: 'affiliate' },
   { name: 'Einstellungen', href: '/admin/einstellungen', icon: Settings, description: 'System-Konfiguration' },
 ]
