@@ -11,7 +11,8 @@
  *   - Tables pushed via `npm run db:push`
  */
 
-import 'dotenv/config'
+import { config } from 'dotenv'
+config({ path: '.env.local' })
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { createClient } from '@supabase/supabase-js'
@@ -28,8 +29,12 @@ if (!DATABASE_URL || !SUPABASE_URL || !SERVICE_ROLE_KEY) {
 
 const client = postgres(DATABASE_URL, { prepare: false })
 const db = drizzle(client, { schema })
+// Node 20 lacks native WebSocket; provide ws for the Supabase Realtime client
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const WebSocketPolyfill = require('ws')
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
+  realtime: { transport: WebSocketPolyfill },
 })
 
 async function seed() {
