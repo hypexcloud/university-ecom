@@ -1,7 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { checkRateLimit } from '@/lib/server/rate-limit'
 
 export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname
+
+  // Rate limiting on sensitive API routes
+  if (path.startsWith('/api/auth/')) {
+    const blocked = await checkRateLimit(request, { limit: 10, window: '1 m', prefix: 'auth' })
+    if (blocked) return blocked
+  } else if (path.startsWith('/api/checkout/')) {
+    const blocked = await checkRateLimit(request, { limit: 5, window: '1 m', prefix: 'checkout' })
+    if (blocked) return blocked
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -30,8 +42,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const path = request.nextUrl.pathname
 
   // Redirect unauthenticated users away from protected routes
   if (!user && (path.startsWith('/admin') || path.startsWith('/student'))) {

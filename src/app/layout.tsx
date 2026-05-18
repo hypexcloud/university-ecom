@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth/auth-provider'
+import { CrispChat } from '@/components/crisp-chat'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ConditionalLayout } from '@/components/layout/conditional-layout'
 
@@ -95,6 +96,7 @@ export default function RootLayout({
             <ConditionalLayout>
               {children}
             </ConditionalLayout>
+            <CrispChat />
           </AuthProvider>
         </ThemeProvider>
       </body>
