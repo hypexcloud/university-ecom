@@ -14,7 +14,8 @@ import {
   LogOut,
   MenuIcon,
   XIcon,
-  TrendingUp
+  TrendingUp,
+  MessageSquare
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -48,6 +49,12 @@ const navigation = [
     href: '/student/book-session',
     icon: Award,
     description: 'Neue Session vereinbaren'
+  },
+  {
+    name: 'Support',
+    href: '/student/support',
+    icon: MessageSquare,
+    description: 'Hilfe & Support-Tickets'
   },
   {
     name: 'Profil',

@@ -16,6 +16,7 @@ import {
   XIcon,
   Award,
   BookOpen,
+  MessageSquare,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -26,6 +27,7 @@ const navigation: { name: string; href: string; icon: typeof HomeIcon; descripti
   { name: 'Sessions', href: '/admin/termine', icon: CalendarIcon, description: 'Coaching-Termine verwalten', perm: 'mentor' },
   { name: 'Kunden', href: '/admin/benutzer', icon: Users, description: 'Kunden verwalten', perm: 'customers' },
   { name: 'Kursinhalte', href: '/admin/courses', icon: BookOpen, description: 'Module & Ressourcen', perm: 'products' },
+  { name: 'Tickets', href: '/admin/tickets', icon: MessageSquare, description: 'Support-Tickets', perm: 'tickets' },
   { name: 'Intake', href: '/admin/intake', icon: BarChart3, description: 'Bewerbungen prüfen', perm: 'customers' },
   { name: 'Affiliates', href: '/admin/affiliates', icon: Award, description: 'Affiliate-Verwaltung', perm: 'affiliate' },
   { name: 'Einstellungen', href: '/admin/einstellungen', icon: Settings, description: 'System-Konfiguration' },
