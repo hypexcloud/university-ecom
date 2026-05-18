@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, TrendingUp, CheckCircle2, Crown, Clock, Users, Star, Shield, Euro } from 'lucide-react'
+import { ArrowRight, TrendingUp, CheckCircle2, Crown, Clock, Users, Star, Shield, Euro, Check, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { DROPSHIPPING_COURSE_DATA } from '@/lib/courses-data'
 
@@ -313,29 +313,41 @@ export default function DropshippingCoursePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="px-6 py-24 bg-prestige-black">
-        <div className="container mx-auto max-w-4xl text-center">
-          <Crown className="w-16 h-16 text-prestige-gold-500 mx-auto mb-6" />
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-6">
-            Starten Sie Ihr Dropshipping Business
-          </h2>
-          <div className="accent-line-gold mx-auto mb-6"></div>
-          <p className="text-xl text-prestige-gray-300 mb-8 max-w-2xl mx-auto">
-            Werden Sie Teil der erfolgreichen Dropshipping-Community und bauen Sie Ihr eigenes profitables Online-Business.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="btn-gold text-lg px-10 py-7">
-              <Link href="/contact">
-                Erstgespräch buchen
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="btn-prestige text-lg px-10 py-7">
-              <Link href="/pricing">
-                Alle Pläne vergleichen
-              </Link>
-            </Button>
+      {/* Plan Selection */}
+      <section className="px-6 py-20 border-t border-prestige-gray-800">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-prestige-white mb-4">Wähle deinen Plan</h2>
+            <p className="text-prestige-gray-400">Alle Preise inkl. 19% MwSt. · Lebenslanger Zugang</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {DROPSHIPPING_COURSE_DATA.plans.map((plan) => {
+              const isPopular = plan.name === 'business'
+              return (
+                <Card key={plan.id} className={`relative bg-prestige-gray-900/50 text-prestige-white ${isPopular ? 'border-2 border-prestige-gold-500' : 'border-prestige-gray-800'}`}>
+                  {isPopular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-prestige-gold-500 text-black text-xs font-bold px-3 py-1 rounded-full">BELIEBT</div>}
+                  <CardHeader className="text-center pt-8">
+                    <CardTitle className="text-xl text-prestige-gold-500">{plan.displayNameDE}</CardTitle>
+                    <div className="text-4xl font-bold text-prestige-white mt-3">€{plan.price.toLocaleString('de-DE')}<span className="text-sm font-normal text-prestige-gray-400"> inkl. MwSt.</span></div>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <ul className="space-y-2">
+                      {plan.featuresDE.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-prestige-gray-300"><Check className="h-4 w-4 text-prestige-gold-500 mt-0.5 flex-shrink-0" />{f}</li>
+                      ))}
+                    </ul>
+                    <div className="space-y-2">
+                      <Button asChild className={`w-full ${isPopular ? 'bg-prestige-gold-500 text-black hover:bg-prestige-gold-400' : 'bg-prestige-gray-800 text-prestige-white hover:bg-prestige-gray-700'}`}>
+                        <Link href={`/checkout?course=dropshipping&plan=${plan.name}`}>Jetzt kaufen <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full border-prestige-gray-700 text-prestige-gray-300 hover:border-prestige-gold-500 hover:text-prestige-white">
+                        <Link href="/intake"><Calendar className="mr-2 h-4 w-4" /> Erstgespräch</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
