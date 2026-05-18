@@ -33,7 +33,7 @@ export default function PricingPage() {
       </section>
 
       {/* AI Kurs Pricing */}
-      <section className="px-6 py-20 bg-prestige-black">
+      <section id="ai" className="px-6 py-20 bg-prestige-black scroll-mt-20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-prestige-white mb-3">
@@ -100,7 +100,7 @@ export default function PricingPage() {
       </section>
 
       {/* Dropshipping Kurs Pricing */}
-      <section className="px-6 py-20 section-prestige">
+      <section id="dropshipping" className="px-6 py-20 section-prestige scroll-mt-20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-prestige-white mb-3">

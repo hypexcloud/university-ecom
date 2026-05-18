@@ -87,7 +87,7 @@ export default function CoursesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/pricing/ai">
+                <Link href="/pricing#ai">
                   Preise vergleichen
                 </Link>
               </Button>
@@ -157,7 +157,7 @@ export default function CoursesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/pricing/dropshipping">
+                <Link href="/pricing#dropshipping">
                   Preise vergleichen
                 </Link>
               </Button>
