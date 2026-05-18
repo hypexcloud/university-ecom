@@ -277,7 +277,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle className="text-prestige-gold-500 text-2xl mb-2">Infinity</CardTitle>
                 <div className="text-4xl font-bold text-prestige-white mb-4">
-                  €1.400<span className="text-sm text-prestige-gray-400">+</span>
+                  €3.000<span className="text-sm text-prestige-gray-400">+</span>
                 </div>
               </CardHeader>
               <CardContent>
