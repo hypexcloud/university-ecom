@@ -46,11 +46,11 @@ export async function requireAuth(): Promise<AuthenticatedUser> {
     })
   }
 
-  const [customer] = await db
+  const customerRows = await db
     .select()
     .from(customers)
     .where(eq(customers.uid, user.id))
-    .limit(1)
+  const customer = customerRows[0]
 
   if (!customer) {
     throw new Response(JSON.stringify({ error: 'Kundenprofil nicht gefunden' }), {
@@ -88,11 +88,11 @@ export async function requireAdmin(perm: keyof Permissions): Promise<AdminUser> 
 
   const authed = await requireAuth()
 
-  const [adminPerm] = await db
+  const adminPermRows = await db
     .select()
     .from(adminPermissions)
     .where(eq(adminPermissions.uid, authed.uid))
-    .limit(1)
+  const adminPerm = adminPermRows[0]
 
   if (!adminPerm) {
     throw new Response(JSON.stringify({ error: 'Kein Admin-Zugang' }), {
@@ -125,11 +125,11 @@ export async function requireAdmin(perm: keyof Permissions): Promise<AdminUser> 
 export async function requireMentor(): Promise<AuthenticatedUser> {
   const authed = await requireAuth()
 
-  const [mentor] = await db
+  const mentorRows = await db
     .select()
     .from(mentors)
     .where(eq(mentors.uid, authed.uid))
-    .limit(1)
+  const mentor = mentorRows[0]
 
   if (!mentor || !mentor.isActive) {
     throw new Response(JSON.stringify({ error: 'Kein Mentor-Zugang' }), {

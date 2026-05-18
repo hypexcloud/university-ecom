@@ -37,7 +37,7 @@ export default async function StudentDashboard() {
   }).from(sessions)
     .innerJoin(customers, eq(sessions.mentorUid, customers.uid))
     .where(and(eq(sessions.customerUid, uid), gte(sessions.scheduledAt, new Date())))
-    .orderBy(sessions.scheduledAt).limit(3)
+    .orderBy(sessions.scheduledAt)
 
   const openTicketResult = await db.select({ value: count() }).from(tickets)
     .where(and(eq(tickets.customerUid, uid), eq(tickets.status, 'offen')))
@@ -47,10 +47,10 @@ export default async function StudentDashboard() {
 
   const recentPosts = await db.select({ id: communityPosts.id, title: communityPosts.title, category: communityPosts.category })
     .from(communityPosts).where(isNotNull(communityPosts.publishedAt))
-    .orderBy(desc(communityPosts.publishedAt)).limit(3)
+    .orderBy(desc(communityPosts.publishedAt))
 
   const affiliateData = await db.select({ id: affiliateLinks.id, code: affiliateLinks.code })
-    .from(affiliateLinks).where(eq(affiliateLinks.customerUid, uid)).limit(1)
+    .from(affiliateLinks).where(eq(affiliateLinks.customerUid, uid))
 
   const progressData = await db.select({ value: count() }).from(moduleProgress)
     .where(and(eq(moduleProgress.customerUid, uid), eq(moduleProgress.completed, true)))
