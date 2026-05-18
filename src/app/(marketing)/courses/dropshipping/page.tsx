@@ -226,35 +226,69 @@ export default function DropshippingCoursePage() {
         </div>
       </section>
 
-      {/* Plan Selection */}
-      <section className="px-6 py-20 border-t border-prestige-gray-800">
+      {/* Plans Section */}
+      <section id="plaene" className="section-prestige px-6 py-20">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-prestige-white mb-4">Wähle deinen Plan</h2>
-            <p className="text-prestige-gray-400">Alle Preise inkl. 19% MwSt. · Lebenslanger Zugang</p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-prestige-white mb-4">
+              Wählen Sie Ihren Plan
+            </h2>
+            <div className="accent-line-gold mx-auto mb-6"></div>
+            <p className="text-xl text-prestige-gray-300">
+              Von Selbstlerner bis Done-For-You · Alle Preise inkl. 19% MwSt.
+            </p>
           </div>
+
           <div className="grid md:grid-cols-3 gap-8">
-            {DROPSHIPPING_COURSE_DATA.plans.map((plan) => {
+            {course.plans.map((plan) => {
               const isPopular = plan.name === 'business'
+              const isInfinity = plan.name === 'infinity'
               return (
-                <Card key={plan.id} className={`relative bg-prestige-gray-900/50 text-prestige-white ${isPopular ? 'border-2 border-prestige-gold-500' : 'border-prestige-gray-800'}`}>
-                  {isPopular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-prestige-gold-500 text-black text-xs font-bold px-3 py-1 rounded-full">BELIEBT</div>}
-                  <CardHeader className="text-center pt-8">
-                    <CardTitle className="text-xl text-prestige-gold-500">{plan.displayNameDE}</CardTitle>
-                    <div className="text-4xl font-bold text-prestige-white mt-3">€{plan.price.toLocaleString('de-DE')}<span className="text-sm font-normal text-prestige-gray-400"> inkl. MwSt.</span></div>
+                <Card
+                  key={plan.id}
+                  className={`card-prestige text-center relative ${isPopular ? 'border-prestige-gold-500 shadow-gold' : ''} ${isInfinity ? 'border-prestige-gold-600' : ''}`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-prestige-gold-500 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
+                      BELIEBT
+                    </div>
+                  )}
+                  {isInfinity && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-prestige-gold-500 to-prestige-gold-600 text-prestige-black px-4 py-1 rounded-full text-sm font-semibold">
+                      PREMIUM
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-prestige-gold-500 text-2xl mb-2">
+                      {plan.displayNameDE}
+                    </CardTitle>
+                    <div className="text-5xl font-bold text-prestige-white mb-2">
+                      €{plan.price.toLocaleString('de-DE')}
+                    </div>
+                    <p className="text-prestige-gray-500 text-sm">inkl. MwSt.</p>
+                    <CardDescription className="text-prestige-gray-400 mt-2">
+                      {plan.descriptionDE}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-5">
-                    <ul className="space-y-2">
-                      {plan.featuresDE.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-prestige-gray-300"><Check className="h-4 w-4 text-prestige-gold-500 mt-0.5 flex-shrink-0" />{f}</li>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3 mb-6">
+                      {plan.featuresDE.map((feature, j) => (
+                        <div key={j} className="flex items-start text-left text-sm text-prestige-gray-300">
+                          <CheckCircle2 className="h-4 w-4 text-prestige-gold-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
                       ))}
-                    </ul>
-                    <div className="space-y-2">
-                      <Button asChild className={`w-full ${isPopular ? 'bg-prestige-gold-500 text-black hover:bg-prestige-gold-400' : 'bg-prestige-gray-800 text-prestige-white hover:bg-prestige-gray-700'}`}>
-                        <Link href={`/checkout?course=dropshipping&plan=${plan.name}`}>Jetzt kaufen <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    </div>
+                    <div className="space-y-3">
+                      <Button asChild className={isInfinity || isPopular ? 'btn-gold w-full' : 'btn-prestige w-full'}>
+                        <Link href={`/checkout?course=dropshipping&plan=${plan.name}`}>
+                          Jetzt kaufen <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
                       </Button>
-                      <Button asChild variant="outline" className="w-full border-prestige-gray-700 text-prestige-gray-300 hover:border-prestige-gold-500 hover:text-prestige-white">
-                        <Link href="/intake"><Calendar className="mr-2 h-4 w-4" /> Erstgespräch</Link>
+                      <Button asChild variant="outline" className="w-full border-prestige-gray-600 text-prestige-gray-300 hover:text-prestige-white hover:border-prestige-gold-500">
+                        <Link href="/intake">
+                          <Calendar className="mr-2 h-4 w-4" /> Erstgespräch vereinbaren
+                        </Link>
                       </Button>
                     </div>
                   </CardContent>
