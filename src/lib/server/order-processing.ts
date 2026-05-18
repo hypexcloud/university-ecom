@@ -1,8 +1,10 @@
 import { db } from '@/lib/server/db'
 import {
   orders, orderItems, entitlements, invoices, plans, sessions,
+  affiliateLinks, affiliateReferrals,
 } from '@/lib/server/db/schema'
 import { eq, and, isNull, sql } from 'drizzle-orm'
+import { emitNotification } from '@/lib/server/notifications'
 import type Stripe from 'stripe'
 
 /**
@@ -34,6 +36,7 @@ interface FulfillParams {
   providerRef: string | null
   isUpgrade?: boolean
   upgradeFromPlanId?: string | null
+  affiliateCode?: string | null
 }
 
 /**
@@ -42,7 +45,7 @@ interface FulfillParams {
  */
 export async function fulfillOrder(params: FulfillParams) {
   const {
-    customerUid, planId, totalCents, provider, providerRef,
+    customerUid, planId, totalCents, provider, providerRef, affiliateCode,
     isUpgrade = false, upgradeFromPlanId = null,
   } = params
 
@@ -97,6 +100,11 @@ export async function fulfillOrder(params: FulfillParams) {
     await scheduleCreatorSessions(customerUid, plan.code)
   }
 
+  // Affiliate attribution + commission
+  if (affiliateCode) {
+    await attributeAffiliate(affiliateCode, customerUid, order.id, totalCents)
+  }
+
   return { orderId: order.id, invoiceNumber }
 }
 
@@ -121,7 +129,43 @@ export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIn
     providerRef: paymentIntent.id,
     isUpgrade: meta.isUpgrade === 'true',
     upgradeFromPlanId: meta.upgradeFromPlanId || null,
+    affiliateCode: meta.affiliateCode || null,
   })
+}
+
+/**
+ * Attribute an order to an affiliate and calculate commission (15% default).
+ */
+async function attributeAffiliate(code: string, customerUid: string, orderId: string, totalCents: number) {
+  const [link] = await db
+    .select()
+    .from(affiliateLinks)
+    .where(eq(affiliateLinks.code, code))
+    .limit(1)
+
+  if (!link) return
+  // Don't allow self-referral
+  if (link.customerUid === customerUid) return
+
+  const rate = parseFloat(link.commissionRate || '0.15')
+  const commissionCents = Math.round(totalCents * rate)
+
+  await db.insert(affiliateReferrals).values({
+    linkId: link.id,
+    referredCustomerUid: customerUid,
+    orderId,
+    amountCents: commissionCents,
+    status: 'approved',
+  })
+
+  // Notify affiliate
+  await emitNotification({
+    recipientUid: link.customerUid,
+    event: 'affiliate_commission',
+    title: 'Neue Provision!',
+    body: `Du hast ${(commissionCents / 100).toFixed(2)} € Provision für eine Empfehlung erhalten.`,
+    link: '/affiliate',
+  }).catch(() => {})
 }
 
 /**
