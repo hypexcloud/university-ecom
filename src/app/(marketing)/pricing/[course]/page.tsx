@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Check, Crown, ArrowRight } from 'lucide-react'
+import { Check, Crown, ArrowRight, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { AI_COURSE_DATA, DROPSHIPPING_COURSE_DATA } from '@/lib/courses-data'
@@ -78,12 +78,18 @@ export default async function CoursePricingPage({ params }: Props) {
                       )}
                     </ul>
 
-                    <Button asChild className={`w-full text-lg py-6 ${style.cta}`}>
-                      <Link href={`/checkout?course=${course}&plan=${plan.name}`}>
-                        {plan.displayNameDE} wählen
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Link>
-                    </Button>
+                    <div className="space-y-3">
+                      <Button asChild className={`w-full text-lg py-6 ${style.cta}`}>
+                        <Link href={`/checkout?course=${course}&plan=${plan.name}`}>
+                          Jetzt kaufen <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full py-4 border-prestige-gray-600 text-prestige-gray-300 hover:text-prestige-white hover:border-prestige-gold-500">
+                        <Link href="/intake">
+                          <Calendar className="mr-2 h-4 w-4" /> Erstgespräch vereinbaren
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               )

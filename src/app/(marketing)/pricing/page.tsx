@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Check, Crown, ArrowRight, X } from 'lucide-react'
+import { Check, Crown, ArrowRight, X, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { AI_COURSE_DATA, DROPSHIPPING_COURSE_DATA } from '@/lib/courses-data'
 
@@ -82,15 +82,18 @@ export default function PricingPage() {
                       ))}
                     </ul>
                     
-                    <Button 
-                      asChild 
-                      className={`w-full ${isPopular ? 'btn-gold' : 'btn-prestige'}`}
-                    >
-                      <Link href="/contact">
-                        Plan wählen
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="space-y-3">
+                      <Button asChild className={`w-full ${isPopular ? 'btn-gold' : 'btn-prestige'}`}>
+                        <Link href={`/checkout?course=ai&plan=${plan.name}`}>
+                          Jetzt kaufen <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full border-prestige-gray-600 text-prestige-gray-300 hover:text-prestige-white hover:border-prestige-gold-500">
+                        <Link href="/intake">
+                          <Calendar className="mr-2 h-4 w-4" /> Erstgespräch vereinbaren
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               )
@@ -155,15 +158,18 @@ export default function PricingPage() {
                       ))}
                     </ul>
                     
-                    <Button 
-                      asChild 
-                      className={`w-full ${isInfinity || isPopular ? 'btn-gold' : 'btn-prestige'}`}
-                    >
-                      <Link href="/contact">
-                        Plan wählen
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="space-y-3">
+                      <Button asChild className={`w-full ${isInfinity || isPopular ? 'btn-gold' : 'btn-prestige'}`}>
+                        <Link href={`/checkout?course=dropshipping&plan=${plan.name}`}>
+                          Jetzt kaufen <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full border-prestige-gray-600 text-prestige-gray-300 hover:text-prestige-white hover:border-prestige-gold-500">
+                        <Link href="/intake">
+                          <Calendar className="mr-2 h-4 w-4" /> Erstgespräch vereinbaren
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               )
