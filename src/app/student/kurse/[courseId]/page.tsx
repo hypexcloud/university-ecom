@@ -89,10 +89,20 @@ export default async function CoursePlayerPage({ params }: Props) {
                           <div key={week.id} className="pl-4 border-l-2 border-muted">
                             <p className="text-sm font-medium mb-2">{week.title}</p>
                             {weekResources.map((res) => (
-                              <div key={res.id} className="flex items-center gap-2 text-sm py-1.5 hover:bg-muted/50 rounded px-2 -mx-2">
-                                {completedIds.has(res.id) ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : icon(res.type)}
-                                <span className={`flex-1 ${completedIds.has(res.id) ? 'text-muted-foreground' : ''}`}>{res.title}</span>
-                                {res.duration && <span className="text-xs text-muted-foreground">{Math.ceil(res.duration / 60)} min</span>}
+                              <div key={res.id} className="text-sm py-2 hover:bg-muted/50 rounded px-2 -mx-2">
+                                <div className="flex items-center gap-2">
+                                  {completedIds.has(res.id) ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : icon(res.type)}
+                                  <span className={`flex-1 ${completedIds.has(res.id) ? 'text-muted-foreground' : ''}`}>{res.title}</span>
+                                  {res.duration && <span className="text-xs text-muted-foreground">{Math.ceil(res.duration / 60)} min</span>}
+                                  {res.type === 'pdf' && res.url && (
+                                    <a href={res.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">Download</a>
+                                  )}
+                                </div>
+                                {res.type === 'video' && res.url && (
+                                  <div className="mt-2 aspect-video bg-black rounded-lg overflow-hidden">
+                                    <iframe src={res.url} className="w-full h-full" allowFullScreen allow="autoplay; fullscreen; encrypted-media" />
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
