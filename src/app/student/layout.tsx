@@ -27,11 +27,6 @@ export default function StudentRootLayout({ children }: { children: React.ReactN
   })
 
   useEffect(() => {
-    document.documentElement.classList.remove('dark')
-    document.documentElement.style.colorScheme = 'light'
-  }, [])
-
-  useEffect(() => {
     if (!user) return
     fetch('/api/student/nav-flags')
       .then((r) => (r.ok ? r.json() : {}))
@@ -45,7 +40,7 @@ export default function StudentRootLayout({ children }: { children: React.ReactN
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="dashboard-shell min-h-screen bg-gray-50">
       {/* Mobile header */}
       <div className="lg:hidden bg-white shadow-sm border-b">
         <div className="flex items-center justify-between p-4">

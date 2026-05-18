@@ -3,24 +3,19 @@
 import { AdminGuard } from '@/lib/auth/auth-provider'
 import AdminLayout from '@/components/AdminLayout'
 import '../dashboard-globals.css'
-import { useEffect } from 'react'
 
 export default function AdminRootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  useEffect(() => {
-    // Force light mode for dashboard
-    document.documentElement.classList.remove('dark')
-    document.documentElement.style.colorScheme = 'light'
-  }, [])
-
   return (
     <AdminGuard>
-      <AdminLayout>
-        {children}
-      </AdminLayout>
+      <div className="dashboard-shell">
+        <AdminLayout>
+          {children}
+        </AdminLayout>
+      </div>
     </AdminGuard>
   )
 }

@@ -1,103 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Dashboard-scoped styles.
+ * These ONLY apply inside .dashboard-shell — they never leak to the marketing site.
+ * The marketing site uses globals.css with dark theme (black + gold).
+ */
 
-/* Force light mode for dashboards */
-@layer base {
-  :root {
-    color-scheme: light;
-    
-    /* Standard Dashboard Theme - Blue Primary */
-    --background: 0 0% 100% !important;
-    --foreground: 0 0% 3.9% !important;
-    
-    --card: 0 0% 100% !important;
-    --card-foreground: 0 0% 3.9% !important;
-    
-    --popover: 0 0% 100% !important;
-    --popover-foreground: 0 0% 3.9% !important;
-    
-    /* Primary = Blue (not gold) */
-    --primary: 221.2 83.2% 53.3% !important;
-    --primary-foreground: 210 40% 98% !important;
-    
-    /* Secondary = Gray */
-    --secondary: 210 40% 96.1% !important;
-    --secondary-foreground: 222.2 47.4% 11.2% !important;
-    
-    --muted: 210 40% 96.1% !important;
-    --muted-foreground: 215.4 16.3% 46.9% !important;
-    
-    /* Accent = Blue */
-    --accent: 210 40% 96.1% !important;
-    --accent-foreground: 222.2 47.4% 11.2% !important;
-    
-    --destructive: 0 84.2% 60.2% !important;
-    --destructive-foreground: 210 40% 98% !important;
-    
-    --border: 214.3 31.8% 91.4% !important;
-    --input: 214.3 31.8% 91.4% !important;
-    --ring: 221.2 83.2% 53.3% !important;
-    
-    --radius: 0.5rem;
-  }
+.dashboard-shell {
+  color-scheme: light;
 
-  /* Force light mode even if dark class exists */
-  .dark {
-    color-scheme: light;
-    
-    --background: 0 0% 100% !important;
-    --foreground: 0 0% 3.9% !important;
-    
-    --card: 0 0% 100% !important;
-    --card-foreground: 0 0% 3.9% !important;
-    
-    --popover: 0 0% 100% !important;
-    --popover-foreground: 0 0% 3.9% !important;
-    
-    --primary: 221.2 83.2% 53.3% !important;
-    --primary-foreground: 210 40% 98% !important;
-    
-    --secondary: 210 40% 96.1% !important;
-    --secondary-foreground: 222.2 47.4% 11.2% !important;
-    
-    --muted: 210 40% 96.1% !important;
-    --muted-foreground: 215.4 16.3% 46.9% !important;
-    
-    --accent: 210 40% 96.1% !important;
-    --accent-foreground: 222.2 47.4% 11.2% !important;
-    
-    --destructive: 0 84.2% 60.2% !important;
-    --destructive-foreground: 210 40% 98% !important;
-    
-    --border: 214.3 31.8% 91.4% !important;
-    --input: 214.3 31.8% 91.4% !important;
-    --ring: 221.2 83.2% 53.3% !important;
-  }
+  --background: 0 0% 98%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
-  body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Override any dark mode styles */
-  .dark body {
-    @apply bg-white text-gray-900;
-  }
-  
-  /* Use standard sans-serif fonts for dashboards - NOT Playfair */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-    font-weight: 700;
-  }
-  
-  /* Ensure body uses standard font too */
-  body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-  }
+/* Dashboard fonts — sans-serif, not Playfair */
+.dashboard-shell h1,
+.dashboard-shell h2,
+.dashboard-shell h3,
+.dashboard-shell h4,
+.dashboard-shell h5,
+.dashboard-shell h6 {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.dashboard-shell body,
+.dashboard-shell {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
