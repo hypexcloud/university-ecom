@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const COOKIE_DAYS = parseInt(process.env.AFFILIATE_COOKIE_DAYS || '60', 10)
+const COOKIE_DAYS = parseInt(process.env.AFFILIATE_COOKIE_DAYS || '30', 10)
 
 /**
  * Sets a referral cookie when ?ref=CODE is present.

@@ -235,6 +235,24 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   {errors.acceptTerms && <p className="text-sm text-red-500">{errors.acceptTerms.message}</p>}
+
+                  {/* Widerruf waiver — mandatory for digital content */}
+                  <div className="flex items-start gap-3 p-3 border border-amber-200 bg-amber-50 rounded-lg">
+                    <Checkbox
+                      id="widerruf"
+                      checked={watch('acceptWiderrufWaiver')}
+                      onCheckedChange={(c) => setValue('acceptWiderrufWaiver', c as boolean)}
+                    />
+                    <div>
+                      <label htmlFor="widerruf" className="text-sm font-medium">Widerrufsverzicht *</label>
+                      <p className="text-sm text-gray-600">
+                        Ich stimme ausdrücklich zu, dass die Ausführung des Vertrages (Zugang zu digitalen Inhalten) sofort nach Bezahlung beginnt.
+                        Mir ist bekannt, dass ich mit Beginn der Ausführung mein Widerrufsrecht verliere (§ 356 Abs. 5 BGB).
+                      </p>
+                    </div>
+                  </div>
+                  {errors.acceptWiderrufWaiver && <p className="text-sm text-red-500">{errors.acceptWiderrufWaiver.message}</p>}
+
                   <div className="flex items-start gap-3">
                     <Checkbox {...register('acceptNewsletter')} />
                     <label className="text-sm">Newsletter abonnieren</label>

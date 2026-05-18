@@ -77,6 +77,13 @@ export const checkoutSchema = z.object({
     .refine((val) => val === true, {
       message: 'Sie müssen den AGB und der Datenschutzerklärung zustimmen'
     }),
+
+  // Widerruf waiver — mandatory for digital content (§ 356 Abs. 5 BGB)
+  acceptWiderrufWaiver: z.boolean()
+    .refine((val) => val === true, {
+      message: 'Sie müssen bestätigen, dass der Zugang sofort beginnt und das Widerrufsrecht erlischt'
+    }),
+
   acceptNewsletter: z.boolean().default(false)
 })
 

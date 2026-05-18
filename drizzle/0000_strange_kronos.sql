@@ -18,6 +18,14 @@ CREATE TABLE "customers" (
 	CONSTRAINT "customers_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
+CREATE TABLE "mentors" (
+	"uid" uuid PRIMARY KEY NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"specialties" jsonb,
+	"bio" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "plans" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"product_id" uuid NOT NULL,
@@ -319,6 +327,7 @@ CREATE TABLE "consent_log" (
 );
 --> statement-breakpoint
 ALTER TABLE "admin_permissions" ADD CONSTRAINT "admin_permissions_uid_customers_uid_fk" FOREIGN KEY ("uid") REFERENCES "public"."customers"("uid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "mentors" ADD CONSTRAINT "mentors_uid_customers_uid_fk" FOREIGN KEY ("uid") REFERENCES "public"."customers"("uid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "plans" ADD CONSTRAINT "plans_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "entitlements" ADD CONSTRAINT "entitlements_customer_uid_customers_uid_fk" FOREIGN KEY ("customer_uid") REFERENCES "public"."customers"("uid") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "entitlements" ADD CONSTRAINT "entitlements_plan_id_plans_id_fk" FOREIGN KEY ("plan_id") REFERENCES "public"."plans"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

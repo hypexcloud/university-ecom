@@ -434,9 +434,9 @@ These decisions are locked. Claude Code should **not** re-ask — implement agai
 |---|---|---|---|
 | 1 | Backend platform | **Supabase**, Frankfurt region | Postgres + Auth + Storage + Realtime in one project. Drizzle connects via direct Postgres URL; we ignore PostgREST. |
 | 2 | ORM | **Drizzle** | Schema in `src/lib/server/db/schema/*.ts`, migrations in `drizzle/`. Drizzle queries from Next.js API routes / Server Actions only — never from the browser. |
-| 3 | Mentor modeling | Same table as admins | `admin_permissions.perms.mentor = true`. Split into separate table only when non-admin mentors exist. |
+| 3 | Mentor modeling | **Separate `mentors` table** | 3 admins + separate mentors (Amin, Esat as coaches). `mentors` table with uid, isActive, specialties, bio. `requireMentor()` auth guard. Updated 2026-05-18 per client. |
 | 4 | Video hosting | **Bunny Stream** | Signed playback URLs (TTL 5 min), HLS, dynamic watermark with viewer email. EU PoPs. Out of Supabase — videos are too big to live in Storage. |
-| 5 | Invoicing / GoBD | **Lexoffice** via API | Lexoffice is the legal record. Mirror PDFs to Supabase Storage `invoices` bucket (private, signed URLs) as backup. Build customer-facing dashboard PDF separately if Lexoffice's template is too plain. |
+| 5 | Invoicing / GoBD | **DATEV Unternehmen Online** (preferred) | DATEV for GoBD compliance. Mirror PDFs to Supabase Storage `invoices` bucket. Must be export-ready and buchhalterisch nachvollziehbar. Updated 2026-05-18 per client. |
 | 6 | Cookie consent | Self-rolled component | Categories: `essential`, `analytics`, `marketing`. Block all non-essential scripts until consent. Store consent log in Postgres `consent_log` table. |
 | 7 | Error tracking | **Sentry** | Free tier (5k errors/mo). Separate DSN per env (dev/preview/prod). |
 | 8 | Uptime monitoring | **Better Stack** | Free tier, status page, Discord/Slack alerts. Health endpoint at `/api/health`. |
@@ -449,11 +449,11 @@ These decisions are locked. Claude Code should **not** re-ask — implement agai
 | 15 | Crypto processor | **Manual TX-hash verification for v1**; NOWPayments later | v1: customer pastes TX hash, admin verifies on block explorer, marks order paid. Chains: BTC, ETH, USDT-ERC20, USDT-TRC20. |
 | 16 | Livechat | **Crisp** | EU-hosted, free tier viable, Pro €25/mo. Load only after marketing consent. |
 | 17 | Email infra | **Resend** (already in stack) + SPF/DKIM/DMARC DNS records | Use Resend audiences for marketing emails. Separate template namespace for transactional vs marketing. |
-| 18 | Affiliate cookie window | **60 days**, last-touch wins | Stored as `AFFILIATE_COOKIE_DAYS` env var. |
-| 19 | Drip release | Per-product `release_strategy` JSON on `plans` | Defaults: Fast/Infinity = `all_unlocked`; Business = `first_then_mentor_gated`. |
-| 20 | Kleinunternehmer | **No** — VAT-registered from day 1 | Avoids painful migration once Infinity sales push past €22k. |
-| 21 | Widerruf waiver at checkout | **Yes**, checkbox required | German lawyer to sign off on exact wording before launch. |
-| 22 | Refund policy | Within 14 d: full. After: none unless exceptional. Partial: admin discretion. Chargeback: auto-revoke. | Write into AGB. |
+| 18 | Affiliate cookie window | **30 days**, last-touch wins | Updated 2026-05-18 per client (was 60). Stored as `AFFILIATE_COOKIE_DAYS` env var. |
+| 19 | Drip release | **All plans = `all_unlocked`** | All content unlocked immediately on purchase. Calls/support/mentoring limited by plan tier, not content access. Updated 2026-05-18 per client. |
+| 20 | Kleinunternehmer | **No** — KG, regulär umsatzsteuerpflichtig | Company is a KG (Kommanditgesellschaft). Updated 2026-05-18. |
+| 21 | Widerruf waiver at checkout | **Yes**, mandatory checkbox | "Zugang startet sofort, Widerrufsrecht erlischt" (§ 356 Abs. 5 BGB). No refunds after activation of digital content. Updated 2026-05-18 per client. |
+| 22 | Refund policy | **No refunds after digital content activation.** Chargeback: auto-revoke. | Updated 2026-05-18 per client. Goes into AGB. |
 | 23 | Tax handling | **Stripe Tax** for VAT calc + reverse-charge | Validates USt-IdNr via VIES, applies destination VAT for B2C, reverse-charge for B2B EU. |
 | 24 | Logging / structured logs | Vercel logs + **Axiom** (EU) | $25/mo Pro when free tier outgrown. |
 | 25 | Plan upgrade direction | Forward only (Fast → Business → Infinity). | No downgrade with credit. Confirm in AGB. |

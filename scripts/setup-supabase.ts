@@ -79,7 +79,6 @@ async function seed() {
       tickets: true,
       videos: true,
       analytics: true,
-      mentor: true,
     },
   }).onConflictDoNothing()
 
@@ -102,11 +101,11 @@ async function seed() {
   const planValues = [
     // AI Kurs plans
     { id: '10000000-0000-0000-0000-000000000001', productId: '00000000-0000-0000-0000-000000000001', code: 'fast', priceCents: 20000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
-    { id: '10000000-0000-0000-0000-000000000002', productId: '00000000-0000-0000-0000-000000000001', code: 'business', priceCents: 100000, currency: 'EUR', releaseStrategy: { type: 'mentor_gated' } },
+    { id: '10000000-0000-0000-0000-000000000002', productId: '00000000-0000-0000-0000-000000000001', code: 'business', priceCents: 100000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
     { id: '10000000-0000-0000-0000-000000000003', productId: '00000000-0000-0000-0000-000000000001', code: 'infinity', priceCents: 300000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
     // Dropshipping Kurs plans
     { id: '10000000-0000-0000-0000-000000000004', productId: '00000000-0000-0000-0000-000000000002', code: 'fast', priceCents: 20000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
-    { id: '10000000-0000-0000-0000-000000000005', productId: '00000000-0000-0000-0000-000000000002', code: 'business', priceCents: 100000, currency: 'EUR', releaseStrategy: { type: 'mentor_gated' } },
+    { id: '10000000-0000-0000-0000-000000000005', productId: '00000000-0000-0000-0000-000000000002', code: 'business', priceCents: 100000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
     { id: '10000000-0000-0000-0000-000000000006', productId: '00000000-0000-0000-0000-000000000002', code: 'infinity', priceCents: 300000, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },
     // Creator plans
     { id: '10000000-0000-0000-0000-000000000007', productId: '00000000-0000-0000-0000-000000000003', code: 'tiktok', priceCents: 7500, currency: 'EUR', releaseStrategy: { type: 'all_unlocked' } },

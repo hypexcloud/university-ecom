@@ -25,7 +25,7 @@ type PermKey = 'customers' | 'products' | 'payments' | 'affiliate' | 'tickets' |
 
 const navigation: { name: string; href: string; icon: typeof HomeIcon; description: string; perm?: PermKey }[] = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon, description: 'Übersicht & Sessions', perm: 'analytics' },
-  { name: 'Sessions', href: '/admin/termine', icon: CalendarIcon, description: 'Coaching-Termine verwalten', perm: 'mentor' },
+  { name: 'Sessions', href: '/admin/termine', icon: CalendarIcon, description: 'Coaching-Termine verwalten', perm: 'customers' },
   { name: 'Kunden', href: '/admin/benutzer', icon: Users, description: 'Kunden verwalten', perm: 'customers' },
   { name: 'Kursinhalte', href: '/admin/courses', icon: BookOpen, description: 'Module & Ressourcen', perm: 'products' },
   { name: 'Tickets', href: '/admin/tickets', icon: MessageSquare, description: 'Support-Tickets', perm: 'tickets' },

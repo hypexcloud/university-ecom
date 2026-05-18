@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/server/db'
 import { sessions, customers } from '@/lib/server/db/schema'
 import { eq, desc } from 'drizzle-orm'
-import { requireAdmin } from '@/lib/server/auth'
+import { requireAuth, requireMentor } from '@/lib/server/auth'
 import { verifyCsrf } from '@/lib/server/csrf'
 import { emitNotification } from '@/lib/server/notifications'
 import { z } from 'zod'
 
 export async function GET() {
   try {
-    await requireAdmin('mentor')
+    await requireMentor()
 
     const result = await db
       .select({
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!verifyCsrf(request)) {
       return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 })
     }
-    const admin = await requireAdmin('mentor')
+    const admin = await requireMentor()
     const data = createSchema.parse(await request.json())
 
     const [session] = await db.insert(sessions).values({

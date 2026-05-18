@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/server/db'
-import { customers, adminPermissions } from '@/lib/server/db/schema'
+import { customers, adminPermissions, mentors } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export type Permissions = {
@@ -11,12 +11,11 @@ export type Permissions = {
   tickets: boolean
   videos: boolean
   analytics: boolean
-  mentor: boolean
 }
 
 const PERMISSION_KEYS: (keyof Permissions)[] = [
   'customers', 'products', 'payments', 'affiliate',
-  'tickets', 'videos', 'analytics', 'mentor',
+  'tickets', 'videos', 'analytics',
 ]
 
 export type AuthenticatedUser = {
@@ -117,4 +116,27 @@ export async function requireAdmin(perm: keyof Permissions): Promise<AdminUser> 
   }
 
   return { ...authed, permissions: perms }
+}
+
+/**
+ * Verify the caller is an active mentor.
+ * Mentors are separate from admins — they can manage sessions but not admin features.
+ */
+export async function requireMentor(): Promise<AuthenticatedUser> {
+  const authed = await requireAuth()
+
+  const [mentor] = await db
+    .select()
+    .from(mentors)
+    .where(eq(mentors.uid, authed.uid))
+    .limit(1)
+
+  if (!mentor || !mentor.isActive) {
+    throw new Response(JSON.stringify({ error: 'Kein Mentor-Zugang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  return authed
 }
