@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { doc, updateDoc, Timestamp } from 'firebase/firestore'
+import { db } from '@/lib/server/db'
+import { sessions } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,28 +9,21 @@ export async function POST(request: NextRequest) {
     const { sessionId, status, completionNotes } = body
 
     if (!sessionId || !status) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Update session
-    await updateDoc(doc(db, 'sessions', sessionId), {
-      status,
-      completionNotes: completionNotes || '',
-      updatedAt: Timestamp.now()
-    })
+    await db
+      .update(sessions)
+      .set({
+        status,
+        notes: completionNotes || '',
+        updatedAt: new Date(),
+      })
+      .where(eq(sessions.id, sessionId))
 
-    return NextResponse.json({
-      success: true,
-      message: 'Session updated successfully'
-    })
-  } catch (error: any) {
-    console.error('Error completing session:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: true, message: 'Session updated successfully' })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

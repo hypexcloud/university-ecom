@@ -12,9 +12,7 @@ import { CourseSpecificStep } from './intake-steps/course-specific-step'
 import { MotivationExpectationsStep } from './intake-steps/motivation-expectations-step'
 import { MarketingConsentStep } from './intake-steps/marketing-consent-step'
 import { intakeFormSchema, type IntakeFormData, type StepNumber, getStepTitle, getStepDescription } from './intake-validation'
-import { IntakeService } from '@/lib/firebase/firestore'
 import { EmailAutomation } from '@/lib/email/email-automation'
-import { Timestamp } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, AlertCircle, Mail } from 'lucide-react'
 
@@ -124,10 +122,13 @@ export function IntakeForm() {
         status: 'pending' as const,
       }
 
-      // Save to Firestore
-      console.log('💾 Saving intake response to Firestore...')
-      const intakeId = await IntakeService.createIntakeResponse(intakeData)
-      console.log('✅ Intake response saved with ID:', intakeId)
+      // Save via API
+      const res = await fetch('/api/intake/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(intakeData),
+      })
+      const { id: intakeId } = await res.json()
       
       // Send confirmation email
       console.log('📧 Sending confirmation email...')

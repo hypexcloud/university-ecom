@@ -4,7 +4,7 @@
  * Type definitions for course modules, lessons, and resources
  */
 
-import { Timestamp } from 'firebase/firestore'
+// Timestamp replaced with Date
 
 export interface CourseModule {
   id: string
@@ -30,13 +30,13 @@ export interface CourseModule {
   // Session Integration
   hasSession: boolean
   sessionRequired: boolean
-  sessionDate?: Timestamp
+  sessionDate?: Date
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
   createdBy: string
-  publishedAt?: Timestamp
+  publishedAt?: Date
 }
 
 export interface CourseResource {
@@ -64,8 +64,8 @@ export interface CourseResource {
   estimatedTime?: string // e.g., "30 minutes"
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface StudentProgress {
@@ -92,13 +92,13 @@ export interface StudentProgress {
     watchedSeconds: number
     totalSeconds: number
     completed: boolean
-    lastWatchedAt: Timestamp
+    lastWatchedAt: Date
   }[]
   
   // Session Progress
   sessionsCompleted: number
   totalSessions: number
-  nextSessionDate?: Timestamp
+  nextSessionDate?: Date
   
   // Quiz/Assessment
   quizzesCompleted: string[]
@@ -106,19 +106,19 @@ export interface StudentProgress {
     quizId: string
     score: number
     maxScore: number
-    completedAt: Timestamp
+    completedAt: Date
   }[]
   
   // Milestones
-  startedAt: Timestamp
-  lastAccessedAt: Timestamp
-  estimatedCompletionDate?: Timestamp
-  completedAt?: Timestamp
+  startedAt: Date
+  lastAccessedAt: Date
+  estimatedCompletionDate?: Date
+  completedAt?: Date
   certificateIssued?: boolean
-  certificateIssuedAt?: Timestamp
+  certificateIssuedAt?: Date
   
   // Metadata
-  updatedAt: Timestamp
+  updatedAt: Date
 }
 
 export interface Quiz {
@@ -141,8 +141,8 @@ export interface Quiz {
   // Metadata
   isRequired: boolean
   order: number
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface QuizQuestion {
@@ -171,8 +171,8 @@ export interface QuizAttempt {
   
   // Attempt Info
   attemptNumber: number
-  startedAt: Timestamp
-  submittedAt?: Timestamp
+  startedAt: Date
+  submittedAt?: Date
   timeSpent: number // Seconds
   
   // Results
@@ -201,8 +201,8 @@ export interface Certificate {
   certificateNumber: string
   studentName: string
   courseName: string
-  completionDate: Timestamp
-  issuedDate: Timestamp
+  completionDate: Date
+  issuedDate: Date
   
   // Achievement
   finalScore?: number
@@ -218,7 +218,7 @@ export interface Certificate {
   isVerified: boolean
   
   // Metadata
-  createdAt: Timestamp
+  createdAt: Date
 }
 
 export interface CourseTemplate {
@@ -244,6 +244,6 @@ export interface CourseTemplate {
   // Metadata
   isActive: boolean
   version: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }

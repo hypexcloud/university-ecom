@@ -4,7 +4,7 @@
  * Type definitions for pre-purchase qualification system
  */
 
-import { Timestamp } from 'firebase/firestore'
+// Timestamp replaced with Date
 
 export interface IntakeSubmission {
   id: string
@@ -52,19 +52,19 @@ export interface IntakeSubmission {
   // Status
   status: 'pending' | 'approved' | 'rejected' | 'reviewing'
   reviewedBy?: string
-  reviewedAt?: Timestamp
+  reviewedAt?: Date
   reviewNotes?: string
   
   // Metadata
   source?: string // Where they came from
   utmParams?: Record<string, string>
-  submittedAt: Timestamp
+  submittedAt: Date
   
   // Follow-up
   contacted?: boolean
-  contactedAt?: Timestamp
+  contactedAt?: Date
   convertedToPurchase?: boolean
-  purchaseDate?: Timestamp
+  purchaseDate?: Date
   orderId?: string
 }
 

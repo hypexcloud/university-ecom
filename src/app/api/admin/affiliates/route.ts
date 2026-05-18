@@ -1,44 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/server/db'
+import { affiliateLinks, affiliateReferrals, customers } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Get all affiliates (users with affiliate role)
-    const usersQuery = query(
-      collection(db, 'users'),
-      where('role', '==', 'affiliate')
-    )
-    const usersSnapshot = await getDocs(usersQuery)
-    const affiliates = usersSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    const links = await db
+      .select({
+        id: affiliateLinks.id,
+        code: affiliateLinks.code,
+        commissionRate: affiliateLinks.commissionRate,
+        createdAt: affiliateLinks.createdAt,
+        customerUid: affiliateLinks.customerUid,
+        email: customers.email,
+        firstName: customers.firstName,
+        lastName: customers.lastName,
+      })
+      .from(affiliateLinks)
+      .innerJoin(customers, eq(affiliateLinks.customerUid, customers.uid))
 
-    // Get all applications
-    const applicationsSnapshot = await getDocs(collection(db, 'affiliateApplications'))
-    const applications = applicationsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    const referrals = await db.select().from(affiliateReferrals)
 
-    // Get all commissions
-    const commissionsSnapshot = await getDocs(collection(db, 'commissions'))
-    const commissions = commissionsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-
-    return NextResponse.json({
-      affiliates,
-      applications,
-      commissions
-    })
-  } catch (error: any) {
-    console.error('Error getting affiliate data:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ affiliates: links, referrals })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

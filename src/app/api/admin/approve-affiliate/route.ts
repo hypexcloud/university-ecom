@@ -1,67 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { doc, updateDoc, setDoc, Timestamp } from 'firebase/firestore'
-import { generateAffiliateCode, isAffiliateCodeAvailable } from '@/lib/affiliate-utils'
+import { db } from '@/lib/server/db'
+import { affiliateLinks } from '@/lib/server/db/schema'
+import { nanoid } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { applicationId, userId, approved } = body
+    const { userId, approved } = body
 
-    if (!applicationId || !userId) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Update application status
-    await updateDoc(doc(db, 'affiliateApplications', applicationId), {
-      status: approved ? 'approved' : 'rejected',
-      reviewedAt: Timestamp.now()
-    })
-
-    if (approved) {
-      // Generate unique affiliate code
-      let affiliateCode = ''
-      let isAvailable = false
-      let attempts = 0
-      
-      while (!isAvailable && attempts < 10) {
-        affiliateCode = generateAffiliateCode(`USER${attempts}`)
-        isAvailable = await isAffiliateCodeAvailable(affiliateCode)
-        attempts++
-      }
-
-      if (!isAvailable) {
-        throw new Error('Failed to generate unique affiliate code')
-      }
-
-      // Update user to affiliate role and add affiliate data
-      await updateDoc(doc(db, 'users', userId), {
-        role: 'affiliate',
-        affiliateData: {
-          code: affiliateCode,
-          totalEarnings: 0,
-          pendingEarnings: 0,
-          paidEarnings: 0,
-          totalReferrals: 0,
-          conversionRate: 0,
-          joinedAt: Timestamp.now()
-        },
-        updatedAt: Timestamp.now()
-      })
+    if (!approved) {
+      return NextResponse.json({ success: true, message: 'Application rejected' })
     }
 
-    return NextResponse.json({
-      success: true,
-      message: approved ? 'Affiliate approved' : 'Application rejected'
+    // Create affiliate link for the approved user
+    const code = `AFF-${nanoid(8).toUpperCase()}`
+
+    await db.insert(affiliateLinks).values({
+      customerUid: userId,
+      code,
+      commissionRate: '0.1500',
     })
-  } catch (error: any) {
-    console.error('Error approving affiliate:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ success: true, message: 'Affiliate approved' })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

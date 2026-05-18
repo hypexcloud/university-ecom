@@ -687,12 +687,12 @@ export default function CourseContentManagement() {
                 <div>
                   <Label>Datei URL</Label>
                   <Input
-                    placeholder="Firebase Storage URL oder externer Link"
+                    placeholder="Datei-URL (Supabase Storage oder externer Link)"
                     value={resourceForm.url}
                     onChange={(e) => setResourceForm({ ...resourceForm, url: e.target.value })}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Laden Sie die Datei zu Firebase Storage hoch und fügen Sie die URL hier ein
+                    Laden Sie die Datei hoch und fügen Sie die URL hier ein
                   </p>
                 </div>
               )}

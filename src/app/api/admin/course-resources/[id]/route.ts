@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { deleteDoc, doc } from 'firebase/firestore'
+import { db } from '@/lib/server/db'
+import { courseResources } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: resourceId } = await params
 
-    await deleteDoc(doc(db, 'courseResources', resourceId))
+    await db.delete(courseResources).where(eq(courseResources.id, resourceId))
 
-    return NextResponse.json({
-      success: true,
-      message: 'Resource deleted',
-    })
-  } catch (error: any) {
-    console.error('Error deleting course resource:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: true, message: 'Resource deleted' })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

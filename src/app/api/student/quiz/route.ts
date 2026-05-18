@@ -1,62 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { doc, getDoc, collection, query, where, getDocs, orderBy } from 'firebase/firestore'
-import type { Quiz, QuizAttempt } from '@/lib/course-types'
+import { db } from '@/lib/server/db'
+import { courseResources } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const quizId = searchParams.get('quizId')
-    const userId = searchParams.get('userId')
+    const quizId = request.nextUrl.searchParams.get('quizId')
 
     if (!quizId) {
-      return NextResponse.json(
-        { error: 'Quiz ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Quiz ID is required' }, { status: 400 })
     }
 
-    // Get quiz
-    const quizDoc = await getDoc(doc(db, 'quizzes', quizId))
-    
-    if (!quizDoc.exists()) {
-      return NextResponse.json(
-        { error: 'Quiz not found' },
-        { status: 404 }
-      )
-    }
+    // Quiz data is stored as metadata on course_resources with type='quiz'
+    const [resource] = await db
+      .select()
+      .from(courseResources)
+      .where(eq(courseResources.id, quizId))
+      .limit(1)
 
-    const quiz = {
-      id: quizDoc.id,
-      ...quizDoc.data(),
-    } as Quiz
-
-    // Get previous attempts if userId provided
-    let attempts: QuizAttempt[] = []
-    if (userId) {
-      const attemptsQuery = query(
-        collection(db, 'quizAttempts'),
-        where('quizId', '==', quizId),
-        where('userId', '==', userId),
-        orderBy('attemptNumber', 'desc')
-      )
-
-      const attemptsSnapshot = await getDocs(attemptsQuery)
-      attempts = attemptsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as QuizAttempt[]
+    if (!resource || resource.type !== 'quiz') {
+      return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
     }
 
     return NextResponse.json({
-      quiz,
-      attempts,
+      quiz: { id: resource.id, ...resource.metadata as Record<string, unknown> },
+      attempts: [], // TODO: quiz attempts tracked via module_progress
     })
-  } catch (error: any) {
-    console.error('Error getting quiz:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

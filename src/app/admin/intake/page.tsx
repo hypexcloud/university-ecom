@@ -26,7 +26,6 @@ import {
   TrendingUp,
   Send
 } from 'lucide-react'
-import { IntakeService } from '@/lib/firebase/firestore'
 import { EmailAutomation } from '@/lib/email/email-automation'
 import { useAuth } from '@/lib/auth/auth-provider'
 

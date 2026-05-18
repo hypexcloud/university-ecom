@@ -1,33 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/server/db'
+import { availability } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const coachId = searchParams.get('coachId')
+    const mentorUid = request.nextUrl.searchParams.get('coachId')
 
-    if (!coachId) {
-      return NextResponse.json(
-        { error: 'Missing coachId' },
-        { status: 400 }
-      )
+    if (!mentorUid) {
+      return NextResponse.json({ error: 'Missing coachId' }, { status: 400 })
     }
 
-    const availabilityDoc = await getDoc(doc(db, 'availability', coachId))
+    const slots = await db
+      .select()
+      .from(availability)
+      .where(eq(availability.mentorUid, mentorUid))
 
-    if (!availabilityDoc.exists()) {
-      return NextResponse.json({ availability: null })
-    }
-
-    return NextResponse.json({
-      availability: availabilityDoc.data()
-    })
-  } catch (error: any) {
-    console.error('Error getting availability:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ availability: slots.length > 0 ? slots : null })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

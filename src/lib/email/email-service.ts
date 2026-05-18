@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { Timestamp } from "firebase/firestore";
+// Timestamp replaced with Date;
 
 // Lazy init Resend client to avoid build-time errors when API key is missing
 let resend: Resend | null = null;
@@ -162,15 +162,9 @@ export class EmailService {
     metadata: Record<string, any>;
   }) {
     try {
-      // Dynamic import to avoid circular dependency
-      const { FirestoreService } = await import("../firebase/firestore");
-
-      await FirestoreService.create("email_logs", {
-        ...logData,
-        sentAt: Timestamp.now(),
-        domain: EMAIL_CONFIG.fromEmail.split("@")[1],
-        isVercelDomain,
-      });
+      // TODO: Log to analytics_events table via Drizzle when Phase 4 (Notifications) lands
+      // For now, email logs are not persisted to DB
+      void logData;
     } catch (error) {
       console.error("Error logging email:", error);
       // Don't throw - email logging failure shouldn't stop email sending
@@ -183,33 +177,10 @@ export class EmailService {
     variables: Record<string, any> = {}
   ): Promise<{ subject: string; html: string; text: string }> {
     try {
-      // Dynamic import to avoid circular dependency
-      const { FirestoreService } = await import("../firebase/firestore");
-
-      const templates = await FirestoreService.query(
-        "email_templates",
-        [{ field: "type", operator: "==", value: type }],
-        "createdAt",
-        "desc",
-        1
-      );
-
-      if (templates.length === 0) {
-        // Fallback to default templates if not found in database
-        return this.getDefaultTemplate(type, variables);
-      }
-
-      const template = templates[0] as any;
-
-      // Replace variables in template
-      const subject = this.replaceVariables(template.subject, variables);
-      const html = this.replaceVariables(template.html, variables);
-      const text = this.replaceVariables(template.text || "", variables);
-
-      return { subject, html, text };
+      // Email templates are now code-defined — always use defaults
+      return this.getDefaultTemplate(type, variables);
     } catch (error) {
       console.error("Error fetching email template:", error);
-      // Fallback to default templates
       return this.getDefaultTemplate(type, variables);
     }
   }

@@ -1,39 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { doc, setDoc, Timestamp } from 'firebase/firestore'
+import { db } from '@/lib/server/db'
+import { availability } from '@/lib/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { coachId, slots, bufferMinutes, sessionDuration, maxSessionsPerDay } = body
+    const { coachId, slots } = body
 
     if (!coachId || !slots) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Delete existing slots for this mentor, then insert new ones
+    await db.delete(availability).where(eq(availability.mentorUid, coachId))
+
+    if (Array.isArray(slots) && slots.length > 0) {
+      await db.insert(availability).values(
+        slots.map((slot: { dayOfWeek: string; startTime: string; endTime: string }) => ({
+          mentorUid: coachId,
+          dayOfWeek: slot.dayOfWeek,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          isActive: true,
+        })),
       )
     }
 
-    const availabilityData = {
-      coachId,
-      slots,
-      bufferMinutes: bufferMinutes || 15,
-      sessionDuration: sessionDuration || 60,
-      maxSessionsPerDay: maxSessionsPerDay || 8,
-      updatedAt: Timestamp.now()
-    }
-
-    await setDoc(doc(db, 'availability', coachId), availabilityData, { merge: true })
-
-    return NextResponse.json({
-      success: true,
-      message: 'Availability saved successfully'
-    })
-  } catch (error: any) {
-    console.error('Error saving availability:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: true, message: 'Availability saved successfully' })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

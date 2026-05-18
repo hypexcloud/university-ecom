@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore'
+// All Date fields are now Date (Drizzle timestamptz maps to JS Date)
 
 // ==========================================
 // NEW ROLE SYSTEM (Phase 1 Update)
@@ -33,7 +33,7 @@ export interface User {
   displayName?: string
   photoURL?: string
   address?: Address
-  birthDate?: Timestamp
+  birthDate?: Date
   
   // Role-specific data
   kundeData?: KundeData
@@ -43,9 +43,9 @@ export interface User {
   leadSource?: LeadSource
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  lastLoginAt?: Timestamp
+  createdAt: Date
+  updatedAt: Date
+  lastLoginAt?: Date
   
   // Migration support
   version: number
@@ -66,7 +66,7 @@ export interface Address {
 export interface KundeData {
   enrolledCourses: string[] // courseEnrollment IDs
   totalSpent: number
-  lastPurchaseDate?: Timestamp
+  lastPurchaseDate?: Date
   preferences?: {
     language: 'de' | 'en'
     notifications: {
@@ -79,10 +79,10 @@ export interface KundeData {
 
 export interface AffiliateData {
   status: 'pending' | 'approved' | 'active' | 'suspended' | 'banned'
-  applicationDate: Timestamp
-  approvalDate?: Timestamp
+  applicationDate: Date
+  approvalDate?: Date
   testScore?: number
-  testDate?: Timestamp
+  testDate?: Date
   level: 'neuling' | 'experte' | 'master' | 'prestige'
   commissionRate: number
   stats: {
@@ -98,7 +98,7 @@ export interface AffiliateData {
 export interface LeadSource {
   type: 'google' | 'youtube' | 'social_media' | 'creator' | 'direct'
   affiliateId?: string
-  timestamp: Timestamp
+  timestamp: Date
   details?: string
 }
 
@@ -141,8 +141,8 @@ export interface Course {
   featuresDE: string[]
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface CoursePlan {
@@ -202,9 +202,9 @@ export interface Enrollment {
   progress: CourseProgress
   
   // Dates
-  startDate: Timestamp
-  endDate: Timestamp
-  completionDate?: Timestamp
+  startDate: Date
+  endDate: Date
+  completionDate?: Date
   
   // For plans with 1:1
   mentorId?: string
@@ -216,18 +216,18 @@ export interface Enrollment {
     currency: string
     paymentMethod: string
     transactionId: string
-    purchaseDate: Timestamp
+    purchaseDate: Date
   }
   
   accessDetails: {
-    expiryDate?: Timestamp
+    expiryDate?: Date
     whatsappAccess: boolean
     discordAccess: boolean
     mentoringSessionsRemaining?: number
   }
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface CourseProgress {
@@ -236,13 +236,13 @@ export interface CourseProgress {
   completedModules: string[]
   totalProgress: number // 0-100
   weeklyFeedback?: WeeklyFeedback[]
-  lastAccessedAt: Timestamp
+  lastAccessedAt: Date
 }
 
 export interface WeeklyFeedback {
   week: number
   submitted: boolean
-  submittedAt?: Timestamp
+  submittedAt?: Date
   responses: {
     understanding: number
     implementation: number
@@ -264,17 +264,17 @@ export interface Affiliate {
   applicationData: {
     socialMedia: SocialMediaHandle[]
     motivation?: string
-    applicationDate: Timestamp
+    applicationDate: Date
   }
   
   // Status
   status: 'pending' | 'approved' | 'active' | 'suspended' | 'banned'
-  approvalDate?: Timestamp
+  approvalDate?: Date
   suspensionReason?: string
   
   // Test
   testScore?: number
-  testDate?: Timestamp
+  testDate?: Date
   testPassed: boolean
   
   // Level & Commission
@@ -304,8 +304,8 @@ export interface Affiliate {
   // Permissions
   canSelfClose: boolean
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface SocialMediaHandle {
@@ -337,10 +337,10 @@ export interface Lead {
   status: 'invited' | 'contacted' | 'converted' | 'lost'
   
   // Journey
-  invitedAt: Timestamp
-  contactedAt?: Timestamp
-  convertedAt?: Timestamp
-  lostAt?: Timestamp
+  invitedAt: Date
+  contactedAt?: Date
+  convertedAt?: Date
+  lostAt?: Date
   
   // Conversion
   orderId?: string
@@ -350,13 +350,13 @@ export interface Lead {
   
   // Erstgespräch
   erstgespraechBooked: boolean
-  erstgespraechDate?: Timestamp
+  erstgespraechDate?: Date
   erstgespraechCompleted: boolean
   
   notes?: string
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface Payout {
@@ -364,8 +364,8 @@ export interface Payout {
   affiliateId: string
   
   // Period
-  periodStart: Timestamp
-  periodEnd: Timestamp
+  periodStart: Date
+  periodEnd: Date
   month: string
   
   // Amount
@@ -380,16 +380,16 @@ export interface Payout {
   // Status
   status: 'pending' | 'approved' | 'processing' | 'completed' | 'failed'
   approvedBy?: string
-  approvedAt?: Timestamp
+  approvedAt?: Date
   transactionId?: string
-  completedAt?: Timestamp
+  completedAt?: Date
   
   // Reference
   includedLeads: string[]
   notes?: string
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 // ==========================================
@@ -439,10 +439,10 @@ export interface Order {
   // Fulfillment
   courseEnrollmentId?: string
   accessGranted: boolean
-  accessGrantedAt?: Timestamp
+  accessGrantedAt?: Date
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface OrderItem {
@@ -476,10 +476,10 @@ export interface Payment {
     customerName?: string
   }
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  completedAt?: Timestamp
-  refundedAt?: Timestamp
+  createdAt: Date
+  updatedAt: Date
+  completedAt?: Date
+  refundedAt?: Date
 }
 
 // ==========================================
@@ -495,9 +495,9 @@ export interface SupportTicket {
   status: 'open' | 'in_progress' | 'waiting_response' | 'resolved' | 'closed'
   assignedTo?: string
   messages: SupportMessage[]
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  resolvedAt?: Timestamp
+  createdAt: Date
+  updatedAt: Date
+  resolvedAt?: Date
 }
 
 export interface SupportMessage {
@@ -508,7 +508,7 @@ export interface SupportMessage {
   message: string
   attachments?: string[]
   isInternal: boolean
-  createdAt: Timestamp
+  createdAt: Date
 }
 
 // ==========================================
@@ -540,8 +540,8 @@ export interface IntakeResponse {
   status: 'pending' | 'reviewed' | 'approved' | 'rejected'
   reviewNotes?: string
   reviewedBy?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 // ==========================================
@@ -553,21 +553,21 @@ export interface CommunityAccess {
     ai?: {
       groupId: string
       inviteLink: string
-      joinedAt?: Timestamp
+      joinedAt?: Date
     }
     dropshipping?: {
       groupId: string
       inviteLink: string
-      joinedAt?: Timestamp
+      joinedAt?: Date
     }
   }
   discordAccess: {
     discordUserId?: string
     roles: string[]
-    joinedAt?: Timestamp
+    joinedAt?: Date
   }
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 // ==========================================
@@ -583,7 +583,7 @@ export interface UserActivity {
     ipAddress?: string
     deviceType?: 'desktop' | 'mobile' | 'tablet'
   }
-  createdAt: Timestamp
+  createdAt: Date
 }
 
 export interface AdminSettings {
@@ -592,12 +592,12 @@ export interface AdminSettings {
     ai: {
       isActive: boolean
       maxEnrollments?: number
-      nextCohortStart?: Timestamp
+      nextCohortStart?: Date
     }
     dropshipping: {
       isActive: boolean
       maxEnrollments?: number
-      nextCohortStart?: Timestamp
+      nextCohortStart?: Date
     }
   }
   community: {
@@ -631,7 +631,7 @@ export interface AdminSettings {
       message: string
     }
   }
-  updatedAt: Timestamp
+  updatedAt: Date
   updatedBy: string
 }
 
@@ -647,8 +647,8 @@ export interface EmailTemplate {
   variables: string[]
   category: 'welcome' | 'course' | 'support' | 'marketing' | 'system' | 'affiliate'
   isActive: boolean
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface EmailLog {
@@ -660,40 +660,13 @@ export interface EmailLog {
   status: 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'failed'
   providerMessageId?: string
   metadata: Record<string, any>
-  sentAt: Timestamp
-  deliveredAt?: Timestamp
-  openedAt?: Timestamp
-  clickedAt?: Timestamp
+  sentAt: Date
+  deliveredAt?: Date
+  openedAt?: Date
+  clickedAt?: Date
 }
 
 // ==========================================
 // UTILITY TYPES
 // ==========================================
-export type FirestoreTimestamp = Timestamp
 export type DocumentId = string
-
-// Collection names as constants
-export const COLLECTIONS = {
-  USERS: 'users',
-  COURSES: 'courses',
-  ENROLLMENTS: 'enrollments',
-  SUPPORT_TICKETS: 'support_tickets',
-  COMMUNITY_ACCESS: 'community_access',
-  PAYMENTS: 'payments',
-  INTAKE_RESPONSES: 'intake_responses',
-  USER_ACTIVITY: 'user_activity',
-  ADMIN_SETTINGS: 'admin_settings',
-  EMAIL_TEMPLATES: 'email_templates',
-  EMAIL_LOGS: 'email_logs',
-  // New collections
-  AFFILIATES: 'affiliates',
-  LEADS: 'leads',
-  ORDERS: 'orders',
-  PAYOUTS: 'payouts',
-  LEADERBOARD: 'leaderboard',
-} as const
-
-export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS]
-
-// Re-export mentoring types
-export * from './mentoring'

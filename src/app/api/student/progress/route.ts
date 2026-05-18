@@ -1,51 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStudentProgress, initializeStudentProgress } from '@/lib/course-utils'
+import { db } from '@/lib/server/db'
+import { moduleProgress, enrollments } from '@/lib/server/db/schema'
+import { and, eq } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
-    const enrollmentId = searchParams.get('enrollmentId')
+    const userId = request.nextUrl.searchParams.get('userId')
+    const enrollmentId = request.nextUrl.searchParams.get('enrollmentId')
 
     if (!userId || !enrollmentId) {
       return NextResponse.json(
         { error: 'User ID and enrollment ID are required' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
-    let progress = await getStudentProgress(userId, enrollmentId)
+    // Verify enrollment exists
+    const [enrollment] = await db
+      .select()
+      .from(enrollments)
+      .where(and(
+        eq(enrollments.id, enrollmentId),
+        eq(enrollments.customerUid, userId),
+      ))
+      .limit(1)
 
-    // If no progress exists, initialize it
-    if (!progress) {
-      // Get enrollment details to determine course type
-      const { db } = await import('@/lib/firebase/config')
-      const { doc, getDoc } = await import('firebase/firestore')
-      
-      const enrollmentDoc = await getDoc(doc(db, 'enrollments', enrollmentId))
-      
-      if (enrollmentDoc.exists()) {
-        const enrollment = enrollmentDoc.data()
-        const courseType = enrollment.courseType || 'ai'
-        const courseId = enrollment.courseId || `${courseType}-course`
-        
-        const progressId = await initializeStudentProgress(
-          userId,
-          enrollmentId,
-          courseId,
-          courseType
-        )
-        
-        progress = await getStudentProgress(userId, enrollmentId)
-      }
+    if (!enrollment) {
+      return NextResponse.json({ progress: null })
     }
 
-    return NextResponse.json({ progress })
-  } catch (error: any) {
-    console.error('Error getting student progress:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    // Get all progress for this user
+    const progress = await db
+      .select()
+      .from(moduleProgress)
+      .where(eq(moduleProgress.customerUid, userId))
+
+    return NextResponse.json({ progress, enrollment })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

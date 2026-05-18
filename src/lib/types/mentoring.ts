@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore'
+// Timestamp replaced with Date
 import { CourseType } from './index'
 
 // Mentoring Session Types
@@ -16,10 +16,10 @@ export interface MentoringSession {
   week?: number // which course week this relates to
   
   // Scheduling
-  scheduledStart: Timestamp
-  scheduledEnd: Timestamp
-  actualStart?: Timestamp
-  actualEnd?: Timestamp
+  scheduledStart: Date
+  scheduledEnd: Date
+  actualStart?: Date
+  actualEnd?: Date
   timeZone: string
   
   // Status and Management
@@ -47,8 +47,8 @@ export interface MentoringSession {
   }
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
   createdBy: string // admin/instructor uid
 }
 
@@ -82,24 +82,24 @@ export interface SessionNotes {
   studentFeedback?: {
     rating: number // 1-5 scale
     comments: string
-    submittedAt: Timestamp
+    submittedAt: Date
   }
   
   instructorNotes: string
   privateNotes?: string // admin only notes
   
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface ActionItem {
   id: string
   description: string
-  dueDate?: Timestamp
+  dueDate?: Date
   priority: 'low' | 'medium' | 'high'
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   assignedTo: 'student' | 'instructor'
-  completedAt?: Timestamp
+  completedAt?: Date
   completionNotes?: string
 }
 
@@ -125,8 +125,8 @@ export interface MentoringCourseContent {
   
   // Metadata
   isActive: boolean
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
   createdBy: string
 }
 
@@ -201,11 +201,11 @@ export interface ContentResource {
   
   // Usage Tracking
   downloads: number
-  lastAccessed?: Timestamp
+  lastAccessed?: Date
   
   // Metadata
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: Date
+  updatedAt: Date
   createdBy: string
 }
 
@@ -222,7 +222,7 @@ export interface Milestone {
   
   // Timing
   isDueDate: boolean
-  dueDate?: Timestamp
+  dueDate?: Date
   estimatedHours: number
   
   // Tracking
@@ -254,7 +254,7 @@ export interface MentoringProgress {
   moduleProgress: {
     [moduleId: string]: {
       status: 'not_started' | 'in_progress' | 'completed'
-      completionDate?: Timestamp
+      completionDate?: Date
       score?: number
       notes?: string
     }
@@ -285,7 +285,7 @@ export interface MentoringProgress {
       status: 'not_started' | 'in_progress' | 'completed'
       score?: number
       feedback?: string
-      completedAt?: Timestamp
+      completedAt?: Date
     }
   }
   
@@ -295,17 +295,17 @@ export interface MentoringProgress {
     actionItems: Array<{
       id: string
       description: string
-      dueDate: Timestamp
+      dueDate: Date
     }>
     milestones: Array<{
       id: string
       title: string
-      dueDate: Timestamp
+      dueDate: Date
     }>
   }
   
   // Metadata
-  lastUpdated: Timestamp
+  lastUpdated: Date
   updatedBy: string
 }
 
@@ -335,7 +335,7 @@ export interface InstructorAvailability {
   maxSessionsPerWeek: number
   
   // Metadata
-  updatedAt: Timestamp
+  updatedAt: Date
   updatedBy: string
 }
 
@@ -345,8 +345,8 @@ export interface TimeSlot {
 }
 
 export interface DateRange {
-  start: Timestamp
-  end: Timestamp
+  start: Date
+  end: Date
   reason?: string
 }
 
@@ -377,12 +377,12 @@ export interface MentoringNotification {
   status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed'
   
   // Scheduling
-  scheduledFor: Timestamp
-  sentAt?: Timestamp
-  readAt?: Timestamp
+  scheduledFor: Date
+  sentAt?: Date
+  readAt?: Date
   
   // Metadata
-  createdAt: Timestamp
+  createdAt: Date
   updatedBy: string
 }
 

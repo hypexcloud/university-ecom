@@ -1,27 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase/config'
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import type { IntakeSubmission } from '@/lib/intake-types'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
-  try {
-    const submissionsQuery = query(
-      collection(db, 'intakeSubmissions'),
-      orderBy('submittedAt', 'desc')
-    )
-
-    const snapshot = await getDocs(submissionsQuery)
-    const submissions = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as IntakeSubmission[]
-
-    return NextResponse.json({ submissions })
-  } catch (error: any) {
-    console.error('Error getting intake submissions:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
-  }
+// TODO: Phase 5 — Intake submissions will be rebuilt with a proper
+// intake_submissions table. For now, return empty array so the admin page loads.
+export async function GET() {
+  return NextResponse.json({ submissions: [] })
 }
