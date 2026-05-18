@@ -32,6 +32,7 @@ const navigation: { name: string; href: string; icon: typeof HomeIcon; descripti
   { name: 'Intake', href: '/admin/intake', icon: BarChart3, description: 'Bewerbungen prüfen', perm: 'customers' },
   { name: 'Zahlungen', href: '/admin/payments', icon: Award, description: 'Crypto & Zahlungen', perm: 'payments' },
   { name: 'Affiliates', href: '/admin/affiliates', icon: Award, description: 'Affiliate-Verwaltung', perm: 'affiliate' },
+  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'Statistiken & Berichte', perm: 'analytics' },
   { name: 'Einstellungen', href: '/admin/einstellungen', icon: Settings, description: 'System-Konfiguration' },
 ]
 
