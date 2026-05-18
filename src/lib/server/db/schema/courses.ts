@@ -12,7 +12,7 @@ export const courses = pgTable('courses', {
   description: text('description'),
   slug: text('slug').unique().notNull(),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const courseModules = pgTable('course_modules', {
@@ -60,7 +60,7 @@ export const enrollments = pgTable('enrollments', {
   planId: uuid('plan_id')
     .notNull()
     .references(() => plans.id),
-  enrolledAt: timestamp('enrolled_at', { withTimezone: true }).defaultNow(),
+  enrolledAt: timestamp('enrolled_at', { withTimezone: true }).notNull().defaultNow(),
   completedAt: timestamp('completed_at', { withTimezone: true }),
 })
 
@@ -76,5 +76,5 @@ export const moduleProgress = pgTable('module_progress', {
   progressPct: integer('progress_pct').default(0), // 0–100 for video
   quizScore: integer('quiz_score'),
   completedAt: timestamp('completed_at', { withTimezone: true }),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

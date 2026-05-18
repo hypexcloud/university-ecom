@@ -17,51 +17,18 @@ import {
   Award,
   BookOpen,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const navigation = [
-  {
-    name: 'Dashboard',
-    href: '/admin',
-    icon: HomeIcon,
-    description: 'Übersicht & Sessions'
-  },
-  {
-    name: 'Sessions',
-    href: '/admin/termine',
-    icon: CalendarIcon,
-    description: 'Coaching-Termine verwalten'
-  },
-  {
-    name: 'Kunden',
-    href: '/admin/benutzer',
-    icon: Users,
-    description: 'Kunden verwalten'
-  },
-  {
-    name: 'Kursinhalte',
-    href: '/admin/courses',
-    icon: BookOpen,
-    description: 'Module & Ressourcen'
-  },
-  {
-    name: 'Intake',
-    href: '/admin/intake',
-    icon: BarChart3,
-    description: 'Bewerbungen prüfen'
-  },
-  {
-    name: 'Performance',
-    href: '/admin/performance',
-    icon: Award,
-    description: 'Meine Statistiken'
-  },
-  {
-    name: 'Einstellungen',
-    href: '/admin/einstellungen',
-    icon: Settings,
-    description: 'System-Konfiguration'
-  }
+type PermKey = 'customers' | 'products' | 'payments' | 'affiliate' | 'tickets' | 'videos' | 'analytics' | 'mentor'
+
+const navigation: { name: string; href: string; icon: typeof HomeIcon; description: string; perm?: PermKey }[] = [
+  { name: 'Dashboard', href: '/admin', icon: HomeIcon, description: 'Übersicht & Sessions', perm: 'analytics' },
+  { name: 'Sessions', href: '/admin/termine', icon: CalendarIcon, description: 'Coaching-Termine verwalten', perm: 'mentor' },
+  { name: 'Kunden', href: '/admin/benutzer', icon: Users, description: 'Kunden verwalten', perm: 'customers' },
+  { name: 'Kursinhalte', href: '/admin/courses', icon: BookOpen, description: 'Module & Ressourcen', perm: 'products' },
+  { name: 'Intake', href: '/admin/intake', icon: BarChart3, description: 'Bewerbungen prüfen', perm: 'customers' },
+  { name: 'Affiliates', href: '/admin/affiliates', icon: Award, description: 'Affiliate-Verwaltung', perm: 'affiliate' },
+  { name: 'Einstellungen', href: '/admin/einstellungen', icon: Settings, description: 'System-Konfiguration' },
 ]
 
 interface AdminLayoutProps {
@@ -72,6 +39,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
   const { user, signOut: logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [perms, setPerms] = useState<Record<string, boolean>>({})
+
+  useEffect(() => {
+    fetch('/api/admin/permissions')
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data) => setPerms(data.perms || {}))
+      .catch(() => {})
+  }, [])
+
+  // Filter nav items by permission (items without perm are always visible)
+  const visibleNav = navigation.filter((item) => !item.perm || perms[item.perm])
 
   const handleLogout = () => {
     logout()
@@ -123,7 +101,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            {navigation.map((item) => {
+            {visibleNav.map((item) => {
               const isActive = pathname === item.href || 
                 (item.href !== '/admin' && pathname.startsWith(item.href))
               

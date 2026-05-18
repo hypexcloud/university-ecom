@@ -14,5 +14,5 @@ export const certificates = pgTable('certificates', {
     .notNull()
     .references(() => customers.uid),
   pdfUrl: text('pdf_url'),
-  issuedAt: timestamp('issued_at', { withTimezone: true }).defaultNow(),
+  issuedAt: timestamp('issued_at', { withTimezone: true }).notNull().defaultNow(),
 })

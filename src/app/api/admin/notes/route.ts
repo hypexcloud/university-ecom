@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/server/db'
 import { adminNotes, auditLog } from '@/lib/server/db/schema'
 import { requireAdmin } from '@/lib/server/auth'
+import { verifyCsrf } from '@/lib/server/csrf'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!verifyCsrf(request)) {
+      return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 })
+    }
     const admin = await requireAdmin('customers')
     const { customerUid, body: noteBody } = await request.json()
 

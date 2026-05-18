@@ -41,15 +41,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Block non-admin users from /admin routes at the middleware level.
-  // Full permission checks still happen in requireAdmin() per route,
-  // but this prevents any RSC from rendering admin pages for students.
-  if (user && path.startsWith('/admin')) {
+  // Block admin routes if MFA not satisfied.
+  // Distinguish between "no TOTP enrolled" (→ enroll page) and
+  // "enrolled but not verified this session" (→ verify page).
+  if (user && path.startsWith('/admin') && !path.startsWith('/admin/mfa')) {
     const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (!mfaData || mfaData.currentLevel !== 'aal2') {
       const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      url.searchParams.set('reason', 'mfa_required')
+      // If nextLevel is aal2, user has a factor but hasn't verified → verify page
+      // If nextLevel is aal1, user has no factor enrolled → enroll page
+      if (mfaData?.nextLevel === 'aal2') {
+        url.pathname = '/admin/mfa/verify'
+      } else {
+        url.pathname = '/admin/mfa/enroll'
+      }
       return NextResponse.redirect(url)
     }
   }

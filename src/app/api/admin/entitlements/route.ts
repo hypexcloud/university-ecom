@@ -3,6 +3,7 @@ import { db } from '@/lib/server/db'
 import { entitlements, auditLog } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
+import { verifyCsrf } from '@/lib/server/csrf'
 import { z } from 'zod'
 
 const grantSchema = z.object({
@@ -20,6 +21,9 @@ const bodySchema = z.discriminatedUnion('action', [grantSchema, revokeSchema])
 
 export async function POST(request: NextRequest) {
   try {
+    if (!verifyCsrf(request)) {
+      return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 })
+    }
     const admin = await requireAdmin('customers')
     const raw = await request.json()
     const body = bodySchema.parse(raw)

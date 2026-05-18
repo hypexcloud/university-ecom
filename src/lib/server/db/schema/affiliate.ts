@@ -10,7 +10,7 @@ export const affiliateLinks = pgTable('affiliate_links', {
     .references(() => customers.uid),
   code: text('code').unique().notNull(),
   commissionRate: numeric('commission_rate', { precision: 5, scale: 4 }).default('0.1500'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const affiliateReferrals = pgTable('affiliate_referrals', {
@@ -22,7 +22,7 @@ export const affiliateReferrals = pgTable('affiliate_referrals', {
   orderId: uuid('order_id').references(() => orders.id),
   amountCents: integer('amount_cents'),
   status: text('status').default('pending'), // pending | approved | paid | rejected
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const payouts = pgTable('payouts', {
@@ -34,5 +34,5 @@ export const payouts = pgTable('payouts', {
   status: text('status').default('pending'), // pending | paid
   paidAt: timestamp('paid_at', { withTimezone: true }),
   notes: text('notes'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

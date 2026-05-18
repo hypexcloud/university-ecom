@@ -12,7 +12,7 @@ export const communityPosts = pgTable('community_posts', {
   mediaUrls: jsonb('media_urls'), // string[]
   publishedAt: timestamp('published_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const interviews = pgTable('interviews', {
@@ -23,7 +23,7 @@ export const interviews = pgTable('interviews', {
   thumbnailUrl: text('thumbnail_url'),
   category: text('category'),
   orderIndex: integer('order_index').notNull().default(0),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const kundenerfolge = pgTable('kundenerfolge', {
@@ -34,5 +34,5 @@ export const kundenerfolge = pgTable('kundenerfolge', {
   mediaType: text('media_type').notNull(), // 'image' | 'video'
   mediaUrl: text('media_url').notNull(),
   orderIndex: integer('order_index').notNull().default(0),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })

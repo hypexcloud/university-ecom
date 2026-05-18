@@ -125,7 +125,7 @@ CREATE TABLE "courses" (
 	"description" text,
 	"slug" text NOT NULL,
 	"is_active" boolean DEFAULT true,
-	"created_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "courses_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -134,7 +134,7 @@ CREATE TABLE "enrollments" (
 	"customer_uid" uuid NOT NULL,
 	"course_id" uuid NOT NULL,
 	"plan_id" uuid NOT NULL,
-	"enrolled_at" timestamp with time zone DEFAULT now(),
+	"enrolled_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"completed_at" timestamp with time zone
 );
 --> statement-breakpoint
@@ -146,7 +146,7 @@ CREATE TABLE "module_progress" (
 	"progress_pct" integer DEFAULT 0,
 	"quiz_score" integer,
 	"completed_at" timestamp with time zone,
-	"updated_at" timestamp with time zone DEFAULT now()
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "availability" (
@@ -199,7 +199,7 @@ CREATE TABLE "affiliate_links" (
 	"customer_uid" uuid NOT NULL,
 	"code" text NOT NULL,
 	"commission_rate" numeric(5, 4) DEFAULT '0.1500',
-	"created_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "affiliate_links_customer_uid_unique" UNIQUE("customer_uid"),
 	CONSTRAINT "affiliate_links_code_unique" UNIQUE("code")
 );
@@ -211,7 +211,7 @@ CREATE TABLE "affiliate_referrals" (
 	"order_id" uuid,
 	"amount_cents" integer,
 	"status" text DEFAULT 'pending',
-	"created_at" timestamp with time zone DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "payouts" (
@@ -221,7 +221,7 @@ CREATE TABLE "payouts" (
 	"status" text DEFAULT 'pending',
 	"paid_at" timestamp with time zone,
 	"notes" text,
-	"created_at" timestamp with time zone DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
@@ -245,7 +245,7 @@ CREATE TABLE "community_posts" (
 	"media_urls" jsonb,
 	"published_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now()
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "interviews" (
@@ -256,7 +256,7 @@ CREATE TABLE "interviews" (
 	"thumbnail_url" text,
 	"category" text,
 	"order_index" integer DEFAULT 0 NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "kundenerfolge" (
@@ -267,7 +267,7 @@ CREATE TABLE "kundenerfolge" (
 	"media_type" text NOT NULL,
 	"media_url" text NOT NULL,
 	"order_index" integer DEFAULT 0 NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "certificates" (
@@ -276,7 +276,7 @@ CREATE TABLE "certificates" (
 	"product_id" uuid NOT NULL,
 	"issued_by_uid" uuid NOT NULL,
 	"pdf_url" text,
-	"issued_at" timestamp with time zone DEFAULT now()
+	"issued_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "admin_notes" (

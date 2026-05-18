@@ -18,12 +18,15 @@ export default async function BenutzerPage({ searchParams }: Props) {
   const perPage = 25
   const offset = (currentPage - 1) * perPage
 
+  // Escape LIKE wildcards in user input
+  const escaped = q ? q.replace(/[%_\\]/g, '\\$&') : ''
+
   const whereClause = q
     ? or(
-        ilike(customers.email, `%${q}%`),
-        ilike(customers.firstName, `%${q}%`),
-        ilike(customers.lastName, `%${q}%`),
-        ilike(customers.discordUsername, `%${q}%`),
+        ilike(customers.email, `%${escaped}%`),
+        ilike(customers.firstName, `%${escaped}%`),
+        ilike(customers.lastName, `%${escaped}%`),
+        ilike(customers.discordUsername, `%${escaped}%`),
       )
     : undefined
 
