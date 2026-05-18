@@ -90,7 +90,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             </div>
             <div>
               <h1 className="font-bold text-gray-900">University Ecom</h1>
-              <p className="text-xs text-gray-500">{user?.name}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
           </div>
           <Button
@@ -165,11 +165,11 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-blue-600 font-medium text-sm">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'K'}
+                  {user?.email?.charAt(0)?.toUpperCase() || 'K'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Kunde'}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.email || 'Kunde'}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
             </div>

@@ -21,7 +21,7 @@ export async function PATCH(
     if (!verifyCsrf(request)) {
       return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 })
     }
-    const admin = await requireAdmin('mentor')
+    const admin = await requireAdmin('customers')
     const { id } = await params
     const data = patchSchema.parse(await request.json())
 

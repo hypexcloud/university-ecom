@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/server/db'
 import { affiliateLinks, affiliateReferrals, payouts, customers, auditLog } from '@/lib/server/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
 import { verifyCsrf } from '@/lib/server/csrf'
 import { z } from 'zod'
@@ -62,8 +62,7 @@ export async function POST(request: NextRequest) {
     const [sum] = await db
       .select({ total: sql<number>`coalesce(sum(amount_cents), 0)` })
       .from(affiliateReferrals)
-      .where(eq(affiliateReferrals.linkId, link.id))
-      .where(eq(affiliateReferrals.status, 'approved'))
+      .where(and(eq(affiliateReferrals.linkId, link.id), eq(affiliateReferrals.status, 'approved')))
 
     const amount = Number(sum.total)
     if (amount <= 0) {
@@ -83,8 +82,7 @@ export async function POST(request: NextRequest) {
     await db
       .update(affiliateReferrals)
       .set({ status: 'paid' })
-      .where(eq(affiliateReferrals.linkId, link.id))
-      .where(eq(affiliateReferrals.status, 'approved'))
+      .where(and(eq(affiliateReferrals.linkId, link.id), eq(affiliateReferrals.status, 'approved')))
 
     await db.insert(auditLog).values({
       actorUid: admin.uid,

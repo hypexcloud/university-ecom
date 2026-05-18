@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof Response) return error
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Ungültige Eingabedaten', details: error.errors }, { status: 400 })
+      return NextResponse.json({ error: 'Ungültige Eingabedaten', details: error.issues }, { status: 400 })
     }
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })

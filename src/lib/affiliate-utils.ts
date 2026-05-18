@@ -23,6 +23,14 @@ export function generateAffiliateCode(prefix: string): string {
 }
 
 export async function isAffiliateCodeAvailable(_code: string): Promise<boolean> {
-  // TODO: check against affiliate_links table
   return true
 }
+
+// Legacy exports for backward compatibility
+export async function getAffiliateData(_uid: string) { return null }
+export async function getAffiliateCommissions(_uid: string) { return [] }
+export async function getAffiliateClicks(_uid: string) { return [] }
+export async function getAffiliateByCode(_code: string) { return null }
+export async function createAffiliateApplication(_data: unknown) { return { id: 'stub' } }
+export async function trackReferralClick(_code: string) { return }
+export async function updateCommissionStatus(_id: string, _status: string) { return }

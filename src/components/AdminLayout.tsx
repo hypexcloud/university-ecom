@@ -45,12 +45,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
   const { user, signOut: logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [perms, setPerms] = useState<Record<string, boolean>>({})
+  const [perms, setPerms] = useState<Record<string, boolean>>({} as Record<string, boolean>)
 
   useEffect(() => {
     fetch('/api/admin/permissions')
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((data) => setPerms(data.perms || {}))
+      .then((r) => (r.ok ? r.json() : { perms: {} }))
+      .then((data: { perms?: Record<string, boolean> }) => setPerms(data.perms || {}))
       .catch(() => {})
   }, [])
 
@@ -148,11 +148,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-blue-600 font-medium text-sm">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                  {user?.email?.charAt(0)?.toUpperCase() || 'A'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Admin'}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.email || 'Admin'}</p>
                 <p className="text-xs text-gray-500 truncate">Admin & Coach</p>
               </div>
             </div>

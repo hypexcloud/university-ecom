@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })} />
                 <YAxis tickFormatter={(v) => `${v} €`} />
-                <Tooltip formatter={(v: number) => [`${v.toFixed(2)} €`, 'Umsatz']} labelFormatter={(l) => new Date(l).toLocaleDateString('de-DE')} />
+                <Tooltip formatter={(v) => [`${Number(v).toFixed(2)} €`, 'Umsatz']} labelFormatter={(l) => new Date(String(l)).toLocaleDateString('de-DE')} />
                 <Area type="monotone" dataKey="euro" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} />
               </AreaChart>
             </ResponsiveContainer>

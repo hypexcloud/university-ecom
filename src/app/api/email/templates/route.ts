@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server'
-import { EmailTemplates } from '@/lib/email/email-templates'
 
-// Email templates are now code-defined in email-templates.ts, not stored in Firestore.
-// This route returns the static template catalog.
-
+// Email templates are code-defined, not database-stored.
 export async function GET() {
-  try {
-    const templates = EmailTemplates.getAllTemplates()
-    return NextResponse.json({ success: true, templates })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  return NextResponse.json({
+    success: true,
+    templates: [
+      { type: 'welcome', subject: 'Willkommen bei University Ecom' },
+      { type: 'ticket_reply', subject: 'Neue Nachricht zu deinem Ticket' },
+      { type: 'invoice_ready', subject: 'Deine Rechnung ist bereit' },
+      { type: 'session_reminder', subject: 'Erinnerung: Dein Termin' },
+    ],
+  })
 }

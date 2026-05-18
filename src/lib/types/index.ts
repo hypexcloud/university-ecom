@@ -670,3 +670,6 @@ export interface EmailLog {
 // UTILITY TYPES
 // ==========================================
 export type DocumentId = string
+
+// Re-export mentoring types
+export * from './mentoring'

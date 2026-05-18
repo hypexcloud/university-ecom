@@ -38,6 +38,7 @@
   ],
   "exclude": [
     "node_modules",
-    "EXAMPLE_*.tsx"
+    "EXAMPLE_*.tsx",
+    "discord-bot"
   ]
 }

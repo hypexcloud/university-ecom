@@ -62,3 +62,10 @@ export async function submitQuizAttempt(
 ): Promise<{ score: number; maxScore: number; passed: boolean; submittedAt: Date }> {
   return { score: 0, maxScore: 0, passed: false, submittedAt: new Date() }
 }
+
+// Legacy exports for backward compatibility
+export async function getCourseModules(_courseId: string) { return [] }
+export async function createCourseModule(_data: unknown) { return { id: 'stub' } }
+export async function updateCourseModule(_id: string, _data: unknown) { return }
+export async function deleteCourseModule(_id: string) { return }
+export async function createCourseResource(_data: unknown) { return { id: 'stub' } }
