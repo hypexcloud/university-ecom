@@ -1,44 +1,72 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Users, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { db } from '@/lib/server/db'
+import { communityPosts, customers } from '@/lib/server/db/schema'
+import { desc, isNotNull, eq } from 'drizzle-orm'
 
-export default function CommunityPage() {
+const CATEGORIES = [
+  { value: 'news', label: 'News' },
+  { value: 'updates', label: 'Updates' },
+  { value: 'ankuendigungen', label: 'Ankündigungen' },
+  { value: 'erfolge', label: 'Erfolge' },
+]
+
+export default async function CommunityPage() {
+  const posts = await db
+    .select({
+      id: communityPosts.id,
+      category: communityPosts.category,
+      title: communityPosts.title,
+      body: communityPosts.body,
+      publishedAt: communityPosts.publishedAt,
+      authorFirstName: customers.firstName,
+    })
+    .from(communityPosts)
+    .innerJoin(customers, eq(communityPosts.authorUid, customers.uid))
+    .where(isNotNull(communityPosts.publishedAt))
+    .orderBy(desc(communityPosts.publishedAt))
+
   return (
     <div className="container mx-auto px-6 py-12 max-w-4xl">
-      <div className="text-center space-y-6 mb-12">
-        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-          <Users className="h-8 w-8 text-primary" />
-        </div>
-        <h1 className="text-4xl font-bold">Community</h1>
-        <p className="text-xl text-muted-foreground">
-          Vernetzen Sie sich mit Gleichgesinnten
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold text-center mb-8">Community</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>🚧 In Entwicklung</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-6">
-            Die Community-Features werden in Phase 1 / Step 9 implementiert mit:
-          </p>
-          <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-            <li>• Geschützte WhatsApp-Gruppenlinks</li>
-            <li>• Discord-Server Zugang</li>
-            <li>• Zugang nur für eingeschriebene Studenten</li>
-            <li>• Entitlements-basierte Freischaltung</li>
-            <li>• Community-Guidelines</li>
-          </ul>
-          <Button asChild>
-            <Link href="/courses">
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Kurse ansehen um Community-Zugang zu erhalten
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="news">
+        <TabsList className="grid w-full grid-cols-4">
+          {CATEGORIES.map((c) => (
+            <TabsTrigger key={c.value} value={c.value}>{c.label}</TabsTrigger>
+          ))}
+        </TabsList>
+
+        {CATEGORIES.map((cat) => {
+          const filtered = posts.filter((p) => p.category === cat.value)
+          return (
+            <TabsContent key={cat.value} value={cat.value}>
+              {filtered.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Noch keine Beiträge in dieser Kategorie.</p>
+              ) : (
+                <div className="space-y-4">
+                  {filtered.map((post) => (
+                    <Card key={post.id}>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{post.title}</CardTitle>
+                          <span className="text-xs text-muted-foreground">
+                            {post.publishedAt?.toLocaleDateString('de-DE')}
+                          </span>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm whitespace-pre-wrap">{post.body}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          )
+        })}
+      </Tabs>
     </div>
   )
 }
