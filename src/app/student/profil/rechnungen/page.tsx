@@ -19,7 +19,7 @@ export default async function RechnungenPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Rechnungen</h1>
+      <h2 className="text-xl font-bold">Rechnungen</h2>
       <Card>
         <CardHeader><CardTitle>Meine Rechnungen</CardTitle></CardHeader>
         <CardContent>

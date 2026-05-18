@@ -13,7 +13,7 @@ export default async function DiscordPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Discord</h1>
+      <h2 className="text-xl font-bold">Discord</h2>
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><MessageCircle className="h-5 w-5" /> Discord-Verknüpfung</CardTitle></CardHeader>
         <CardContent>

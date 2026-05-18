@@ -49,7 +49,7 @@ export default function SicherheitPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Sicherheit</h1>
+      <h2 className="text-xl font-bold">Sicherheit</h2>
 
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Key className="h-5 w-5" /> Passwort ändern</CardTitle></CardHeader>

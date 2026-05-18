@@ -18,7 +18,7 @@ export default async function DatenschutzPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Datenschutz</h1>
+      <h2 className="text-xl font-bold">Datenschutz</h2>
 
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Download className="h-5 w-5" /> Meine Daten exportieren</CardTitle></CardHeader>

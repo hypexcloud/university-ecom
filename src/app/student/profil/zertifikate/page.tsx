@@ -18,7 +18,7 @@ export default async function ZertifikatePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Zertifikate</h1>
+      <h2 className="text-xl font-bold">Zertifikate</h2>
       <Card>
         <CardHeader><CardTitle>Ausgestellte Zertifikate</CardTitle></CardHeader>
         <CardContent>
