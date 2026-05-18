@@ -49,14 +49,12 @@ function LoginFormContent() {
       if (signInError) {
         setError('Ungültige E-Mail oder Passwort')
       } else {
-        if (explicitRedirect) {
-          router.push(explicitRedirect)
-        } else {
-          // Determine role-based redirect
-          const roleRes = await fetch('/api/auth/role')
-          const { redirect } = await roleRes.json()
-          router.push(redirect || '/student')
-        }
+        // Determine role-based redirect and set cookie for middleware
+        const roleRes = await fetch('/api/auth/role')
+        const roleData = await roleRes.json().catch(() => ({ role: 'student', redirect: '/student' }))
+        // Set role cookie for middleware gating
+        document.cookie = `x-user-role=${roleData.role}; path=/; max-age=300`
+        router.push(explicitRedirect || roleData.redirect || '/student')
         router.refresh()
       }
     } catch {
