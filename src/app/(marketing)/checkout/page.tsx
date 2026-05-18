@@ -102,11 +102,11 @@ export default function CheckoutPage() {
 
   if (step === 'payment' && clientSecret && stripePromise) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="checkout-dark min-h-screen bg-prestige-black py-12">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Zahlung</h1>
-            <p className="text-gray-600">Schließen Sie Ihre Bestellung ab</p>
+            <p className="text-prestige-gray-400">Schließen Sie Ihre Bestellung ab</p>
           </div>
 
           <Card>
@@ -141,9 +141,9 @@ export default function CheckoutPage() {
     <div className="checkout-dark min-h-screen bg-prestige-black py-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="mb-8">
-          <Link href="/" className="text-blue-600 hover:text-blue-700 mb-4 inline-block">← Zurück</Link>
+          <Link href="/" className="text-prestige-gold-500 hover:text-prestige-gold-400 mb-4 inline-block">← Zurück</Link>
           <h1 className="text-4xl font-bold mb-2">Kasse</h1>
-          <p className="text-gray-600">Schließen Sie Ihre Bestellung ab</p>
+          <p className="text-prestige-gray-400">Schließen Sie Ihre Bestellung ab</p>
         </div>
 
         {error && <Alert variant="destructive" className="mb-6"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
@@ -169,13 +169,13 @@ export default function CheckoutPage() {
                     <div className="grid gap-3 mt-2">
                       {Object.entries(courseData.plans).map(([key, plan]) => (
                         <div key={key} onClick={() => setValue('plan', key as PlanType)} 
-                             className={`p-4 border-2 rounded-lg cursor-pointer ${watchPlan === key ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}>
+                             className={`p-4 border-2 rounded-lg cursor-pointer ${watchPlan === key ? 'border-prestige-gold-500 bg-prestige-gold-500/10' : 'border-prestige-gray-700'}`}>
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-semibold">{plan.name}</span>
                             <span className="text-xl font-bold">{formatPrice(plan.price)}</span>
                           </div>
                           <ul className="space-y-1 ml-6">
-                            {plan.features.map((f: string, i: number) => (<li key={i} className="text-sm text-gray-600 flex items-start gap-2"><Check className="h-4 w-4 text-green-600 mt-0.5" /><span>{f}</span></li>))}
+                            {plan.features.map((f: string, i: number) => (<li key={i} className="text-sm text-prestige-gray-400 flex items-start gap-2"><Check className="h-4 w-4 text-prestige-gold-500 mt-0.5" /><span>{f}</span></li>))}
                           </ul>
                         </div>
                       ))}
@@ -231,13 +231,13 @@ export default function CheckoutPage() {
                   <div className="flex items-start gap-3">
                     <Checkbox id="terms" checked={watchAcceptTerms} onCheckedChange={(c) => setValue('acceptTerms', c as boolean)} />
                     <div><label htmlFor="terms" className="text-sm font-medium">AGB akzeptieren *</label>
-                      <p className="text-sm text-gray-500">Ich akzeptiere die <Link href="/agb" className="text-blue-600">AGB</Link> und <Link href="/datenschutz" className="text-blue-600">Datenschutzerklärung</Link></p>
+                      <p className="text-sm text-prestige-gray-500">Ich akzeptiere die <Link href="/agb" className="text-prestige-gold-500">AGB</Link> und <Link href="/datenschutz" className="text-prestige-gold-500">Datenschutzerklärung</Link></p>
                     </div>
                   </div>
                   {errors.acceptTerms && <p className="text-sm text-red-500">{errors.acceptTerms.message}</p>}
 
                   {/* Widerruf waiver — mandatory for digital content */}
-                  <div className="flex items-start gap-3 p-3 border border-amber-200 bg-amber-50 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 border border-prestige-gold-500/30 bg-prestige-gold-500/10 rounded-lg">
                     <Checkbox
                       id="widerruf"
                       checked={watch('acceptWiderrufWaiver')}
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                     />
                     <div>
                       <label htmlFor="widerruf" className="text-sm font-medium">Widerrufsverzicht *</label>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-prestige-gray-300">
                         Ich stimme ausdrücklich zu, dass die Ausführung des Vertrages (Zugang zu digitalen Inhalten) sofort nach Bezahlung beginnt.
                         Mir ist bekannt, dass ich mit Beginn der Ausführung mein Widerrufsrecht verliere (§ 356 Abs. 5 BGB).
                       </p>
@@ -294,13 +294,13 @@ export default function CheckoutPage() {
                     <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                       {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Wird verarbeitet...</> : <><ArrowRight className="mr-2 h-4 w-4" />Weiter zur Zahlung</>}
                     </Button>
-                    <p className="text-xs text-center text-gray-500">Sichere Zahlung mit Stripe</p>
+                    <p className="text-xs text-center text-prestige-gray-500">Sichere Zahlung mit Stripe</p>
                   </CardContent>
                 </Card>
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2"><Check className="h-5 w-5 text-blue-600" /><span className="text-sm font-medium">14 Tage Widerrufsrecht</span></div>
-                  <div className="flex items-center gap-2 mb-2"><Check className="h-5 w-5 text-blue-600" /><span className="text-sm font-medium">Sofortiger Zugang</span></div>
-                  <div className="flex items-center gap-2"><Check className="h-5 w-5 text-blue-600" /><span className="text-sm font-medium">Sichere Zahlung</span></div>
+                <div className="mt-4 p-4 bg-prestige-gold-500/10 border border-prestige-gold-500/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2"><Check className="h-5 w-5 text-prestige-gold-500" /><span className="text-sm font-medium text-prestige-gold-500">14 Tage Widerrufsrecht</span></div>
+                  <div className="flex items-center gap-2 mb-2"><Check className="h-5 w-5 text-prestige-gold-500" /><span className="text-sm font-medium text-prestige-gold-500">Sofortiger Zugang</span></div>
+                  <div className="flex items-center gap-2"><Check className="h-5 w-5 text-prestige-gold-500" /><span className="text-sm font-medium text-prestige-gold-500">Sichere Zahlung</span></div>
                 </div>
               </div>
             </div>
