@@ -29,12 +29,12 @@ function DashboardNotFound({ pathname }: { pathname: string }) {
         <h2 className="text-2xl font-bold text-gray-900">Seite nicht gefunden</h2>
         <p className="text-gray-500">Diese Seite existiert nicht in deinem {portalName}.</p>
         <div className="flex gap-3 justify-center">
-          <Button asChild variant="outline">
-            <Link href={homeLink}><ArrowLeft className="h-4 w-4 mr-2" /> Zum {portalName}</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/student/support"><MessageSquare className="h-4 w-4 mr-2" /> Support</Link>
-          </Button>
+          <Link href={homeLink} className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <ArrowLeft className="h-4 w-4" /> Zum {portalName}
+          </Link>
+          <Link href="/student/support" className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium">
+            <MessageSquare className="h-4 w-4" /> Support
+          </Link>
         </div>
       </div>
     </div>
