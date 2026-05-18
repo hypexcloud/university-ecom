@@ -76,8 +76,8 @@ export default function ContactPage() {
             </Link>
 
             <Link href="/support" className="block border border-prestige-gray-800 rounded-xl p-6 hover:border-prestige-gold-500/50 transition-colors">
-              <h3 className="text-lg font-bold text-prestige-white mb-2">Support & FAQ</h3>
-              <p className="text-prestige-gray-400 text-sm">Antworten auf häufige Fragen und technischer Support.</p>
+              <h3 className="text-lg font-bold text-prestige-white mb-2">FAQ</h3>
+              <p className="text-prestige-gray-400 text-sm">Antworten auf häufig gestellte Fragen.</p>
             </Link>
 
             <Link href="/affiliate" className="block border border-prestige-gray-800 rounded-xl p-6 hover:border-prestige-gold-500/50 transition-colors">
