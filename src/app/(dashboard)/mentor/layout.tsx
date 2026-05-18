@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth/auth-provider'
 import { NotificationBell } from '@/components/notification-bell'
+import { PortalSwitcher } from '@/components/dashboard/portal-switcher'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Home, Calendar, Clock, Users, LogOut, Menu, X } from 'lucide-react'
@@ -81,7 +82,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
       {sidebarOpen && <div className="fixed inset-0 bg-gray-600/75 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <div className="lg:pl-64">
-        <div className="hidden lg:flex items-center justify-end p-4 border-b bg-white"><NotificationBell /></div>
+        <div className="hidden lg:flex items-center justify-between p-4 border-b bg-white"><PortalSwitcher /><NotificationBell /></div>
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">{children}</main>
       </div>
     </div>

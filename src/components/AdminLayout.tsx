@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { NotificationBell } from '@/components/notification-bell'
+import { PortalSwitcher } from '@/components/dashboard/portal-switcher'
 
 type PermKey = 'customers' | 'products' | 'payments' | 'affiliate' | 'tickets' | 'videos' | 'analytics' | 'mentor'
 
@@ -183,7 +184,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main Content */}
       <div className="lg:pl-64">
-        <div className="hidden lg:flex items-center justify-end p-4 border-b bg-white">
+        <div className="hidden lg:flex items-center justify-between p-4 border-b bg-white">
+          <PortalSwitcher />
           <NotificationBell />
         </div>
         <main className="w-full min-h-screen">
