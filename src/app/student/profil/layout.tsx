@@ -11,6 +11,7 @@ const profileNav = [
   { name: 'Zertifikate', href: '/student/profil/zertifikate', icon: Award },
   { name: 'Discord', href: '/student/profil/discord', icon: MessageCircle },
   { name: 'Benachrichtigungen', href: '/student/profil/benachrichtigungen', icon: Bell },
+  { name: 'Termine', href: '/student/profil/termine-einstellungen', icon: Bell },
   { name: 'Sicherheit', href: '/student/profil/sicherheit', icon: Shield },
   { name: 'Datenschutz', href: '/student/profil/datenschutz', icon: Lock },
 ]

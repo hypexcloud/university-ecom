@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 import { db } from '@/lib/server/db'
 import { sessions, customers } from '@/lib/server/db/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -61,7 +62,7 @@ export default async function TerminePage() {
           ) : (
             <div className="space-y-4">
               {upcoming.map((s) => (
-                <div key={s.id} className="border rounded-lg p-4 space-y-2">
+                <Link key={s.id} href={`/student/termine/${s.id}`} className="block border rounded-lg p-4 space-y-2 hover:bg-accent transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">
@@ -91,7 +92,7 @@ export default async function TerminePage() {
                       Dein Vorschlag: {new Date(s.customerProposal).toLocaleString('de-DE')}
                     </p>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           )}
