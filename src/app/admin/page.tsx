@@ -3,8 +3,10 @@ import { Users, ShoppingCart, Ticket, CalendarIcon } from 'lucide-react'
 import { db } from '@/lib/server/db'
 import { customers, entitlements, tickets, sessions } from '@/lib/server/db/schema'
 import { count, eq, isNull, and, gte } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/server/auth'
 
 export default async function AdminDashboard() {
+  await requireAdmin('analytics')
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 

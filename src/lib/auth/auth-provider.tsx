@@ -44,15 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const supabase = createClient()
 
-  const fetchCustomerProfile = useCallback(async (uid: string) => {
+  const fetchCustomerProfile = useCallback(async () => {
     try {
-      const res = await fetch(`/api/auth/profile?uid=${uid}`)
+      const res = await fetch('/api/auth/profile')
       if (res.ok) {
         const data = await res.json()
         setCustomer(data)
       }
     } catch {
-      // Profile fetch failed — user exists in auth but not in customers table yet
       setCustomer(null)
     }
   }, [])
@@ -64,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(initialSession)
       setUser(initialSession?.user ?? null)
       if (initialSession?.user) {
-        await fetchCustomerProfile(initialSession.user.id)
+        await fetchCustomerProfile()
       }
       setLoading(false)
     }
@@ -77,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(newSession)
         setUser(newSession?.user ?? null)
         if (newSession?.user) {
-          await fetchCustomerProfile(newSession.user.id)
+          await fetchCustomerProfile()
         } else {
           setCustomer(null)
         }
@@ -116,23 +115,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: 'Registrierung fehlgeschlagen' }
     }
 
-    // 2. Create customer row via server action
-    const res = await fetch('/api/auth/register', {
+    // 2. Create customer row — the server verifies the JWT and uses user.id
+    // Retry once on failure to handle transient network issues
+    const registerBody = JSON.stringify({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      discordUsername: data.discordUsername || null,
+      whatsapp: data.whatsapp || null,
+    })
+
+    let res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        uid: authData.user.id,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        discordUsername: data.discordUsername || null,
-        whatsapp: data.whatsapp || null,
-      }),
+      body: registerBody,
     })
 
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      return { error: body.error || 'Profil konnte nicht erstellt werden' }
+      // Retry once after a short delay
+      await new Promise((r) => setTimeout(r, 1000))
+      res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: registerBody,
+      })
+    }
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}))
+      return { error: errBody.error || 'Profil konnte nicht erstellt werden' }
     }
 
     return { error: null }

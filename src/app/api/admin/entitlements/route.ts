@@ -3,22 +3,31 @@ import { db } from '@/lib/server/db'
 import { entitlements, auditLog } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
+import { z } from 'zod'
+
+const grantSchema = z.object({
+  action: z.literal('grant'),
+  customerUid: z.string().uuid(),
+  planId: z.string().uuid(),
+})
+
+const revokeSchema = z.object({
+  action: z.literal('revoke'),
+  entitlementId: z.string().uuid(),
+})
+
+const bodySchema = z.discriminatedUnion('action', [grantSchema, revokeSchema])
 
 export async function POST(request: NextRequest) {
   try {
     const admin = await requireAdmin('customers')
-    const body = await request.json()
-    const { action } = body
+    const raw = await request.json()
+    const body = bodySchema.parse(raw)
 
-    if (action === 'grant') {
-      const { customerUid, planId } = body
-      if (!customerUid || !planId) {
-        return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
-      }
-
+    if (body.action === 'grant') {
       const [inserted] = await db.insert(entitlements).values({
-        customerUid,
-        planId,
+        customerUid: body.customerUid,
+        planId: body.planId,
       }).returning()
 
       await db.insert(auditLog).values({
@@ -26,36 +35,31 @@ export async function POST(request: NextRequest) {
         action: 'entitlement.grant',
         targetType: 'entitlement',
         targetId: inserted.id,
-        after: { customerUid, planId },
+        after: { customerUid: body.customerUid, planId: body.planId },
       })
 
       return NextResponse.json({ success: true, id: inserted.id })
     }
 
-    if (action === 'revoke') {
-      const { entitlementId } = body
-      if (!entitlementId) {
-        return NextResponse.json({ error: 'Missing entitlementId' }, { status: 400 })
-      }
+    // action === 'revoke'
+    await db
+      .update(entitlements)
+      .set({ revokedAt: new Date() })
+      .where(eq(entitlements.id, body.entitlementId))
 
-      await db
-        .update(entitlements)
-        .set({ revokedAt: new Date() })
-        .where(eq(entitlements.id, entitlementId))
+    await db.insert(auditLog).values({
+      actorUid: admin.uid,
+      action: 'entitlement.revoke',
+      targetType: 'entitlement',
+      targetId: body.entitlementId,
+    })
 
-      await db.insert(auditLog).values({
-        actorUid: admin.uid,
-        action: 'entitlement.revoke',
-        targetType: 'entitlement',
-        targetId: entitlementId,
-      })
-
-      return NextResponse.json({ success: true })
-    }
-
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    return NextResponse.json({ success: true })
   } catch (error) {
     if (error instanceof Response) return error
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Ungültige Eingabedaten', details: error.errors }, { status: 400 })
+    }
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })
   }

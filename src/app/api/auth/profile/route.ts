@@ -1,12 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/server/db'
 import { customers } from '@/lib/server/db/schema'
 import { eq } from 'drizzle-orm'
 
-export async function GET(request: NextRequest) {
-  const uid = request.nextUrl.searchParams.get('uid')
-  if (!uid) {
-    return NextResponse.json({ error: 'uid required' }, { status: 400 })
+export async function GET() {
+  // Only return the authenticated user's own profile
+  const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
   const [customer] = await db
@@ -20,7 +24,7 @@ export async function GET(request: NextRequest) {
       status: customers.status,
     })
     .from(customers)
-    .where(eq(customers.uid, uid))
+    .where(eq(customers.uid, user.id))
     .limit(1)
 
   if (!customer) {

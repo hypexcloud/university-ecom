@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { db } from '@/lib/server/db'
 import { customers } from '@/lib/server/db/schema'
 import { ilike, or, desc } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/server/auth'
 
 interface Props {
   searchParams: Promise<{ q?: string; page?: string }>
 }
 
 export default async function BenutzerPage({ searchParams }: Props) {
+  await requireAdmin('customers')
   const { q, page } = await searchParams
   const currentPage = parseInt(page || '1', 10)
   const perPage = 25

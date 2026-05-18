@@ -13,7 +13,8 @@ import {
   plans,
   products,
 } from '@/lib/server/db/schema'
-import { eq, desc, isNull } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/server/auth'
 import { GrantRevokeActions } from './actions'
 import { NoteForm } from './note-form'
 
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default async function BenutzerDetailPage({ params }: Props) {
+  await requireAdmin('customers')
   const { uid } = await params
 
   const [customer] = await db
