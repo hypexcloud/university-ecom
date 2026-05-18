@@ -56,7 +56,7 @@ export default async function CoursePricingPage({ params }: Props) {
                     <CardTitle className="text-2xl text-prestige-gold-500">{plan.displayNameDE}</CardTitle>
                     <div className="text-4xl font-bold text-prestige-white mt-4">
                       €{plan.price.toLocaleString('de-DE')}
-                      <span className="text-base font-normal text-prestige-gray-400"> einmalig</span>
+                      <span className="text-base font-normal text-prestige-gray-400"> inkl. MwSt.</span>
                     </div>
                     {plan.descriptionDE && (
                       <p className="text-sm text-prestige-gray-400 mt-2">{plan.descriptionDE}</p>

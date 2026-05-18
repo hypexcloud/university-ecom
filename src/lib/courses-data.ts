@@ -170,7 +170,7 @@ export const AI_COURSE_PLANS: CoursePlan[] = [
     nameDE: 'Infinity',
     displayName: 'Infinity Plan',
     displayNameDE: 'Infinity Plan',
-    price: 3000,
+    price: 1400,
     currency: 'EUR',
     features: [
       'Everything in Business',

@@ -65,7 +65,7 @@ export const COURSE_PRICING = {
       },
       infinity: {
         name: 'Infinity Plan',
-        price: 3000,
+        price: 1400,
         currency: 'EUR',
         features: [
           'Alle Business Plan Features',

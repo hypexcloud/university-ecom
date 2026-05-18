@@ -127,7 +127,7 @@ export const formOptions = {
     },
     {
       value: 'infinity',
-      label: 'Infinity Plan (€3.000)',
+      label: 'Infinity Plan (ab €1.400)',
       description: 'Business + unbegrenztes Coaching',
       features: ['Alles aus Business', 'Unbegrenzte 1:1 Sessions', 'VIP Support', 'Lifetime Updates']
     },

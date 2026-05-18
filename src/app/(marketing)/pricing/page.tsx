@@ -27,7 +27,7 @@ export default function PricingPage() {
           <div className="accent-line-gold mx-auto mb-6"></div>
           
           <p className="text-xl text-prestige-gray-300 max-w-3xl mx-auto">
-            Wählen Sie den Plan, der am besten zu Ihren Zielen passt. Alle Pläne beinhalten lebenslangen Zugang zu den Kursinhalten.
+            Wählen Sie den Plan, der am besten zu Ihren Zielen passt. Alle Pläne beinhalten lebenslangen Zugang. Alle Preise inkl. 19% MwSt.
           </p>
         </div>
       </section>

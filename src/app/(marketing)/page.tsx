@@ -295,7 +295,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle className="text-prestige-gold-500 text-2xl mb-2">Infinity</CardTitle>
                 <div className="text-4xl font-bold text-prestige-white mb-4">
-                  €3.000<span className="text-sm text-prestige-gray-400">+</span>
+                  ab €1.400
                 </div>
               </CardHeader>
               <CardContent>
@@ -310,7 +310,8 @@ export default function HomePage() {
             </Card>
           </div>
           
-          <div className="text-center mt-10">
+          <p className="text-center text-prestige-gray-500 text-sm mt-6">Alle Preise inkl. 19% MwSt.</p>
+          <div className="text-center mt-4">
             <Button asChild variant="outline" className="btn-prestige">
               <Link href="/pricing">
                 Alle Pläne vergleichen

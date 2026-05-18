@@ -86,7 +86,7 @@ export default function CreatorProgramPage() {
                 </div>
                 <CardTitle className="text-2xl text-prestige-white">TikTok Creator</CardTitle>
                 <div className="text-4xl font-bold text-prestige-white mt-4">
-                  €75 <span className="text-base font-normal text-prestige-gray-400">einmalig</span>
+                  €75 <span className="text-base font-normal text-prestige-gray-400">inkl. MwSt.</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -114,7 +114,7 @@ export default function CreatorProgramPage() {
                 </div>
                 <CardTitle className="text-2xl text-prestige-white">YouTube Creator</CardTitle>
                 <div className="text-4xl font-bold text-prestige-white mt-4">
-                  €100 <span className="text-base font-normal text-prestige-gray-400">einmalig</span>
+                  €100 <span className="text-base font-normal text-prestige-gray-400">inkl. MwSt.</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
