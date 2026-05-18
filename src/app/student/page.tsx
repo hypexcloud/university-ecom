@@ -7,7 +7,7 @@ import {
   notifications, communityPosts, customers, moduleProgress,
   affiliateLinks, affiliateReferrals,
 } from '@/lib/server/db/schema'
-import { eq, isNull, count, gte, and, desc, sql } from 'drizzle-orm'
+import { eq, isNull, isNotNull, count, gte, and, desc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/server/auth'
 import { ProductCard } from '@/components/dashboard/product-card'
 import { SessionCard } from '@/components/dashboard/session-card'
@@ -59,7 +59,7 @@ export default async function StudentDashboard() {
 
     db.select({ id: communityPosts.id, title: communityPosts.title, category: communityPosts.category })
       .from(communityPosts)
-      .where(sql`published_at IS NOT NULL`)
+      .where(isNotNull(communityPosts.publishedAt))
       .orderBy(desc(communityPosts.publishedAt))
       .limit(3),
 
