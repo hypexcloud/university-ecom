@@ -3,7 +3,8 @@ import { headers } from 'next/headers'
 import { constructWebhookEvent } from '@/lib/stripe-server'
 import { handleStripePaymentSuccess } from '@/lib/server/order-processing'
 import { db } from '@/lib/server/db'
-import { auditLog } from '@/lib/server/db/schema'
+import { auditLog, orders, entitlements } from '@/lib/server/db/schema'
+import { eq, isNull } from 'drizzle-orm'
 import { emitNotification } from '@/lib/server/notifications'
 import Stripe from 'stripe'
 
@@ -27,8 +28,11 @@ export async function POST(request: NextRequest) {
         await handlePaymentFailed(event.data.object as Stripe.PaymentIntent)
         break
 
+      case 'charge.dispute.created':
+        await handleChargeback(event.data.object as Stripe.Dispute)
+        break
+
       default:
-        // Unhandled event types are acknowledged but not processed
         break
     }
 
@@ -77,4 +81,54 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
       error: paymentIntent.last_payment_error?.message || 'Unknown error',
     },
   })
+}
+
+/**
+ * Chargeback: auto-revoke entitlements, mark order refunded, notify admin.
+ */
+async function handleChargeback(dispute: Stripe.Dispute) {
+  const paymentIntentId = typeof dispute.payment_intent === 'string'
+    ? dispute.payment_intent
+    : dispute.payment_intent?.id
+
+  if (!paymentIntentId) return
+
+  // Find the order by providerRef
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(eq(orders.providerRef, paymentIntentId))
+    .limit(1)
+
+  if (!order) return
+
+  // Mark order as refunded
+  await db
+    .update(orders)
+    .set({ status: 'refunded', metadata: { ...order.metadata as object, chargebackId: dispute.id } })
+    .where(eq(orders.id, order.id))
+
+  // Revoke all active entitlements from this order
+  await db
+    .update(entitlements)
+    .set({ revokedAt: new Date() })
+    .where(eq(entitlements.sourceOrderId, order.id))
+
+  await db.insert(auditLog).values({
+    actorUid: null,
+    action: 'chargeback.auto_revoke',
+    targetType: 'order',
+    targetId: order.id,
+    after: { disputeId: dispute.id, customerUid: order.customerUid },
+  })
+
+  // Notify all admins (emit to the customer who was charged back)
+  await emitNotification({
+    recipientUid: order.customerUid,
+    event: 'chargeback',
+    title: 'Zugang gesperrt — Rückbuchung',
+    body: 'Aufgrund einer Rückbuchung wurden deine Zugänge gesperrt. Bitte kontaktiere den Support.',
+    link: '/student/support',
+    sendEmail: true,
+  }).catch(() => {})
 }

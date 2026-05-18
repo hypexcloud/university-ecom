@@ -49,7 +49,11 @@ export async function fulfillOrder(params: FulfillParams) {
     isUpgrade = false, upgradeFromPlanId = null,
   } = params
 
-  // Create order
+  // Create order with VAT breakdown (19% German USt)
+  const vatRate = 0.19
+  const netCents = Math.round(totalCents / (1 + vatRate))
+  const vatCents = totalCents - netCents
+
   const [order] = await db.insert(orders).values({
     customerUid,
     totalCents,
@@ -57,6 +61,7 @@ export async function fulfillOrder(params: FulfillParams) {
     status: 'paid',
     provider,
     providerRef,
+    metadata: { vatRate, netCents, vatCents },
   }).returning()
 
   // Create order item

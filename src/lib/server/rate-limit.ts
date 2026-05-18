@@ -61,3 +61,39 @@ export async function checkRateLimit(
 
   return null // Allowed
 }
+
+/**
+ * Track failed login attempts for brute-force protection.
+ * After 5 failures from the same IP within 15 minutes, block further attempts.
+ */
+export async function checkLoginAttempt(ip: string): Promise<NextResponse | null> {
+  const r = getRedis()
+  if (!r) return null
+
+  const key = `login_fail:${ip}`
+  const count = await r.get<number>(key) || 0
+
+  if (count >= 5) {
+    return NextResponse.json(
+      { error: 'Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie 15 Minuten.' },
+      { status: 429 },
+    )
+  }
+
+  return null
+}
+
+export async function recordLoginFailure(ip: string): Promise<void> {
+  const r = getRedis()
+  if (!r) return
+
+  const key = `login_fail:${ip}`
+  const current = await r.get<number>(key) || 0
+  await r.set(key, current + 1, { ex: 900 }) // 15 min TTL
+}
+
+export async function clearLoginFailures(ip: string): Promise<void> {
+  const r = getRedis()
+  if (!r) return
+  await r.del(`login_fail:${ip}`)
+}
