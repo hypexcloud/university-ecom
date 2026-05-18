@@ -32,7 +32,11 @@ const navigation: { name: string; href: string; icon: typeof HomeIcon; descripti
   { name: 'Intake', href: '/admin/intake', icon: BarChart3, description: 'Bewerbungen prüfen', perm: 'customers' },
   { name: 'Zahlungen', href: '/admin/payments', icon: Award, description: 'Crypto & Zahlungen', perm: 'payments' },
   { name: 'Affiliates', href: '/admin/affiliates', icon: Award, description: 'Affiliate-Verwaltung', perm: 'affiliate' },
-  { name: 'Videos', href: '/admin/videos', icon: BookOpen, description: 'Bunny Stream Videos', perm: 'videos' },
+  { name: 'Community', href: '/admin/community', icon: MessageSquare, description: 'News & Beiträge', perm: 'products' },
+  { name: 'Interviews', href: '/admin/interviews', icon: BookOpen, description: 'Videos verwalten', perm: 'videos' },
+  { name: 'Kundenerfolge', href: '/admin/kundenerfolge', icon: Award, description: 'Erfolgsgeschichten', perm: 'products' },
+  { name: 'Gutscheine', href: '/admin/giftcards', icon: Award, description: 'Gutscheinverwaltung', perm: 'payments' },
+  { name: 'Videos', href: '/admin/videos', icon: BookOpen, description: 'Bunny Stream', perm: 'videos' },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'Statistiken & Berichte', perm: 'analytics' },
   { name: 'Einstellungen', href: '/admin/einstellungen', icon: Settings, description: 'System-Konfiguration' },
 ]
