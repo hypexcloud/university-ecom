@@ -151,6 +151,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
+    // Clear role cache cookie
+    document.cookie = 'x-user-role=; path=/; max-age=0'
     setUser(null)
     setCustomer(null)
     setSession(null)

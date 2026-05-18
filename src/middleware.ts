@@ -37,34 +37,69 @@ export async function middleware(request: NextRequest) {
     },
   )
 
-  // Refresh the auth token — this is the main purpose of the middleware.
-  // Do NOT add logic between createServerClient and supabase.auth.getUser().
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Redirect unauthenticated users away from protected routes
-  if (!user && (path.startsWith('/admin') || path.startsWith('/student') || path.startsWith('/mentor'))) {
+  const isProtected = path.startsWith('/admin') || path.startsWith('/student') || path.startsWith('/mentor')
+
+  // 1. Redirect unauthenticated users away from protected routes
+  if (!user && isProtected) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirectTo', path)
     return NextResponse.redirect(url)
   }
 
-  // Block admin routes if MFA not satisfied.
-  // Distinguish between "no TOTP enrolled" (→ enroll page) and
-  // "enrolled but not verified this session" (→ verify page).
+  // 2. Role-based route gating (prevent students from accessing /admin, etc.)
+  if (user && isProtected) {
+    // Use a cookie to cache the role check (avoids DB query on every request)
+    // Cache invalidates on sign-out (cookie cleared) or after 5 minutes
+    let userRole = request.cookies.get('x-user-role')?.value
+
+    if (!userRole) {
+      // Query role from the app's API
+      const roleUrl = new URL('/api/auth/role', request.url)
+      try {
+        const roleRes = await fetch(roleUrl, {
+          headers: { cookie: request.headers.get('cookie') || '' },
+        })
+        if (roleRes.ok) {
+          const data = await roleRes.json()
+          userRole = data.role
+          // Cache in response cookie (5 min TTL)
+          supabaseResponse.cookies.set('x-user-role', userRole || 'student', {
+            maxAge: 300,
+            httpOnly: true,
+            path: '/',
+          })
+        }
+      } catch {
+        userRole = 'student'
+      }
+    }
+
+    // Admin routes: only admins
+    if (path.startsWith('/admin') && !path.startsWith('/admin/mfa') && userRole !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = userRole === 'mentor' ? '/mentor' : '/student'
+      return NextResponse.redirect(url)
+    }
+
+    // Mentor routes: admins and mentors
+    if (path.startsWith('/mentor') && userRole !== 'mentor' && userRole !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/student'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // 3. MFA enforcement for admin routes
   if (user && path.startsWith('/admin') && !path.startsWith('/admin/mfa')) {
     const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (!mfaData || mfaData.currentLevel !== 'aal2') {
       const url = request.nextUrl.clone()
-      // If nextLevel is aal2, user has a factor but hasn't verified → verify page
-      // If nextLevel is aal1, user has no factor enrolled → enroll page
-      if (mfaData?.nextLevel === 'aal2') {
-        url.pathname = '/admin/mfa/verify'
-      } else {
-        url.pathname = '/admin/mfa/enroll'
-      }
+      url.pathname = mfaData?.nextLevel === 'aal2' ? '/admin/mfa/verify' : '/admin/mfa/enroll'
       return NextResponse.redirect(url)
     }
   }
@@ -74,7 +109,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on all routes except static files and Next.js internals
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

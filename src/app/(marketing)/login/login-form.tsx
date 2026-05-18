@@ -30,7 +30,7 @@ function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const redirectTo = searchParams.get('redirectTo') || '/student'
+  const explicitRedirect = searchParams.get('redirectTo')
 
   const {
     register,
@@ -49,7 +49,14 @@ function LoginFormContent() {
       if (signInError) {
         setError('Ungültige E-Mail oder Passwort')
       } else {
-        router.push(redirectTo)
+        if (explicitRedirect) {
+          router.push(explicitRedirect)
+        } else {
+          // Determine role-based redirect
+          const roleRes = await fetch('/api/auth/role')
+          const { redirect } = await roleRes.json()
+          router.push(redirect || '/student')
+        }
         router.refresh()
       }
     } catch {

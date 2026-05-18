@@ -11,7 +11,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/student')
+      fetch('/api/auth/role')
+        .then((r) => r.json())
+        .then((data) => router.push(data.redirect || '/student'))
+        .catch(() => router.push('/student'))
     }
   }, [user, loading, router])
 
