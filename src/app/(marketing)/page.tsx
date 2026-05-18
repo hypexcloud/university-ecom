@@ -221,6 +221,24 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Creator Programm CTA */}
+          <div className="mt-12 text-center">
+            <Card className="card-prestige inline-block max-w-lg">
+              <CardContent className="pt-6 pb-6 px-8">
+                <h3 className="text-2xl font-display font-bold text-prestige-gold-500 mb-2">Creator Programm</h3>
+                <p className="text-prestige-gray-300 mb-4">1:1 Coaching für TikTok & YouTube Creator</p>
+                <div className="flex gap-4 justify-center">
+                  <span className="text-prestige-white font-bold">TikTok ab €75</span>
+                  <span className="text-prestige-gray-600">|</span>
+                  <span className="text-prestige-white font-bold">YouTube ab €100</span>
+                </div>
+                <Button asChild className="mt-4 bg-prestige-gold-500 text-black hover:bg-prestige-gold-400">
+                  <Link href="/creator">Creator Programm entdecken <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
