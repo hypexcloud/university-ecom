@@ -100,6 +100,25 @@ University Ecom is **not** a classic course site. It bundles: a course platform 
 - **Dates**: store as `timestamptz` in Postgres; serialize as ISO strings over the wire; `date-fns` for formatting.
 - **Logs / audit**: every admin write action (grant access, revoke product, change price, suspend user, manual crypto unlock) inserts a row in `audit_log` with actor uid, target, action, before/after JSON.
 
+## 5b. Style isolation — CRITICAL
+
+The platform has **two completely separate visual contexts**. They must never leak into each other:
+
+| Context | Routes | Theme | CSS scope |
+|---------|--------|-------|-----------|
+| **Marketing site** | `/`, `/courses/*`, `/legal/*`, `/contact`, `/about`, `/intake`, etc. | Dark (black `#0a0a0a` + royal gold `#D4AF37`) | `globals.css` `:root` / `.dark` — **do not touch** |
+| **Dashboard** (student + admin) | `/student/**`, `/admin/**` | Light (white/gray + blue primary) | `dashboard-globals.css` scoped to `.dashboard-shell` class |
+
+**Rules:**
+
+1. **Never modify `:root` or `.dark` CSS variables from dashboard code.** Dashboard styles live inside `.dashboard-shell` only.
+2. **Never use `document.documentElement.classList.remove('dark')` or `.style.colorScheme`** — this mutates the global `<html>` and breaks the marketing site when navigating back.
+3. **Dashboard layouts** (`src/app/student/layout.tsx`, `src/app/admin/layout.tsx`) must wrap their content in a `<div className="dashboard-shell">` that provides the light-mode scope.
+4. **Do not share UI components between marketing and dashboard** unless they are truly theme-agnostic (e.g. shadcn primitives like Button, Card, Input are fine because they read CSS vars). Do not create components that hard-code colors for one context and import them in the other.
+5. **When adding new CSS** for dashboard features, add it inside `.dashboard-shell { ... }` in `dashboard-globals.css`, never in `globals.css`.
+6. **When adding new CSS** for marketing features, add it in `globals.css` and never import `dashboard-globals.css`.
+7. **Test both contexts** after any style change: load `/` (marketing, should be dark + gold) and `/student` (dashboard, should be light + blue). If either is wrong, the change broke isolation.
+
 ## 6. Operating rules for Claude Code
 
 1. **Read `docs/CRM_SPEC.md` before starting any task.** It defines phases, priorities, and acceptance criteria.
