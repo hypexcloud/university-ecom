@@ -1,7 +1,28 @@
 import { NextResponse } from 'next/server'
+import { db } from '@/lib/server/db'
+import { analyticsEvents } from '@/lib/server/db/schema'
+import { eq, desc } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/server/auth'
 
-// TODO: Phase 5 — Intake submissions will be rebuilt with a proper
-// intake_submissions table. For now, return empty array so the admin page loads.
 export async function GET() {
-  return NextResponse.json({ submissions: [] })
+  try {
+    await requireAdmin('customers')
+
+    const events = await db
+      .select()
+      .from(analyticsEvents)
+      .where(eq(analyticsEvents.name, 'intake_submission'))
+      .orderBy(desc(analyticsEvents.occurredAt))
+      .limit(100)
+
+    const submissions = events.map((e) => ({
+      id: String(e.id),
+      ...(e.props as Record<string, unknown>),
+    }))
+
+    return NextResponse.json({ submissions })
+  } catch (error) {
+    if (error instanceof Response) return error
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

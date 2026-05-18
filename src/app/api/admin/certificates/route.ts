@@ -5,6 +5,8 @@ import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
 import { verifyCsrf } from '@/lib/server/csrf'
 import { emitNotification } from '@/lib/server/notifications'
+import { generateCertificatePdf } from '@/lib/server/certificate-pdf'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 
 const issueSchema = z.object({
@@ -18,7 +20,6 @@ export async function POST(request: NextRequest) {
     const admin = await requireAdmin('products')
     const data = issueSchema.parse(await request.json())
 
-    // Verify customer and product exist
     const [customer] = await db.select().from(customers).where(eq(customers.uid, data.customerUid)).limit(1)
     const [product] = await db.select().from(products).where(eq(products.id, data.productId)).limit(1)
 
@@ -26,14 +27,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Kunde oder Produkt nicht gefunden' }, { status: 404 })
     }
 
-    // TODO: Generate PDF via @react-pdf/renderer and upload to Supabase Storage
-    // For now, create the certificate row without PDF
     const [cert] = await db.insert(certificates).values({
       customerUid: data.customerUid,
       productId: data.productId,
       issuedByUid: admin.uid,
-      pdfUrl: null, // Will be set when PDF generation is wired
     }).returning()
+
+    // Generate PDF and upload to Supabase Storage
+    let pdfUrl: string | null = null
+    try {
+      const pdfBuffer = await generateCertificatePdf({
+        customerName: `${customer.firstName} ${customer.lastName}`,
+        productTitle: product.title,
+        issuedDate: new Date().toLocaleDateString('de-DE'),
+        certificateId: cert.id,
+      })
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (supabaseUrl && serviceKey) {
+        const supabase = createClient(supabaseUrl, serviceKey)
+        const filename = `certificates/${cert.id}.pdf`
+
+        await supabase.storage.from('invoices').upload(filename, pdfBuffer, {
+          contentType: 'application/pdf',
+          upsert: true,
+        })
+
+        const { data: signed } = await supabase.storage
+          .from('invoices')
+          .createSignedUrl(filename, 60 * 60 * 24 * 365)
+
+        pdfUrl = signed?.signedUrl || null
+      }
+    } catch {
+      // PDF generation failure is non-fatal
+    }
+
+    if (pdfUrl) {
+      await db.update(certificates).set({ pdfUrl }).where(eq(certificates.id, cert.id))
+    }
 
     await db.insert(auditLog).values({
       actorUid: admin.uid,
@@ -51,7 +84,7 @@ export async function POST(request: NextRequest) {
       link: '/student/certificates',
     }).catch(() => {})
 
-    return NextResponse.json({ success: true, certificate: cert }, { status: 201 })
+    return NextResponse.json({ success: true, certificate: { ...cert, pdfUrl } }, { status: 201 })
   } catch (error) {
     if (error instanceof Response) return error
     if (error instanceof z.ZodError) return NextResponse.json({ error: 'Ungültige Eingabedaten' }, { status: 400 })
