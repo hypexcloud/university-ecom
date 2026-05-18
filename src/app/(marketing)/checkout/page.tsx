@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Elements } from '@stripe/react-stripe-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,12 +16,35 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { CheckoutFormData, checkoutSchema, LEAD_SOURCE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/checkout-schema'
-import { COURSE_PRICING, CourseType, PlanType, formatPrice, calculateVAT, calculateTotal, getStripe, createPaymentMetadata } from '@/lib/stripe'
-import { ShoppingCart, CreditCard, User, Mail, Phone, MapPin, Calendar, MessageSquare, Check, AlertCircle, Loader2, Info, ArrowRight } from 'lucide-react'
+import { COURSE_PRICING, CourseType, PlanType, formatPrice, getStripe, createPaymentMetadata } from '@/lib/stripe'
+import { AI_COURSE_PLANS, DROPSHIPPING_COURSE_PLANS } from '@/lib/courses-data'
+import { ShoppingCart, CreditCard, User, Mail, Phone, MapPin, Calendar, MessageSquare, Check, AlertCircle, Loader2, Info, ArrowRight, Trash2 } from 'lucide-react'
 import PaymentForm from '@/components/PaymentForm'
 
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="checkout-dark min-h-screen bg-prestige-black py-12"><div className="container mx-auto px-4 max-w-7xl"><Loader2 className="h-8 w-8 animate-spin mx-auto mt-20 text-prestige-gold-500" /></div></div>}>
+      <CheckoutContent />
+    </Suspense>
+  )
+}
+
+const VALID_COURSES: CourseType[] = ['ai', 'dropshipping', 'tiktok-creator', 'youtube-creator']
+const VALID_PLANS: PlanType[] = ['fast', 'business', 'infinity', 'tiktok', 'youtube']
+
+function isCreatorProduct(course: CourseType): boolean {
+  return course === 'tiktok-creator' || course === 'youtube-creator'
+}
+
+function getDefaultPlanForCourse(course: CourseType): PlanType {
+  if (course === 'tiktok-creator') return 'tiktok'
+  if (course === 'youtube-creator') return 'youtube'
+  return 'business'
+}
+
+function CheckoutContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState<'details' | 'payment'>('details')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -29,24 +52,34 @@ export default function CheckoutPage() {
   const [stripePromise, setStripePromise] = useState<any>(null)
   const [customerData, setCustomerData] = useState<CheckoutFormData | null>(null)
 
+  const courseParam = searchParams.get('course') as CourseType | null
+  const planParam = searchParams.get('plan') as PlanType | null
+  const initialCourse: CourseType = courseParam && VALID_COURSES.includes(courseParam) ? courseParam : 'ai'
+  const initialPlan: PlanType = planParam && VALID_PLANS.includes(planParam) ? planParam : getDefaultPlanForCourse(initialCourse)
+
+  const isCreator = isCreatorProduct(initialCourse)
+
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { course: 'ai', plan: 'business', address: { country: 'Deutschland' }, acceptNewsletter: false }
+    defaultValues: { course: initialCourse, plan: initialPlan, address: { country: 'Deutschland' }, acceptNewsletter: false }
   })
 
-  const watchCourse = watch('course', 'ai')
-  const watchPlan = watch('plan', 'business')
+  const watchCourse = watch('course')
+  const watchPlan = watch('plan')
   const watchAcceptTerms = watch('acceptTerms')
 
   const courseData = COURSE_PRICING[watchCourse]
-  const planData = courseData.plans[watchPlan]
-  const subtotal = planData.price
-  const vat = calculateVAT(subtotal)
-  const total = calculateTotal(subtotal)
+  const plans = courseData.plans as Record<string, { readonly name: string; readonly price: number; readonly currency: string; readonly features: readonly string[]; readonly includes1to1: boolean; readonly sessionCount?: number }>
+  const planData = plans[watchPlan]
+  const total = planData.price
+
+  const coursePlans = watchCourse === 'ai' ? AI_COURSE_PLANS : DROPSHIPPING_COURSE_PLANS
+  const selectedCoursePlan = !isCreator ? coursePlans.find(p => p.name === watchPlan) : null
 
   // Load Stripe
   useEffect(() => {
     getStripe().then(setStripePromise)
+    localStorage.setItem('checkout_url', `/checkout?course=${initialCourse}&plan=${initialPlan}`)
   }, [])
 
   const onDetailsSubmit = async (data: CheckoutFormData) => {
@@ -69,7 +102,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: subtotal,
+          amount: total,
           currency: 'EUR',
           metadata,
           customerEmail: data.email
@@ -92,6 +125,7 @@ export default function CheckoutPage() {
   }
 
   const handlePaymentSuccess = () => {
+    localStorage.removeItem('checkout_url')
     router.push('/checkout/success')
   }
 
@@ -152,34 +186,26 @@ export default function CheckoutPage() {
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" />Kursauswahl</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Kurs *</Label>
-                    <Select value={watchCourse} onValueChange={(v) => setValue('course', v as CourseType)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ai">AI Automatisierung (3 Monate)</SelectItem>
-                        <SelectItem value="dropshipping">EU Dropshipping (2 Monate)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Plan *</Label>
-                    <div className="grid gap-3 mt-2">
-                      {Object.entries(courseData.plans).map(([key, plan]) => (
-                        <div key={key} onClick={() => setValue('plan', key as PlanType)} 
-                             className={`p-4 border-2 rounded-lg cursor-pointer ${watchPlan === key ? 'border-prestige-gold-500 bg-prestige-gold-500/10' : 'border-prestige-gray-700'}`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-semibold">{plan.name}</span>
-                            <span className="text-xl font-bold">{formatPrice(plan.price)}</span>
-                          </div>
-                          <ul className="space-y-1 ml-6">
-                            {plan.features.map((f: string, i: number) => (<li key={i} className="text-sm text-prestige-gray-400 flex items-start gap-2"><Check className="h-4 w-4 text-prestige-gold-500 mt-0.5" /><span>{f}</span></li>))}
-                          </ul>
-                        </div>
-                      ))}
+                <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" />Ihr Produkt</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="p-4 border-2 border-prestige-gold-500 bg-prestige-gold-500/10 rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-lg font-semibold">{courseData.name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-bold">{formatPrice(planData.price)}</span>
+                        <button type="button" onClick={() => { localStorage.removeItem('checkout_url'); router.back() }} className="text-prestige-gray-500 hover:text-red-500 transition-colors" title="Produkt entfernen">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
+                    {!isCreator && <Badge variant="outline" className="mb-3">{selectedCoursePlan?.displayNameDE ?? planData.name}</Badge>}
+                    <ul className="space-y-1 mt-3 ml-1">
+                      {(isCreator ? planData.features : (selectedCoursePlan?.featuresDE ?? planData.features)).map((f: string, i: number) => (
+                        <li key={i} className="text-sm text-prestige-gray-400 flex items-start gap-2">
+                          <Check className="h-4 w-4 text-prestige-gold-500 mt-0.5" /><span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </CardContent>
               </Card>
@@ -266,7 +292,10 @@ export default function CheckoutPage() {
                 <Card>
                   <CardHeader><CardTitle>Bestellübersicht</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div><div className="font-medium mb-1">{courseData.name}</div><Badge variant="outline">{planData.name}</Badge></div>
+                    <div>
+                      <div className="font-medium mb-1">{courseData.name}</div>
+                      {!isCreator && <Badge variant="outline">{selectedCoursePlan?.displayNameDE ?? planData.name}</Badge>}
+                    </div>
                     <Separator />
 
                     {/* Giftcard redemption */}
@@ -285,12 +314,8 @@ export default function CheckoutPage() {
                     </div>
 
                     <Separator />
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm"><span>Zwischensumme</span><span className="font-medium">{formatPrice(subtotal)}</span></div>
-                      <div className="flex justify-between text-sm"><span>MwSt. (19%)</span><span className="font-medium">{formatPrice(vat)}</span></div>
-                    </div>
-                    <Separator />
                     <div className="flex justify-between text-lg font-bold"><span>Gesamt</span><span>{formatPrice(total)}</span></div>
+                    <p className="text-xs text-prestige-gray-500">inkl. MwSt.</p>
                     <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                       {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Wird verarbeitet...</> : <><ArrowRight className="mr-2 h-4 w-4" />Weiter zur Zahlung</>}
                     </Button>

@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Crown, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { Crown, Menu, X, ShoppingCart } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 const navigation = [
   { name: 'Features', href: '/#features' },
@@ -19,6 +19,11 @@ const navigation = [
 export function PrestigeHeader() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [cartItem, setCartItem] = useState<string | null>(null)
+
+  useEffect(() => {
+    setCartItem(localStorage.getItem('checkout_url'))
+  }, [pathname])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-prestige-gold-500/20 bg-prestige-black/95 backdrop-blur supports-[backdrop-filter]:bg-prestige-black/80">
@@ -53,6 +58,10 @@ export function PrestigeHeader() {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex lg:gap-x-4 items-center">
+          <Link href={cartItem || '/checkout'} className="relative text-prestige-gray-400 hover:text-prestige-gold-500 transition-colors" title="Warenkorb">
+            <ShoppingCart className="h-5 w-5" />
+            {cartItem && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-prestige-gold-500 rounded-full" />}
+          </Link>
           <Link href="/contact" className="text-sm text-prestige-gray-400 hover:text-prestige-white transition-colors">Kontakt</Link>
           <Button asChild className="btn-gold" size="sm">
             <Link href="/login">Login</Link>
@@ -92,6 +101,11 @@ export function PrestigeHeader() {
               </Link>
             ))}
             <div className="pt-4 space-y-2">
+              <Link href={cartItem || '/checkout'} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 text-sm text-prestige-gray-400 hover:text-prestige-gold-500 py-2">
+                <ShoppingCart className="h-4 w-4" />
+                Warenkorb
+                {cartItem && <span className="w-2 h-2 bg-prestige-gold-500 rounded-full" />}
+              </Link>
               <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-center text-sm text-prestige-gray-400 hover:text-prestige-white py-2">
                 Kontakt
               </Link>

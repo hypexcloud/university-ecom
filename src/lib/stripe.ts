@@ -121,17 +121,60 @@ export const COURSE_PRICING = {
         sessionCount: Infinity
       }
     }
+  },
+  'tiktok-creator': {
+    name: 'TikTok Creator Programm',
+    duration: 30,
+    plans: {
+      tiktok: {
+        name: 'TikTok Creator',
+        price: 75,
+        currency: 'EUR',
+        features: [
+          'Persönliches Briefing',
+          '2 x 1:1 Coaching-Calls',
+          'TikTok-spezifische Strategie',
+          'Content-Analyse & Feedback',
+          'Community-Zugang',
+          'Fortschritt-Tracking'
+        ],
+        includes1to1: true,
+        sessionCount: 2
+      }
+    }
+  },
+  'youtube-creator': {
+    name: 'YouTube Creator Programm',
+    duration: 30,
+    plans: {
+      youtube: {
+        name: 'YouTube Creator',
+        price: 100,
+        currency: 'EUR',
+        features: [
+          'Persönliches Briefing',
+          '2 x 1:1 Coaching-Calls',
+          'YouTube-spezifische Strategie',
+          'Kanal-Analyse & SEO-Tipps',
+          'Community-Zugang',
+          'Fortschritt-Tracking'
+        ],
+        includes1to1: true,
+        sessionCount: 2
+      }
+    }
   }
 } as const
 
 export type CourseType = keyof typeof COURSE_PRICING
-export type PlanType = 'fast' | 'business' | 'infinity'
+export type PlanType = 'fast' | 'business' | 'infinity' | 'tiktok' | 'youtube'
 
 /**
  * Get pricing for a specific course and plan
  */
 export const getPricing = (course: CourseType, plan: PlanType) => {
-  return COURSE_PRICING[course].plans[plan]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (COURSE_PRICING[course].plans as any)[plan]
 }
 
 /**
@@ -189,7 +232,8 @@ export const createPaymentMetadata = (data: {
   affiliateId?: string
 }): PaymentMetadata => {
   const courseInfo = COURSE_PRICING[data.course]
-  const planInfo = courseInfo.plans[data.plan]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const planInfo = (courseInfo.plans as any)[data.plan]
   
   return {
     courseType: data.course,

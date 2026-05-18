@@ -236,9 +236,11 @@ export function getWelcomeEmail(data: {
   course: CourseType
   plan: PlanType
 }) {
-  const courseNames = {
+  const courseNames: Record<string, string> = {
     ai: 'KI Automation Kurs',
     dropshipping: 'EU Dropshipping Kurs',
+    'tiktok-creator': 'TikTok Creator Programm',
+    'youtube-creator': 'YouTube Creator Programm',
   }
 
   return {
@@ -369,15 +371,19 @@ export function getOrderConfirmationEmail(data: {
   plan: PlanType
   amount: number
 }) {
-  const courseNames = {
+  const courseNames: Record<string, string> = {
     ai: 'KI Automation Kurs',
     dropshipping: 'EU Dropshipping Kurs',
+    'tiktok-creator': 'TikTok Creator Programm',
+    'youtube-creator': 'YouTube Creator Programm',
   }
 
-  const planNames = {
+  const planNames: Record<string, string> = {
     fast: 'Fast Track',
     business: 'Business',
     infinity: 'Infinity',
+    tiktok: 'TikTok Creator',
+    youtube: 'YouTube Creator',
   }
 
   return {

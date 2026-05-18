@@ -8,10 +8,10 @@ import { z } from 'zod'
 
 export const checkoutSchema = z.object({
   // Course Selection
-  course: z.enum(['ai', 'dropshipping'], {
-    error: 'Bitte wählen Sie einen Kurs aus'
+  course: z.enum(['ai', 'dropshipping', 'tiktok-creator', 'youtube-creator'], {
+    error: 'Bitte wählen Sie ein Produkt aus'
   }),
-  plan: z.enum(['fast', 'business', 'infinity'], {
+  plan: z.enum(['fast', 'business', 'infinity', 'tiktok', 'youtube'], {
     error: 'Bitte wählen Sie einen Plan aus'
   }),
   
