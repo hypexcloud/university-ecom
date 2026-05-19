@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/lib/auth/auth-provider'
 import { CrispChat } from '@/components/crisp-chat'
 import { CookieConsent } from '@/components/cookie-consent'
+import { PlausibleAnalytics } from '@/components/plausible-analytics'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 
 const inter = Inter({
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             {children}
             <CrispChat />
+            <PlausibleAnalytics />
             <CookieConsent />
           </AuthProvider>
         </ThemeProvider>
