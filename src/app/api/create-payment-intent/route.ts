@@ -3,7 +3,7 @@ import { createPaymentIntent } from '@/lib/stripe-server'
 import { createClient } from '@/lib/supabase/server'
 import { calculateTotal } from '@/lib/stripe'
 import { db } from '@/lib/server/db'
-import { plans, products } from '@/lib/server/db/schema'
+import { plans, products, customers } from '@/lib/server/db/schema'
 import { eq, and } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
@@ -34,6 +34,25 @@ export async function POST(request: NextRequest) {
         .limit(1)
 
       planId = plan?.id || ''
+    }
+
+    // Save billing address to customer record
+    if (user?.id && body.billingAddress) {
+      const addr = body.billingAddress
+      await db
+        .update(customers)
+        .set({
+          billing: {
+            street: addr.street || '',
+            zipCode: addr.zipCode || '',
+            city: addr.city || '',
+            country: addr.country || 'Deutschland',
+            companyName: addr.companyName || '',
+            vatId: addr.vatId || '',
+          },
+          updatedAt: new Date(),
+        })
+        .where(eq(customers.uid, user.id))
     }
 
     // Read affiliate cookie

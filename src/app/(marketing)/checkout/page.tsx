@@ -20,6 +20,7 @@ import { COURSE_PRICING, CourseType, PlanType, formatPrice, getStripe, createPay
 import { AI_COURSE_PLANS, DROPSHIPPING_COURSE_PLANS } from '@/lib/courses-data'
 import { ShoppingCart, CreditCard, User, Mail, Phone, MapPin, Calendar, MessageSquare, Check, AlertCircle, Loader2, Info, ArrowRight, Trash2 } from 'lucide-react'
 import PaymentForm from '@/components/PaymentForm'
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 
 export default function CheckoutPage() {
   return (
@@ -52,6 +53,7 @@ function CheckoutContent() {
   const [stripePromise, setStripePromise] = useState<any>(null)
   const [customerData, setCustomerData] = useState<CheckoutFormData | null>(null)
   const [cartEmpty, setCartEmpty] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe')
 
   const courseParam = searchParams.get('course') as CourseType | null
   const planParam = searchParams.get('plan') as PlanType | null
@@ -88,12 +90,28 @@ function CheckoutContent() {
     }
   }, [])
 
+  const billingAddressFromForm = (data: CheckoutFormData) => ({
+    street: data.address.street,
+    zipCode: data.address.zipCode,
+    city: data.address.city,
+    country: data.address.country,
+    companyName: data.address.isCompany ? data.address.companyName : '',
+    vatId: data.address.isCompany ? data.address.vatId : '',
+  })
+
   const onDetailsSubmit = async (data: CheckoutFormData) => {
     try {
       setIsSubmitting(true)
       setError('')
+      setCustomerData(data)
 
-      // Create payment intent
+      if (paymentMethod === 'paypal') {
+        // PayPal: just advance to payment step — buttons handle the rest
+        setStep('payment')
+        return
+      }
+
+      // Stripe: create payment intent
       const metadata = createPaymentMetadata({
         course: data.course,
         plan: data.plan,
@@ -111,7 +129,8 @@ function CheckoutContent() {
           amount: total,
           currency: 'EUR',
           metadata,
-          customerEmail: data.email
+          customerEmail: data.email,
+          billingAddress: billingAddressFromForm(data),
         })
       })
 
@@ -121,7 +140,6 @@ function CheckoutContent() {
 
       const { clientSecret } = await response.json()
       setClientSecret(clientSecret)
-      setCustomerData(data)
       setStep('payment')
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten.')
@@ -156,7 +174,7 @@ function CheckoutContent() {
     )
   }
 
-  if (step === 'payment' && clientSecret && stripePromise) {
+  if (step === 'payment' && paymentMethod === 'stripe' && clientSecret && stripePromise) {
     return (
       <div className="checkout-dark min-h-screen bg-prestige-black py-12">
         <div className="container mx-auto px-4 max-w-2xl">
@@ -180,6 +198,76 @@ function CheckoutContent() {
                   onError={handlePaymentError}
                 />
               </Elements>
+            </CardContent>
+          </Card>
+
+          <div className="mt-4">
+            <Button variant="outline" onClick={() => setStep('details')}>
+              ← Zurück zu den Details
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'payment' && paymentMethod === 'paypal' && customerData) {
+    const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || ''
+    return (
+      <div className="checkout-dark min-h-screen bg-prestige-black py-12">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold mb-2">PayPal-Zahlung</h1>
+            <p className="text-prestige-gray-400">Schließen Sie Ihre Bestellung über PayPal ab</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Mit PayPal bezahlen</CardTitle>
+              <CardDescription>
+                {courseData.name} — {formatPrice(total)}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {paypalClientId ? (
+                <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'EUR' }}>
+                  <PayPalButtons
+                    style={{ layout: 'vertical', shape: 'rect', label: 'pay' }}
+                    createOrder={async () => {
+                      const res = await fetch('/api/checkout/paypal/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          courseType: customerData.course,
+                          planType: customerData.plan,
+                          billingAddress: billingAddressFromForm(customerData),
+                        }),
+                      })
+                      const data = await res.json()
+                      if (!res.ok) throw new Error(data.error)
+                      return data.orderId
+                    }}
+                    onApprove={async (data) => {
+                      const res = await fetch('/api/checkout/paypal/capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId: data.orderID }),
+                      })
+                      if (res.ok) {
+                        handlePaymentSuccess()
+                      } else {
+                        const err = await res.json()
+                        handlePaymentError(err.error || 'PayPal-Zahlung fehlgeschlagen')
+                      }
+                    }}
+                    onError={(err) => {
+                      handlePaymentError('PayPal-Fehler: ' + String(err))
+                    }}
+                  />
+                </PayPalScriptProvider>
+              ) : (
+                <p className="text-muted-foreground">PayPal ist derzeit nicht verfügbar. Bitte verwenden Sie Stripe.</p>
+              )}
             </CardContent>
           </Card>
 
@@ -249,6 +337,29 @@ function CheckoutContent() {
               <Card>
                 <CardHeader><CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" />Rechnungsadresse</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id="isCompany"
+                      checked={watch('address.isCompany')}
+                      onCheckedChange={(c) => setValue('address.isCompany', c as boolean)}
+                    />
+                    <label htmlFor="isCompany" className="text-sm font-medium">Firmenkunde</label>
+                  </div>
+
+                  {watch('address.isCompany') && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <Label>Firmenname *</Label>
+                        <Input {...register('address.companyName')} placeholder="Firma GmbH" />
+                        {errors.address?.companyName && <p className="text-sm text-red-500">{errors.address.companyName.message}</p>}
+                      </div>
+                      <div>
+                        <Label>USt-IdNr. (optional)</Label>
+                        <Input {...register('address.vatId')} placeholder="DE123456789" />
+                      </div>
+                    </div>
+                  )}
+
                   <div><Label>Straße und Hausnummer *</Label><Input {...register('address.street')} />{errors.address?.street && <p className="text-sm text-red-500">{errors.address.street.message}</p>}</div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div><Label>PLZ *</Label><Input {...register('address.zipCode')} />{errors.address?.zipCode && <p className="text-sm text-red-500">{errors.address.zipCode.message}</p>}</div>
@@ -338,10 +449,33 @@ function CheckoutContent() {
                     <Separator />
                     <div className="flex justify-between text-lg font-bold"><span>Gesamt</span><span>{formatPrice(total)}</span></div>
                     <p className="text-xs text-prestige-gray-500">inkl. MwSt.</p>
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Zahlungsmethode</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('stripe')}
+                          className={`p-3 border rounded-lg text-sm font-medium transition-colors ${paymentMethod === 'stripe' ? 'border-prestige-gold-500 bg-prestige-gold-500/10 text-prestige-gold-500' : 'border-prestige-gray-700 text-prestige-gray-400 hover:border-prestige-gray-500'}`}
+                        >
+                          <CreditCard className="h-4 w-4 mx-auto mb-1" />
+                          Karte / SEPA
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('paypal')}
+                          className={`p-3 border rounded-lg text-sm font-medium transition-colors ${paymentMethod === 'paypal' ? 'border-prestige-gold-500 bg-prestige-gold-500/10 text-prestige-gold-500' : 'border-prestige-gray-700 text-prestige-gray-400 hover:border-prestige-gray-500'}`}
+                        >
+                          <span className="block text-center mb-1">PP</span>
+                          PayPal
+                        </button>
+                      </div>
+                    </div>
+
                     <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                       {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Wird verarbeitet...</> : <><ArrowRight className="mr-2 h-4 w-4" />Weiter zur Zahlung</>}
                     </Button>
-                    <p className="text-xs text-center text-prestige-gray-500">Sichere Zahlung mit Stripe</p>
+                    <p className="text-xs text-center text-prestige-gray-500">Sichere Zahlung mit {paymentMethod === 'stripe' ? 'Stripe' : 'PayPal'}</p>
                   </CardContent>
                 </Card>
                 <div className="mt-4 p-4 bg-prestige-gold-500/10 border border-prestige-gold-500/30 rounded-lg">

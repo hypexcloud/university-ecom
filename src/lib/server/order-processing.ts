@@ -1,10 +1,11 @@
 import { db } from '@/lib/server/db'
 import {
   orders, orderItems, entitlements, invoices, plans, sessions,
-  affiliateLinks, affiliateReferrals,
+  affiliateLinks, affiliateReferrals, customers, products,
 } from '@/lib/server/db/schema'
 import { eq, and, isNull, sql } from 'drizzle-orm'
 import { emitNotification } from '@/lib/server/notifications'
+import { generateAndUploadInvoicePdf } from './invoice-generate'
 import type Stripe from 'stripe'
 
 /**
@@ -94,10 +95,25 @@ export async function fulfillOrder(params: FulfillParams) {
 
   // Generate invoice
   const invoiceNumber = await generateInvoiceNumber()
-  await db.insert(invoices).values({
+  const [invoice] = await db.insert(invoices).values({
     orderId: order.id,
     number: invoiceNumber,
-  })
+  }).returning()
+
+  // Generate PDF + upload to Supabase Storage (non-fatal)
+  generateAndUploadInvoicePdf({
+    invoiceId: invoice.id,
+    invoiceNumber,
+    customerUid,
+    orderId: order.id,
+    totalCents,
+    netCents,
+    vatCents,
+    vatRate: 19,
+    provider,
+    providerRef: providerRef || '',
+    planId,
+  }).catch(() => {})
 
   // Auto-schedule creator sessions if applicable
   const [plan] = await db.select().from(plans).where(eq(plans.id, planId)).limit(1)

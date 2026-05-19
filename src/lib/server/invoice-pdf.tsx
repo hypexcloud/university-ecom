@@ -1,5 +1,6 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { renderToBuffer } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica' },
@@ -41,6 +42,8 @@ interface InvoiceData {
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €'
 }
+
+export type { InvoiceData }
 
 export function InvoicePDF({ data }: { data: InvoiceData }) {
   return (
@@ -119,4 +122,8 @@ export function InvoicePDF({ data }: { data: InvoiceData }) {
       </Page>
     </Document>
   )
+}
+
+export async function renderInvoicePdfBuffer(data: InvoiceData): Promise<Buffer> {
+  return renderToBuffer(<InvoicePDF data={data} />)
 }

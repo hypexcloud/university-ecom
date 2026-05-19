@@ -31,8 +31,11 @@ export const checkoutSchema = z.object({
     .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, 
       'Bitte geben Sie eine gültige Telefonnummer ein'),
   
-  // Address (Required)
+  // Billing address (Required)
   address: z.object({
+    isCompany: z.boolean().default(false),
+    companyName: z.string().max(100).optional().or(z.literal('')),
+    vatId: z.string().max(20).optional().or(z.literal('')), // USt-IdNr. e.g. DE123456789
     street: z.string()
       .min(5, 'Straße und Hausnummer sind erforderlich')
       .max(100, 'Adresse darf maximal 100 Zeichen haben'),
@@ -45,8 +48,11 @@ export const checkoutSchema = z.object({
     country: z.string()
       .min(2, 'Land ist erforderlich')
       .max(50, 'Land darf maximal 50 Zeichen haben')
-      .default('Deutschland')
-  }),
+      .default('Deutschland'),
+  }).refine(
+    (addr) => !addr.isCompany || (addr.companyName && addr.companyName.length >= 2),
+    { message: 'Firmenname ist erforderlich', path: ['companyName'] },
+  ),
   
   // Optional Fields
   discord: z.string()
