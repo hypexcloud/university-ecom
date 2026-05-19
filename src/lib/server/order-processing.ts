@@ -6,6 +6,7 @@ import {
 import { eq, and, isNull, sql } from 'drizzle-orm'
 import { emitNotification } from '@/lib/server/notifications'
 import { generateAndUploadInvoicePdf } from './invoice-generate'
+import { addRole, removeRole } from './discord'
 import type Stripe from 'stripe'
 
 /**
@@ -92,6 +93,36 @@ export async function fulfillOrder(params: FulfillParams) {
     planId,
     sourceOrderId: order.id,
   })
+
+  // Auto-assign Discord role (non-fatal)
+  const [grantedPlan] = await db
+    .select({ code: plans.code })
+    .from(plans)
+    .where(eq(plans.id, planId))
+    .limit(1)
+
+  if (grantedPlan) {
+    const [customer] = await db
+      .select({ discordUserId: customers.discordUserId })
+      .from(customers)
+      .where(eq(customers.uid, customerUid))
+      .limit(1)
+
+    if (customer?.discordUserId) {
+      // Remove old role on upgrade, add new one
+      if (isUpgrade && upgradeFromPlanId) {
+        const [oldPlan] = await db
+          .select({ code: plans.code })
+          .from(plans)
+          .where(eq(plans.id, upgradeFromPlanId))
+          .limit(1)
+        if (oldPlan) {
+          removeRole(customer.discordUserId, oldPlan.code).catch(() => {})
+        }
+      }
+      addRole(customer.discordUserId, grantedPlan.code).catch(() => {})
+    }
+  }
 
   // Generate invoice
   const invoiceNumber = await generateInvoiceNumber()
