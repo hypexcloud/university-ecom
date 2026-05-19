@@ -8,6 +8,13 @@
       "when": 1779103318502,
       "tag": "0000_strange_kronos",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779232502389,
+      "tag": "0001_light_zuras",
+      "breakpoints": true
     }
   ]
 }

@@ -32,3 +32,19 @@ export const availability = pgTable('availability', {
   endTime: text('end_time').notNull(), // HH:mm
   isActive: boolean('is_active').notNull().default(true),
 })
+
+// Date-specific overrides: block a day or add one-off availability
+export const availabilityExceptions = pgTable('availability_exceptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  mentorUid: uuid('mentor_uid')
+    .notNull()
+    .references(() => customers.uid),
+  date: text('date').notNull(), // YYYY-MM-DD
+  type: text('type').notNull(), // 'block' = unavailable whole day or time range, 'available' = extra slot
+  startTime: text('start_time'), // HH:mm, null = whole day block
+  endTime: text('end_time'), // HH:mm, null = whole day block
+  reason: text('reason'), // e.g. 'Urlaub', 'Krank'
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => ({
+  mentorDateIdx: index('idx_avail_exceptions_mentor_date').on(table.mentorUid, table.date),
+}))
