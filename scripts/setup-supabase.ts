@@ -19,6 +19,7 @@ config({ path: '.env.local' })
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { createClient } from '@supabase/supabase-js'
+import ws from 'ws'
 import * as schema from '../src/lib/server/db/schema'
 
 const DATABASE_URL = process.env.DATABASE_URL
@@ -34,6 +35,7 @@ const client = postgres(DATABASE_URL, { prepare: false })
 const db = drizzle(client, { schema })
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
+  realtime: { transport: ws as unknown as typeof WebSocket },
 })
 
 // Fixed UUIDs for deterministic seed
