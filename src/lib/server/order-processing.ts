@@ -162,20 +162,33 @@ export async function fulfillOrder(params: FulfillParams) {
 
 /**
  * Process a successful Stripe PaymentIntent into Postgres.
+ * Supports multi-item carts via planIds metadata (JSON array).
  */
 export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
   const meta = paymentIntent.metadata
-
   const customerUid = meta.customerUid
-  const planId = meta.planId
 
-  if (!customerUid || !planId) {
-    throw new Error(`Missing metadata on PaymentIntent ${paymentIntent.id}: customerUid=${customerUid}, planId=${planId}`)
+  if (!customerUid) {
+    throw new Error(`Missing customerUid on PaymentIntent ${paymentIntent.id}`)
   }
 
-  return fulfillOrder({
+  // Parse planIds — supports both single planId and JSON array
+  let planIds: string[] = []
+  if (meta.planIds) {
+    try { planIds = JSON.parse(meta.planIds) } catch { /* ignore */ }
+  }
+  if (planIds.length === 0 && meta.planId) {
+    planIds = [meta.planId]
+  }
+  if (planIds.length === 0) {
+    throw new Error(`No planIds on PaymentIntent ${paymentIntent.id}`)
+  }
+
+  // For multi-item: fulfill first item normally (creates order + invoice),
+  // then add additional items to the same order
+  const result = await fulfillOrder({
     customerUid,
-    planId,
+    planId: planIds[0],
     totalCents: paymentIntent.amount,
     provider: 'stripe',
     providerRef: paymentIntent.id,
@@ -183,6 +196,37 @@ export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIn
     upgradeFromPlanId: meta.upgradeFromPlanId || null,
     affiliateCode: meta.affiliateCode || null,
   })
+
+  // Grant entitlements for additional items (2nd+)
+  for (let i = 1; i < planIds.length; i++) {
+    await db.insert(orderItems).values({
+      orderId: result.orderId,
+      planId: planIds[i],
+      priceCents: 0, // price already included in total
+    })
+    await db.insert(entitlements).values({
+      customerUid,
+      planId: planIds[i],
+      sourceOrderId: result.orderId,
+    })
+
+    // Discord role
+    const [gp] = await db.select({ code: plans.code }).from(plans).where(eq(plans.id, planIds[i])).limit(1)
+    if (gp) {
+      const [cust] = await db.select({ discordUserId: customers.discordUserId }).from(customers).where(eq(customers.uid, customerUid)).limit(1)
+      if (cust?.discordUserId) {
+        addRole(cust.discordUserId, gp.code).catch(() => {})
+      }
+    }
+
+    // Creator sessions
+    const [plan] = await db.select().from(plans).where(eq(plans.id, planIds[i])).limit(1)
+    if (plan && (plan.code === 'tiktok' || plan.code === 'youtube')) {
+      await scheduleCreatorSessions(customerUid, plan.code)
+    }
+  }
+
+  return result
 }
 
 /**

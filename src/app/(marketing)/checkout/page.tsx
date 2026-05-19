@@ -17,10 +17,10 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { CheckoutFormData, checkoutSchema, LEAD_SOURCE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/checkout-schema'
 import { COURSE_PRICING, CourseType, PlanType, formatPrice, getStripe, createPaymentMetadata } from '@/lib/stripe'
-import { AI_COURSE_PLANS, DROPSHIPPING_COURSE_PLANS } from '@/lib/courses-data'
-import { ShoppingCart, CreditCard, User, Mail, Phone, MapPin, Calendar, MessageSquare, Check, AlertCircle, Loader2, Info, ArrowRight, Trash2 } from 'lucide-react'
+import { ShoppingCart, CreditCard, User, MapPin, Check, AlertCircle, Loader2, Info, ArrowRight, Trash2 } from 'lucide-react'
 import PaymentForm from '@/components/PaymentForm'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { useCart, type CartItem } from '@/lib/cart'
 
 export default function CheckoutPage() {
   return (
@@ -52,42 +52,46 @@ function CheckoutContent() {
   const [clientSecret, setClientSecret] = useState('')
   const [stripePromise, setStripePromise] = useState<any>(null)
   const [customerData, setCustomerData] = useState<CheckoutFormData | null>(null)
-  const [cartEmpty, setCartEmpty] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe')
+  const cart = useCart()
 
+  // If ?course= param, add to cart and clear URL
   const courseParam = searchParams.get('course') as CourseType | null
   const planParam = searchParams.get('plan') as PlanType | null
-  const hasProduct = courseParam && VALID_COURSES.includes(courseParam)
-  const initialCourse: CourseType = hasProduct ? courseParam : 'ai'
-  const initialPlan: PlanType = planParam && VALID_PLANS.includes(planParam) ? planParam : getDefaultPlanForCourse(initialCourse)
 
-  const isCreator = isCreatorProduct(initialCourse)
+  useEffect(() => {
+    if (courseParam && VALID_COURSES.includes(courseParam)) {
+      const plan = planParam && VALID_PLANS.includes(planParam) ? planParam : getDefaultPlanForCourse(courseParam)
+      cart.add({ course: courseParam, plan })
+      // Clean URL without reload
+      window.history.replaceState({}, '', '/checkout')
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cartItems = cart.items
+  const cartEmpty = cartItems.length === 0
+
+  // Compute prices for each item
+  const itemDetails = cartItems.map((item) => {
+    const cd = COURSE_PRICING[item.course as CourseType]
+    const pl = (cd?.plans as Record<string, { name: string; price: number; features: readonly string[] }>)?.[item.plan]
+    return { ...item, courseName: cd?.name || item.course, planName: pl?.name || item.plan, price: pl?.price || 0, features: pl?.features || [] }
+  })
+  const total = itemDetails.reduce((sum, i) => sum + i.price, 0)
+
+  // Use first item for form defaults (form still tracks course/plan for Stripe metadata)
+  const firstItem = cartItems[0] || { course: 'ai', plan: 'business' }
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { course: initialCourse, plan: initialPlan, address: { country: 'Deutschland' }, acceptNewsletter: false }
+    defaultValues: { course: firstItem.course as CourseType, plan: firstItem.plan as PlanType, address: { country: 'Deutschland' }, acceptNewsletter: false }
   })
 
-  const watchCourse = watch('course')
-  const watchPlan = watch('plan')
   const watchAcceptTerms = watch('acceptTerms')
 
-  const courseData = COURSE_PRICING[watchCourse]
-  const plans = courseData.plans as Record<string, { readonly name: string; readonly price: number; readonly currency: string; readonly features: readonly string[]; readonly includes1to1: boolean; readonly sessionCount?: number }>
-  const planData = plans[watchPlan]
-  const total = planData.price
-
-  const coursePlans = watchCourse === 'ai' ? AI_COURSE_PLANS : DROPSHIPPING_COURSE_PLANS
-  const selectedCoursePlan = !isCreator ? coursePlans.find(p => p.name === watchPlan) : null
-
-  // Load Stripe + persist cart
+  // Load Stripe
   useEffect(() => {
     getStripe().then(setStripePromise)
-    if (hasProduct) {
-      localStorage.setItem('checkout_url', `/checkout?course=${initialCourse}&plan=${initialPlan}`)
-    } else if (!localStorage.getItem('checkout_url')) {
-      setCartEmpty(true)
-    }
   }, [])
 
   const billingAddressFromForm = (data: CheckoutFormData) => ({
@@ -106,15 +110,14 @@ function CheckoutContent() {
       setCustomerData(data)
 
       if (paymentMethod === 'paypal') {
-        // PayPal: just advance to payment step — buttons handle the rest
         setStep('payment')
         return
       }
 
-      // Stripe: create payment intent
+      // Stripe: create payment intent with all cart items
       const metadata = createPaymentMetadata({
-        course: data.course,
-        plan: data.plan,
+        course: firstItem.course as CourseType,
+        plan: firstItem.plan as PlanType,
         name: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
@@ -131,6 +134,7 @@ function CheckoutContent() {
           metadata,
           customerEmail: data.email,
           billingAddress: billingAddressFromForm(data),
+          cartItems: cartItems.map((i) => ({ course: i.course, plan: i.plan })),
         })
       })
 
@@ -149,7 +153,7 @@ function CheckoutContent() {
   }
 
   const handlePaymentSuccess = () => {
-    localStorage.removeItem('checkout_url')
+    cart.clear()
     router.push('/checkout/success')
   }
 
@@ -158,7 +162,7 @@ function CheckoutContent() {
     setStep('details')
   }
 
-  if (cartEmpty) {
+  if (cartEmpty && step === 'details') {
     return (
       <div className="checkout-dark min-h-screen bg-prestige-black py-12">
         <div className="container mx-auto px-4 max-w-2xl text-center">
@@ -225,7 +229,7 @@ function CheckoutContent() {
             <CardHeader>
               <CardTitle>Mit PayPal bezahlen</CardTitle>
               <CardDescription>
-                {courseData.name} — {formatPrice(total)}
+                {itemDetails.map((i) => i.courseName).join(', ')} — {formatPrice(total)}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -238,8 +242,9 @@ function CheckoutContent() {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          courseType: customerData.course,
-                          planType: customerData.plan,
+                          courseType: cartItems[0]?.course,
+                          planType: cartItems[0]?.plan,
+                          cartItems,
                           billingAddress: billingAddressFromForm(customerData),
                         }),
                       })
@@ -296,27 +301,32 @@ function CheckoutContent() {
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" />Ihr Produkt</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="p-4 border-2 border-prestige-gold-500 bg-prestige-gold-500/10 rounded-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-lg font-semibold">{courseData.name}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl font-bold">{formatPrice(planData.price)}</span>
-                        <button type="button" onClick={() => { localStorage.removeItem('checkout_url'); setCartEmpty(true) }} className="text-prestige-gray-500 hover:text-red-500 transition-colors" title="Produkt entfernen">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" />Warenkorb ({cartItems.length})</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {itemDetails.map((item, idx) => (
+                    <div key={idx} className="p-4 border-2 border-prestige-gold-500 bg-prestige-gold-500/10 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-lg font-semibold">{item.courseName}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-bold">{formatPrice(item.price)}</span>
+                          <button type="button" onClick={() => cart.remove(idx)} className="text-prestige-gray-500 hover:text-red-500 transition-colors" title="Entfernen">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
+                      <Badge variant="outline" className="mb-2">{item.planName}</Badge>
+                      <ul className="space-y-1 mt-2 ml-1">
+                        {item.features.map((f, i) => (
+                          <li key={i} className="text-sm text-prestige-gray-400 flex items-start gap-2">
+                            <Check className="h-4 w-4 text-prestige-gold-500 mt-0.5" /><span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    {!isCreator && <Badge variant="outline" className="mb-3">{selectedCoursePlan?.displayNameDE ?? planData.name}</Badge>}
-                    <ul className="space-y-1 mt-3 ml-1">
-                      {(isCreator ? planData.features : (selectedCoursePlan?.featuresDE ?? planData.features)).map((f: string, i: number) => (
-                        <li key={i} className="text-sm text-prestige-gray-400 flex items-start gap-2">
-                          <Check className="h-4 w-4 text-prestige-gold-500 mt-0.5" /><span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  ))}
+                  <Button variant="outline" size="sm" asChild className="mt-2">
+                    <Link href="/pricing">+ Weiteres Produkt hinzufügen</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -425,10 +435,12 @@ function CheckoutContent() {
                 <Card>
                   <CardHeader><CardTitle>Bestellübersicht</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <div className="font-medium mb-1">{courseData.name}</div>
-                      {!isCreator && <Badge variant="outline">{selectedCoursePlan?.displayNameDE ?? planData.name}</Badge>}
-                    </div>
+                    {itemDetails.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-sm">
+                        <span>{item.courseName} <Badge variant="outline" className="ml-1">{item.planName}</Badge></span>
+                        <span className="font-medium">{formatPrice(item.price)}</span>
+                      </div>
+                    ))}
                     <Separator />
 
                     {/* Giftcard redemption */}
