@@ -18,13 +18,15 @@ export default async function CoursePlayerPage({ params }: Props) {
 
   // Verify entitlement
   const enrolled = await db
-    .select({ planCode: plans.code })
+    .select({ planCode: plans.code, releaseStrategy: plans.releaseStrategy })
     .from(entitlements)
     .innerJoin(plans, eq(entitlements.planId, plans.id))
     .where(and(eq(entitlements.customerUid, user.uid), eq(plans.productId, course.productId), isNull(entitlements.revokedAt)))
     .limit(1)
 
   if (enrolled.length === 0) notFound()
+
+  const strategy = (enrolled[0].releaseStrategy as { type?: string } | null)?.type || 'all_unlocked'
 
   const modules = await db.select().from(courseModules).where(and(eq(courseModules.courseId, courseId), eq(courseModules.isActive, true))).orderBy(asc(courseModules.orderIndex))
   const weeks = await db.select().from(courseWeeks).orderBy(asc(courseWeeks.orderIndex))
@@ -72,12 +74,34 @@ export default async function CoursePlayerPage({ params }: Props) {
 
         {/* Content area */}
         <div className="lg:col-span-3 space-y-4">
-          {modules.map((mod) => {
+          {modules.map((mod, modIdx) => {
             const modWeeks = weeks.filter((w) => w.moduleId === mod.id)
+
+            // Gating: for mentor_gated, module N is locked unless module N-1 is 100%
+            let locked = false
+            if (strategy === 'mentor_gated' && modIdx > 0) {
+              const prevMod = modules[modIdx - 1]
+              const prevWeeks = weeks.filter((w) => w.moduleId === prevMod.id)
+              const prevResources = prevWeeks.flatMap((w) => resources.filter((r) => r.weekId === w.id))
+              const prevCompleted = prevResources.filter((r) => completedIds.has(r.id)).length
+              locked = prevResources.length > 0 && prevCompleted < prevResources.length
+            }
+
             return (
-              <Card key={mod.id}>
-                <CardHeader><CardTitle>{mod.title}</CardTitle></CardHeader>
+              <Card key={mod.id} className={locked ? 'opacity-60' : ''}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {locked && <Lock className="h-4 w-4 text-muted-foreground" />}
+                    {mod.title}
+                  </CardTitle>
+                  {locked && <p className="text-xs text-muted-foreground">Schließe das vorherige Modul ab, um dieses freizuschalten.</p>}
+                </CardHeader>
                 <CardContent>
+                  {locked ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Lock className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  ) : <>
                   {mod.description && <p className="text-sm text-muted-foreground mb-4">{mod.description}</p>}
                   {modWeeks.length === 0 ? (
                     <p className="text-muted-foreground text-sm">Keine Lektionen konfiguriert.</p>
@@ -110,6 +134,7 @@ export default async function CoursePlayerPage({ params }: Props) {
                       })}
                     </div>
                   )}
+                  </>}
                 </CardContent>
               </Card>
             )

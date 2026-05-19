@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { db } from '@/lib/server/db'
 import { interviews, kundenerfolge } from '@/lib/server/db/schema'
 import { asc } from 'drizzle-orm'
+import { KundenerfolgeCarousel } from '@/components/kundenerfolge-carousel'
 
 export const metadata = {
   title: 'Interviews & Erfolge — University Ecom',
@@ -83,25 +84,13 @@ export default async function InterviewsPage() {
               <p className="text-prestige-gray-500 text-lg">Erfolgsgeschichten werden in Kürze veröffentlicht.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {erfolge.map((e) => (
-                <Card key={e.id} className="bg-prestige-gray-900/50 border-prestige-gray-800 overflow-hidden">
-                  <div className="aspect-video bg-prestige-gray-800">
-                    {e.mediaType === 'image' ? (
-                      <img src={e.mediaUrl} alt={e.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Video className="h-10 w-10 text-prestige-gray-600" />
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="pt-4">
-                    <h3 className="font-bold text-prestige-white mb-1">{e.title}</h3>
-                    {e.description && <p className="text-sm text-prestige-gray-400 mt-1">{e.description}</p>}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <KundenerfolgeCarousel items={erfolge.map((e) => ({
+              id: e.id,
+              title: e.title,
+              description: e.description,
+              mediaUrl: e.mediaUrl,
+              mediaType: e.mediaType,
+            }))} />
           )}
         </div>
       </section>
