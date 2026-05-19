@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Ban, CheckCircle } from 'lucide-react'
 
 interface GrantRevokeActionsProps {
   customerUid: string
@@ -75,5 +76,34 @@ export function GrantRevokeActions({ customerUid, allPlans, activeEntitlementIds
         </div>
       )}
     </div>
+  )
+}
+
+export function SuspendButton({ customerUid, currentStatus }: { customerUid: string; currentStatus: string }) {
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const isSuspended = currentStatus === 'suspended'
+
+  const handleToggle = async () => {
+    setLoading(true)
+    await fetch(`/api/admin/customers/${customerUid}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: isSuspended ? 'active' : 'suspended' }),
+    })
+    setLoading(false)
+    router.refresh()
+  }
+
+  return (
+    <Button
+      variant={isSuspended ? 'default' : 'destructive'}
+      size="sm"
+      onClick={handleToggle}
+      disabled={loading}
+    >
+      {isSuspended ? <CheckCircle className="h-4 w-4 mr-1" /> : <Ban className="h-4 w-4 mr-1" />}
+      {isSuspended ? 'Reaktivieren' : 'Sperren'}
+    </Button>
   )
 }

@@ -15,7 +15,7 @@ import {
 } from '@/lib/server/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/server/auth'
-import { GrantRevokeActions } from './actions'
+import { GrantRevokeActions, SuspendButton } from './actions'
 import { NoteForm } from './note-form'
 
 interface Props {
@@ -94,9 +94,12 @@ export default async function BenutzerDetailPage({ params }: Props) {
           </h1>
           <p className="text-muted-foreground">{customer.email}</p>
         </div>
-        <Badge variant={customer.status === 'active' ? 'default' : 'destructive'}>
-          {customer.status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={customer.status === 'active' ? 'default' : 'destructive'}>
+            {customer.status}
+          </Badge>
+          <SuspendButton customerUid={uid} currentStatus={customer.status} />
+        </div>
       </div>
 
       <Tabs defaultValue="uebersicht">
