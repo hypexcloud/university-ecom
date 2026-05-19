@@ -49,7 +49,6 @@ export default async function TerminePage() {
         sessions={calendarSessions}
         mode="student"
         canBook={canBook}
-        bookingHref="/student/termine/buchen"
       />
     </div>
   )
