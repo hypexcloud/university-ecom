@@ -1,11 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { db } from '@/lib/server/db'
-import { sessions, customers } from '@/lib/server/db/schema'
-import { eq, desc } from 'drizzle-orm'
+import { sessions, customers, entitlements, plans } from '@/lib/server/db/schema'
+import { eq, desc, and, isNull } from 'drizzle-orm'
 import { requireAuth } from '@/lib/server/auth'
 import { SessionActions } from './session-actions'
+import { Plus } from 'lucide-react'
 
 const statusLabels: Record<string, string> = {
   pending: 'Ausstehend',
@@ -29,6 +31,14 @@ export default async function TerminePage() {
   const user = await requireAuth()
   const now = new Date()
 
+  // Check if user has 1:1 plan (show book button)
+  const userPlans = await db
+    .select({ code: plans.code })
+    .from(entitlements)
+    .innerJoin(plans, eq(entitlements.planId, plans.id))
+    .where(and(eq(entitlements.customerUid, user.uid), isNull(entitlements.revokedAt)))
+  const canBook = userPlans.some((p) => ['business', 'infinity', 'tiktok', 'youtube'].includes(p.code))
+
   const allSessions = await db
     .select({
       id: sessions.id,
@@ -50,7 +60,14 @@ export default async function TerminePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Meine Termine</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Meine Termine</h1>
+        {canBook && (
+          <Button asChild>
+            <Link href="/student/termine/buchen"><Plus className="h-4 w-4 mr-2" /> Session buchen</Link>
+          </Button>
+        )}
+      </div>
 
       <Card>
         <CardHeader>

@@ -12,6 +12,7 @@ import { requireAuth } from '@/lib/server/auth'
 import { ProductCard } from '@/components/dashboard/product-card'
 import { SessionCard } from '@/components/dashboard/session-card'
 import { EmptyState } from '@/components/dashboard/empty-state'
+import { UpgradeCard } from '@/components/dashboard/upgrade-card'
 import {
   BookOpen, Calendar, Ticket, Award, ArrowRight, MessageSquare,
   Sparkles, CheckCircle, User, Zap, Video, Users,
@@ -214,6 +215,11 @@ export default async function StudentDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Upgrade prompt for Fast plan holders */}
+      {activeEntitlements.filter((e) => e.planCode === 'fast').map((e) => (
+        <UpgradeCard key={`upgrade-${e.id}`} currentPlan={e.planCode} productSlug={e.productSlug} />
+      ))}
 
       {/* Nächste Termine */}
       {upcomingSessions.length > 0 && (
