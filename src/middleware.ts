@@ -14,6 +14,23 @@ export async function middleware(request: NextRequest) {
     if (blocked) return blocked
   }
 
+  // Affiliate referral cookie — set on any page with ?ref=CODE
+  const refCode = request.nextUrl.searchParams.get('ref')
+  if (refCode && !request.cookies.get('affiliate_ref')) {
+    const cookieDays = parseInt(process.env.AFFILIATE_COOKIE_DAYS || '30', 10)
+    const response = NextResponse.next({ request })
+    response.cookies.set('affiliate_ref', refCode, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: cookieDays * 24 * 60 * 60,
+      path: '/',
+    })
+    // Continue through middleware with this response as base
+    // (Supabase cookie refresh will be handled on next request)
+    return response
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
