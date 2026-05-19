@@ -206,7 +206,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                           <Label htmlFor={plan.value} className="cursor-pointer">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">{plan.label}</span>
-                              {plan.value === 'max' && (
+                              {plan.value === 'infinity' && (
                                 <Badge variant="default">
                                   <Star className="h-3 w-3 mr-1" />
                                   Empfohlen
@@ -229,7 +229,7 @@ export function CourseSpecificStep({ onNext, onBack }: CourseSpecificStepProps) 
                           </div>
                         ))}
                       </div>
-                      {plan.value === 'max' && (
+                      {plan.value === 'infinity' && (
                         <div className="pt-2 border-t">
                           <div className="text-sm text-primary font-medium">
                             Zusätzlich: Persönliche Betreuung & 1-zu-1 Coaching
