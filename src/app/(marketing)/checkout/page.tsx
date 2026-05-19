@@ -51,10 +51,12 @@ function CheckoutContent() {
   const [clientSecret, setClientSecret] = useState('')
   const [stripePromise, setStripePromise] = useState<any>(null)
   const [customerData, setCustomerData] = useState<CheckoutFormData | null>(null)
+  const [cartEmpty, setCartEmpty] = useState(false)
 
   const courseParam = searchParams.get('course') as CourseType | null
   const planParam = searchParams.get('plan') as PlanType | null
-  const initialCourse: CourseType = courseParam && VALID_COURSES.includes(courseParam) ? courseParam : 'ai'
+  const hasProduct = courseParam && VALID_COURSES.includes(courseParam)
+  const initialCourse: CourseType = hasProduct ? courseParam : 'ai'
   const initialPlan: PlanType = planParam && VALID_PLANS.includes(planParam) ? planParam : getDefaultPlanForCourse(initialCourse)
 
   const isCreator = isCreatorProduct(initialCourse)
@@ -76,10 +78,14 @@ function CheckoutContent() {
   const coursePlans = watchCourse === 'ai' ? AI_COURSE_PLANS : DROPSHIPPING_COURSE_PLANS
   const selectedCoursePlan = !isCreator ? coursePlans.find(p => p.name === watchPlan) : null
 
-  // Load Stripe
+  // Load Stripe + persist cart
   useEffect(() => {
     getStripe().then(setStripePromise)
-    localStorage.setItem('checkout_url', `/checkout?course=${initialCourse}&plan=${initialPlan}`)
+    if (hasProduct) {
+      localStorage.setItem('checkout_url', `/checkout?course=${initialCourse}&plan=${initialPlan}`)
+    } else if (!localStorage.getItem('checkout_url')) {
+      setCartEmpty(true)
+    }
   }, [])
 
   const onDetailsSubmit = async (data: CheckoutFormData) => {
@@ -132,6 +138,22 @@ function CheckoutContent() {
   const handlePaymentError = (errorMessage: string) => {
     setError(errorMessage)
     setStep('details')
+  }
+
+  if (cartEmpty) {
+    return (
+      <div className="checkout-dark min-h-screen bg-prestige-black py-12">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <ShoppingCart className="h-16 w-16 text-prestige-gray-600 mx-auto mb-6" />
+          <h1 className="text-3xl font-bold mb-2">Ihr Warenkorb ist leer</h1>
+          <p className="text-prestige-gray-400 mb-8">Wählen Sie einen Kurs oder ein Programm aus, um fortzufahren.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild className="btn-gold"><Link href="/pricing">Kurse ansehen</Link></Button>
+            <Button asChild variant="outline"><Link href="/creator">Creator Programm</Link></Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (step === 'payment' && clientSecret && stripePromise) {
@@ -193,7 +215,7 @@ function CheckoutContent() {
                       <span className="text-lg font-semibold">{courseData.name}</span>
                       <div className="flex items-center gap-3">
                         <span className="text-xl font-bold">{formatPrice(planData.price)}</span>
-                        <button type="button" onClick={() => { localStorage.removeItem('checkout_url'); router.back() }} className="text-prestige-gray-500 hover:text-red-500 transition-colors" title="Produkt entfernen">
+                        <button type="button" onClick={() => { localStorage.removeItem('checkout_url'); setCartEmpty(true) }} className="text-prestige-gray-500 hover:text-red-500 transition-colors" title="Produkt entfernen">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
