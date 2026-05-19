@@ -2,7 +2,7 @@
  * Scheduled Email Jobs
  *
  * TODO: Rebuild with Drizzle queries in Phase 4 (Notifications).
- * Currently stubbed to remove Firebase dependency.
+ * Currently stubbed.
  */
 
 export async function sendSessionReminders(): Promise<{ sent: number; errors: number }> {

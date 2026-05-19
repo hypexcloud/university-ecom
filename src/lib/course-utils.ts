@@ -2,7 +2,7 @@
  * Course Content Utilities
  *
  * TODO: Rebuild properly when course content management is implemented.
- * Currently stubbed to remove Firebase dependency.
+ * Currently stubbed.
  */
 
 export async function getStudentProgress(

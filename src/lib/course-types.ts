@@ -48,10 +48,10 @@ export interface CourseResource {
   order: number
   
   // Resource location
-  url?: string // For external links or Firebase Storage URLs
+  url?: string // For external links or Supabase Storage URLs
   videoUrl?: string // YouTube, Vimeo, or custom
   videoProvider?: 'youtube' | 'vimeo' | 'custom'
-  fileUrl?: string // Firebase Storage URL
+  fileUrl?: string // Supabase Storage URL
   fileName?: string
   fileSize?: number
   

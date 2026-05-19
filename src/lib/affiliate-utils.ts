@@ -2,7 +2,7 @@
  * Affiliate System Utilities
  *
  * TODO: Rebuild in Phase 6 (Affiliate) with Drizzle.
- * Currently stubbed to remove Firebase dependency.
+ * Currently stubbed.
  */
 
 export const COMMISSION_RATES = {
