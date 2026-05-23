@@ -75,11 +75,13 @@ export default function AvailabilityPage() {
 
         events.push({
           id: `recurring-${dateStr}-${slot.startTime}`,
+          title: `${slot.startTime}–${slot.endTime}`,
           start: `${dateStr}T${slot.startTime}`,
           end: `${dateStr}T${slot.endTime}`,
-          display: 'background',
           backgroundColor: '#dbeafe',
           borderColor: '#93c5fd',
+          textColor: '#1e40af',
+          extendedProps: { isRecurring: true },
         })
       }
     }
@@ -130,8 +132,9 @@ export default function AvailabilityPage() {
     setDialogOpen(true)
   }
 
-  // Click on an exception event → delete it
+  // Click on an exception event → delete it (ignore recurring base events)
   const handleEventClick = async (info: EventClickArg) => {
+    if (info.event.extendedProps?.isRecurring) return
     const exceptionId = info.event.extendedProps?.exceptionId
     if (!exceptionId) return
 
