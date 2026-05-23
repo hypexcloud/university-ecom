@@ -288,18 +288,20 @@ function CheckoutSuccessContent() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg">
+            <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border-2 border-green-200">
               <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
                 2
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-1">Erstgespräch buchen</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Buchen Sie Ihr kostenloses Erstgespräch mit Ihrem Coach, um Ihre Lernziele zu besprechen.
+                  Buche jetzt dein Strategie-Gespräch, damit wir sofort starten können.
                 </p>
-                <Button size="sm" variant="outline">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Termin vereinbaren
+                <Button size="sm" asChild>
+                  <Link href="/student/termine/buchen">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Jetzt Termin buchen
+                  </Link>
                 </Button>
               </div>
             </div>

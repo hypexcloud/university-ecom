@@ -7,7 +7,9 @@ import { eq, and, isNull, sql } from 'drizzle-orm'
 import { emitNotification } from '@/lib/server/notifications'
 import { generateAndUploadInvoicePdf } from './invoice-generate'
 import { addRole, removeRole } from './discord'
+import { sendWelcomeEmail, sendOrderConfirmationEmail } from '@/lib/email-utils'
 import type Stripe from 'stripe'
+import type { CourseType, PlanType } from '@/lib/stripe'
 
 /**
  * Generate the next sequential invoice number: INV-YYYY-NNNNNN
@@ -39,6 +41,8 @@ interface FulfillParams {
   isUpgrade?: boolean
   upgradeFromPlanId?: string | null
   affiliateCode?: string | null
+  isNewUser?: boolean
+  tempPassword?: string
 }
 
 /**
@@ -157,6 +161,16 @@ export async function fulfillOrder(params: FulfillParams) {
     await attributeAffiliate(affiliateCode, customerUid, order.id, totalCents)
   }
 
+  // Send post-purchase emails (non-fatal)
+  sendPostPurchaseEmails({
+    customerUid,
+    planId,
+    orderId: order.id,
+    totalCents,
+    isNewUser: params.isNewUser ?? false,
+    tempPassword: params.tempPassword,
+  }).catch(() => {})
+
   return { orderId: order.id, invoiceNumber }
 }
 
@@ -195,6 +209,8 @@ export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIn
     isUpgrade: meta.isUpgrade === 'true',
     upgradeFromPlanId: meta.upgradeFromPlanId || null,
     affiliateCode: meta.affiliateCode || null,
+    isNewUser: meta.isNewUser === 'true',
+    tempPassword: meta.tempPassword || undefined,
   })
 
   // Grant entitlements for additional items (2nd+)
@@ -314,4 +330,62 @@ async function scheduleCreatorSessions(customerUid: string, planCode: string) {
       metadata: { creatorProgram: planCode, callNumber: 2 },
     },
   ])
+}
+
+/**
+ * Send welcome email (new users) and order confirmation (all users) after purchase.
+ */
+async function sendPostPurchaseEmails(params: {
+  customerUid: string
+  planId: string
+  orderId: string
+  totalCents: number
+  isNewUser: boolean
+  tempPassword?: string
+}) {
+  const [customer] = await db
+    .select({ email: customers.email, firstName: customers.firstName })
+    .from(customers)
+    .where(eq(customers.uid, params.customerUid))
+    .limit(1)
+
+  if (!customer) return
+
+  const [plan] = await db
+    .select({ code: plans.code, productId: plans.productId })
+    .from(plans)
+    .where(eq(plans.id, params.planId))
+    .limit(1)
+
+  if (!plan) return
+
+  const [product] = await db
+    .select({ slug: products.slug })
+    .from(products)
+    .where(eq(products.id, plan.productId))
+    .limit(1)
+
+  const courseSlug = (product?.slug || 'ai') as CourseType
+  const planCode = plan.code as PlanType
+
+  // Welcome email for new users with temp password
+  if (params.isNewUser && params.tempPassword) {
+    await sendWelcomeEmail({
+      email: customer.email,
+      firstName: customer.firstName,
+      tempPassword: params.tempPassword,
+      course: courseSlug,
+      plan: planCode,
+    })
+  }
+
+  // Order confirmation for everyone
+  await sendOrderConfirmationEmail({
+    email: customer.email,
+    firstName: customer.firstName,
+    orderId: params.orderId,
+    course: courseSlug,
+    plan: planCode,
+    amount: params.totalCents / 100,
+  })
 }
