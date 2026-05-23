@@ -170,8 +170,8 @@ function LoginFormContent() {
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Noch kein Konto?{' '}
-          <Link href="/register" className="text-primary hover:underline font-medium">
-            Jetzt registrieren
+          <Link href="/courses" className="text-primary hover:underline font-medium">
+            Kurs kaufen & Zugang erhalten
           </Link>
         </p>
       </div>

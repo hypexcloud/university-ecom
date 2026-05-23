@@ -17,7 +17,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
                           pathname.startsWith('/student') ||
                           pathname.startsWith('/dashboard') ||
                           pathname.startsWith('/login') ||
-                          pathname.startsWith('/register')
+                          pathname.startsWith('/reset-password')
   
   // For dashboard routes, render children directly without homepage header/footer
   if (isDashboardRoute) {

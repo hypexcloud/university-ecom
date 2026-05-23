@@ -75,8 +75,8 @@ function AuthRequiredFallback() {
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               Noch kein Konto?{' '}
-              <Link href="/register" className="text-primary hover:underline">
-                Jetzt registrieren
+              <Link href="/courses" className="text-primary hover:underline">
+                Kurs kaufen & Zugang erhalten
               </Link>
             </p>
           </div>
