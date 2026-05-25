@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/server/db'
-import { adminPermissions, mentors, entitlements, plans, sessions } from '@/lib/server/db/schema'
+import { adminPermissions, mentors, entitlements, plans, sessions, customers } from '@/lib/server/db/schema'
 import { eq, and, isNull, inArray, gte } from 'drizzle-orm'
 
 /**
@@ -40,6 +40,17 @@ export async function GET() {
 
     if (mentor?.isActive) {
       return NextResponse.json({ role: 'mentor', redirect: '/mentor' })
+    }
+
+    // Check if student must change their temp password first
+    const [customer] = await db
+      .select({ mustChangePassword: customers.mustChangePassword })
+      .from(customers)
+      .where(eq(customers.uid, user.id))
+      .limit(1)
+
+    if (customer?.mustChangePassword) {
+      return NextResponse.json({ role: 'student', redirect: '/student/profil/sicherheit', mustChangePassword: true })
     }
 
     // Student — check if they have business/infinity and need to book a session

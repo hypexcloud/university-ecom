@@ -15,6 +15,13 @@
       "when": 1779232502389,
       "tag": "0001_light_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779836400000,
+      "tag": "0002_add_must_change_password",
+      "breakpoints": true
     }
   ]
 }

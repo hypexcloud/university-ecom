@@ -8,6 +8,7 @@ export const customers = pgTable('customers', {
   discordUsername: text('discord_username'),
   whatsapp: text('whatsapp'),
   status: text('status').notNull().default('active'), // active | suspended | deleted
+  mustChangePassword: boolean('must_change_password').notNull().default(false),
   billing: jsonb('billing'), // {type, address, country, city, phone, company_name?, vat_id?}
   discordUserId: text('discord_user_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

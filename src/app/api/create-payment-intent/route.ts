@@ -97,6 +97,7 @@ async function ensureCustomerAccount(
     discordUsername: discord || null,
     whatsapp: phone || null,
     status: 'active',
+    mustChangePassword: true,
   }).onConflictDoNothing()
 
   return { customerUid: authData.user.id, isNewUser: true, tempPassword }

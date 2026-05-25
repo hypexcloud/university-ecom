@@ -60,7 +60,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // 2. Role gating via cookie only (no internal fetch — avoids DB connection conflicts)
+  // 2. Force password change gate — blocks all student routes except security page
+  if (user && path.startsWith('/student') && !path.startsWith('/student/profil/sicherheit')) {
+    const mustChangePw = request.cookies.get('x-must-change-pw')?.value
+    if (mustChangePw === '1') {
+      return NextResponse.redirect(new URL('/student/profil/sicherheit', request.url))
+    }
+  }
+
+  // 3. Role gating via cookie only (no internal fetch — avoids DB connection conflicts)
   if (user && isProtected) {
     const userRole = request.cookies.get('x-user-role')?.value
     if (userRole) {

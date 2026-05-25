@@ -54,6 +54,10 @@ function LoginFormContent() {
         const roleData = await roleRes.json().catch(() => ({ role: 'student', redirect: '/student' }))
         // Set role cookie for middleware gating
         document.cookie = `x-user-role=${roleData.role}; path=/; max-age=300`
+        // Set password-change gate cookie if needed
+        if (roleData.mustChangePassword) {
+          document.cookie = `x-must-change-pw=1; path=/; max-age=3600`
+        }
         router.push(explicitRedirect || roleData.redirect || '/student')
         router.refresh()
       }
