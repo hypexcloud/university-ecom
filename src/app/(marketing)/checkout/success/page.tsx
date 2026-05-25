@@ -20,6 +20,7 @@ interface OrderInfo {
   tempPassword?: string
   customerEmail: string
   customerName: string
+  invoicePdfUrl?: string
 }
 
 export default function CheckoutSuccessPage() {
@@ -98,6 +99,7 @@ function CheckoutSuccessContent() {
         tempPassword: credentials.tempPassword,
         customerEmail: credentials.email ?? '',
         customerName: '',
+        invoicePdfUrl: data.invoice?.pdfUrl || undefined,
       })
       setLoading(false)
     } catch {
@@ -253,10 +255,18 @@ function CheckoutSuccessContent() {
             </div>
 
             <div className="mt-6 pt-6 border-t border-prestige-gray-800">
-              <Button variant="outline" className="w-full border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
-                <Download className="h-4 w-4 mr-2" />
-                Rechnung herunterladen (PDF)
-              </Button>
+              {orderInfo.invoicePdfUrl ? (
+                <Button asChild variant="outline" className="w-full border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
+                  <a href={orderInfo.invoicePdfUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="h-4 w-4 mr-2" />
+                    Rechnung herunterladen (PDF)
+                  </a>
+                </Button>
+              ) : (
+                <p className="text-sm text-center text-prestige-gray-500">
+                  Ihre Rechnung wird erstellt und ist in Kürze unter <a href="/student/profil/rechnungen" className="text-prestige-gold-500 hover:underline">Meine Rechnungen</a> verfügbar.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
