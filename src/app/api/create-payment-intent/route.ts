@@ -102,8 +102,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'
-    const stack = error instanceof Error ? error.stack : undefined
-    console.error('[create-payment-intent] Error:', message, stack)
-    return NextResponse.json({ error: message, debug: { stack, env: !!process.env.DATABASE_URL } }, { status: 500 })
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
