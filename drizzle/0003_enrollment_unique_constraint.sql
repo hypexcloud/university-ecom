@@ -1,0 +1,1 @@
+ALTER TABLE "enrollments" ADD CONSTRAINT "uq_enrollments_customer_course_plan" UNIQUE ("customer_uid", "course_id", "plan_id");

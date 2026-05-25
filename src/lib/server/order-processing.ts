@@ -2,6 +2,7 @@ import { db } from '@/lib/server/db'
 import {
   orders, orderItems, entitlements, invoices, plans, sessions,
   affiliateLinks, affiliateReferrals, customers, products,
+  enrollments, courses,
 } from '@/lib/server/db/schema'
 import { eq, and, isNull, sql } from 'drizzle-orm'
 import { emitNotification } from '@/lib/server/notifications'
@@ -97,6 +98,9 @@ export async function fulfillOrder(params: FulfillParams) {
     planId,
     sourceOrderId: order.id,
   })
+
+  // Create enrollment row (links customer to course for progress tracking)
+  await createEnrollment(customerUid, planId)
 
   // Auto-assign Discord role (non-fatal)
   const [grantedPlan] = await db
@@ -225,6 +229,9 @@ export async function handleStripePaymentSuccess(paymentIntent: Stripe.PaymentIn
       planId: planIds[i],
       sourceOrderId: result.orderId,
     })
+
+    // Enrollment for progress tracking
+    await createEnrollment(customerUid, planIds[i])
 
     // Discord role
     const [gp] = await db.select({ code: plans.code }).from(plans).where(eq(plans.id, planIds[i])).limit(1)
@@ -388,4 +395,39 @@ async function sendPostPurchaseEmails(params: {
     plan: planCode,
     amount: params.totalCents / 100,
   })
+}
+
+/**
+ * Create an enrollment row linking a customer to the course associated with a plan.
+ * This enables progress tracking and course completion detection.
+ * Non-fatal: if the plan isn't linked to a course (e.g. giftcard/addon), skip silently.
+ */
+async function createEnrollment(customerUid: string, planId: string) {
+  try {
+    // Look up the product for this plan, then find the matching course
+    const [plan] = await db
+      .select({ productId: plans.productId })
+      .from(plans)
+      .where(eq(plans.id, planId))
+      .limit(1)
+
+    if (!plan) return
+
+    const [course] = await db
+      .select({ id: courses.id })
+      .from(courses)
+      .where(eq(courses.productId, plan.productId))
+      .limit(1)
+
+    if (!course) return // Not a course product (creator, giftcard, etc.)
+
+    // Insert enrollment (skip if already exists for this customer+course+plan)
+    await db.insert(enrollments).values({
+      customerUid,
+      courseId: course.id,
+      planId,
+    }).onConflictDoNothing()
+  } catch {
+    // Non-fatal — don't break the order flow
+  }
 }

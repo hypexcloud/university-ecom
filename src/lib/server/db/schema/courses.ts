@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, integer, boolean, jsonb, timestamp, unique } from 'drizzle-orm/pg-core'
 import { customers } from './customers'
 import { products } from './products'
 import { plans } from './products'
@@ -62,7 +62,9 @@ export const enrollments = pgTable('enrollments', {
     .references(() => plans.id),
   enrolledAt: timestamp('enrolled_at', { withTimezone: true }).notNull().defaultNow(),
   completedAt: timestamp('completed_at', { withTimezone: true }),
-})
+}, (table) => ({
+  customerCoursePlan: unique('uq_enrollments_customer_course_plan').on(table.customerUid, table.courseId, table.planId),
+}))
 
 export const moduleProgress = pgTable('module_progress', {
   id: uuid('id').primaryKey().defaultRandom(),
