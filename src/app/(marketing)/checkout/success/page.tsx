@@ -78,7 +78,18 @@ function CheckoutSuccessContent() {
       // Fetch order details from API
       fetchOrderDetails(orderId)
     } else {
-      setError('Keine Bestellinformationen gefunden')
+      // No order info yet — payment succeeded but webhook may still be processing
+      setOrderInfo({
+        orderId: '',
+        orderNumber: '',
+        courseName: '',
+        planName: '',
+        total: 0,
+        currency: 'EUR',
+        isNewUser: false,
+        customerEmail: '',
+        customerName: '',
+      })
       setLoading(false)
     }
   }, [orderId])
