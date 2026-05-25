@@ -142,8 +142,18 @@ function CheckoutContent() {
         throw new Error('Fehler beim Erstellen der Zahlung')
       }
 
-      const { clientSecret } = await response.json()
-      setClientSecret(clientSecret)
+      const result = await response.json()
+      setClientSecret(result.clientSecret)
+
+      // Store credentials for success page if new user was created
+      if (result.isNewUser && result.tempPassword) {
+        sessionStorage.setItem('checkoutCredentials', JSON.stringify({
+          isNewUser: true,
+          tempPassword: result.tempPassword,
+          email: result.customerEmail,
+        }))
+      }
+
       setStep('payment')
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten.')

@@ -183,6 +183,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      isNewUser,
+      tempPassword: tempPassword || undefined,
+      customerEmail,
     })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'

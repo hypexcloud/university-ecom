@@ -49,30 +49,22 @@ function CheckoutSuccessContent() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    const storedInfo = sessionStorage.getItem('orderInfo')
-    if (storedInfo) {
+    // Read credentials stored during checkout (before payment)
+    let credentials: { isNewUser?: boolean; tempPassword?: string; email?: string } = {}
+    const storedCredentials = sessionStorage.getItem('checkoutCredentials')
+    if (storedCredentials) {
       try {
-        const parsed = JSON.parse(storedInfo)
-        setOrderInfo({
-          orderId: parsed.orderId,
-          orderNumber: `UE-${Date.now().toString().slice(-8)}`,
-          courseName: 'AI Automatisierung Kurs',
-          planName: 'Business Plan',
-          total: 1190,
-          currency: 'EUR',
-          isNewUser: parsed.isNewUser,
-          tempPassword: parsed.tempPassword,
-          customerEmail: 'kunde@example.com',
-          customerName: 'Max Mustermann'
-        })
-        setLoading(false)
-        sessionStorage.removeItem('orderInfo')
+        credentials = JSON.parse(storedCredentials)
+        sessionStorage.removeItem('checkoutCredentials')
       } catch {
-        // ignore parse errors
+        // ignore
       }
-    } else if (orderId) {
-      fetchOrderDetails(orderId)
+    }
+
+    if (orderId) {
+      fetchOrderDetails(orderId, credentials)
     } else {
+      // No orderId — payment succeeded, webhook is processing the order
       setOrderInfo({
         orderId: '',
         orderNumber: '',
@@ -80,15 +72,16 @@ function CheckoutSuccessContent() {
         planName: '',
         total: 0,
         currency: 'EUR',
-        isNewUser: false,
-        customerEmail: '',
+        isNewUser: credentials.isNewUser ?? false,
+        tempPassword: credentials.tempPassword,
+        customerEmail: credentials.email ?? '',
         customerName: '',
       })
       setLoading(false)
     }
   }, [orderId])
 
-  const fetchOrderDetails = async (id: string) => {
+  const fetchOrderDetails = async (id: string, credentials: { isNewUser?: boolean; tempPassword?: string; email?: string } = {}) => {
     try {
       const res = await fetch(`/api/orders/${id}`)
       if (!res.ok) throw new Error('Bestellung nicht gefunden')
@@ -101,8 +94,9 @@ function CheckoutSuccessContent() {
         planName: item?.planCode || 'Plan',
         total: data.order.totalCents / 100,
         currency: data.order.currency || 'EUR',
-        isNewUser: false,
-        customerEmail: '',
+        isNewUser: credentials.isNewUser ?? false,
+        tempPassword: credentials.tempPassword,
+        customerEmail: credentials.email ?? '',
         customerName: '',
       })
       setLoading(false)
