@@ -26,10 +26,10 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="checkout-dark min-h-screen bg-prestige-black flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Bestelldetails werden geladen...</p>
+            <Loader2 className="h-12 w-12 animate-spin text-prestige-gold-500 mx-auto mb-4" />
+            <p className="text-prestige-gray-400">Bestelldetails werden geladen...</p>
           </div>
         </div>
       }
@@ -42,25 +42,23 @@ export default function CheckoutSuccessPage() {
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
-  
+
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    // Try to get order info from sessionStorage first
     const storedInfo = sessionStorage.getItem('orderInfo')
     if (storedInfo) {
       try {
         const parsed = JSON.parse(storedInfo)
-        // Mock order info - in production, fetch from API
         setOrderInfo({
           orderId: parsed.orderId,
           orderNumber: `UE-${Date.now().toString().slice(-8)}`,
           courseName: 'AI Automatisierung Kurs',
           planName: 'Business Plan',
-          total: 1190, // €1,000 + 19% VAT
+          total: 1190,
           currency: 'EUR',
           isNewUser: parsed.isNewUser,
           tempPassword: parsed.tempPassword,
@@ -68,17 +66,13 @@ function CheckoutSuccessContent() {
           customerName: 'Max Mustermann'
         })
         setLoading(false)
-        
-        // Clear session storage after use
         sessionStorage.removeItem('orderInfo')
-      } catch (e) {
-        console.error('Error parsing order info:', e)
+      } catch {
+        // ignore parse errors
       }
     } else if (orderId) {
-      // Fetch order details from API
       fetchOrderDetails(orderId)
     } else {
-      // No order info yet — payment succeeded but webhook may still be processing
       setOrderInfo({
         orderId: '',
         orderNumber: '',
@@ -112,7 +106,7 @@ function CheckoutSuccessContent() {
         customerName: '',
       })
       setLoading(false)
-    } catch (err) {
+    } catch {
       setError('Fehler beim Laden der Bestelldetails')
       setLoading(false)
     }
@@ -128,10 +122,10 @@ function CheckoutSuccessContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="checkout-dark min-h-screen bg-prestige-black flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Bestelldetails werden geladen...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-prestige-gold-500 mx-auto mb-4" />
+          <p className="text-prestige-gray-400">Bestelldetails werden geladen...</p>
         </div>
       </div>
     )
@@ -145,7 +139,7 @@ function CheckoutSuccessContent() {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error || 'Bestellinformationen nicht gefunden'}</AlertDescription>
           </Alert>
-          <Button asChild>
+          <Button asChild className="btn-gold">
             <Link href="/">Zur Startseite</Link>
           </Button>
         </div>
@@ -158,99 +152,105 @@ function CheckoutSuccessContent() {
       <div className="container mx-auto px-4 max-w-3xl">
         {/* Success Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-            <CheckCircle className="h-12 w-12 text-green-600" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-prestige-gold-500/20 border-2 border-prestige-gold-500 rounded-full mb-4">
+            <CheckCircle className="h-12 w-12 text-prestige-gold-500" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Zahlung erfolgreich!
           </h1>
-          <p className="text-xl text-gray-600">
-            Vielen Dank für Ihre Bestellung, {orderInfo.customerName.split(' ')[0]}!
+          <p className="text-xl text-prestige-gray-400">
+            Vielen Dank für Ihre Bestellung{orderInfo.customerName ? `, ${orderInfo.customerName.split(' ')[0]}` : ''}!
           </p>
         </div>
 
         {/* New User Credentials */}
         {orderInfo.isNewUser && orderInfo.tempPassword && (
-          <Alert className="mb-6 border-blue-200 bg-blue-50">
-            <Lock className="h-4 w-4 text-blue-600" />
-            <AlertDescription>
-              <div className="space-y-3">
-                <p className="font-semibold text-blue-900">Ihr Account wurde erstellt!</p>
+          <div className="mb-6 p-5 rounded-lg border-2 border-prestige-gold-500 bg-prestige-gold-500/10">
+            <div className="flex items-start gap-3">
+              <Lock className="h-5 w-5 text-prestige-gold-500 mt-0.5" />
+              <div className="space-y-3 flex-1">
+                <p className="font-semibold text-prestige-gold-500">Ihr Account wurde erstellt!</p>
                 <div className="space-y-2">
                   <div>
-                    <p className="text-sm text-blue-800 mb-1">E-Mail:</p>
-                    <div className="flex items-center gap-2 p-2 bg-white rounded border border-blue-200">
-                      <Mail className="h-4 w-4 text-blue-600" />
-                      <code className="text-sm font-mono">{orderInfo.customerEmail}</code>
+                    <p className="text-sm text-prestige-gray-400 mb-1">E-Mail:</p>
+                    <div className="flex items-center gap-2 p-2 bg-prestige-black/50 rounded border border-prestige-gray-700">
+                      <Mail className="h-4 w-4 text-prestige-gold-500" />
+                      <code className="text-sm font-mono text-white">{orderInfo.customerEmail}</code>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-blue-800 mb-1">Temporäres Passwort:</p>
-                    <div className="flex items-center gap-2 p-2 bg-white rounded border border-blue-200">
-                      <Lock className="h-4 w-4 text-blue-600" />
-                      <code className="text-sm font-mono flex-1">{orderInfo.tempPassword}</code>
+                    <p className="text-sm text-prestige-gray-400 mb-1">Temporäres Passwort:</p>
+                    <div className="flex items-center gap-2 p-2 bg-prestige-black/50 rounded border border-prestige-gray-700">
+                      <Lock className="h-4 w-4 text-prestige-gold-500" />
+                      <code className="text-sm font-mono text-white flex-1">{orderInfo.tempPassword}</code>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={copyPassword}
-                        className="h-8"
+                        className="h-8 text-prestige-gray-400 hover:text-prestige-gold-500"
                       >
-                        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-blue-700">
-                  ⚠️ Bitte ändern Sie Ihr Passwort nach dem ersten Login in den Einstellungen.
+                <p className="text-sm text-prestige-gray-400">
+                  Bitte ändern Sie Ihr Passwort nach dem ersten Login in den Einstellungen.
                 </p>
               </div>
-            </AlertDescription>
-          </Alert>
+            </div>
+          </div>
         )}
 
         {/* Order Details */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-prestige-gray-900/50 border-prestige-gray-800">
           <CardHeader>
-            <CardTitle>Bestelldetails</CardTitle>
-            <CardDescription>Ihre Bestellung wurde erfolgreich verarbeitet</CardDescription>
+            <CardTitle className="text-white">Bestelldetails</CardTitle>
+            <CardDescription className="text-prestige-gray-400">Ihre Bestellung wurde erfolgreich verarbeitet</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Bestellnummer</p>
-                  <p className="font-semibold text-gray-900">{orderInfo.orderNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Datum</p>
-                  <p className="font-semibold text-gray-900">{new Date().toLocaleDateString('de-DE')}</p>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <p className="text-sm text-gray-600 mb-2">Bestellte Kurse</p>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-gray-900">{orderInfo.courseName}</p>
-                      <p className="text-sm text-gray-600">{orderInfo.planName}</p>
-                    </div>
-                    <p className="font-bold text-gray-900">{formatPrice(orderInfo.total)}</p>
+              {orderInfo.orderNumber && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-prestige-gray-500 mb-1">Bestellnummer</p>
+                    <p className="font-semibold text-white">{orderInfo.orderNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-prestige-gray-500 mb-1">Datum</p>
+                    <p className="font-semibold text-white">{new Date().toLocaleDateString('de-DE')}</p>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="border-t pt-4">
+              {orderInfo.courseName && (
+                <div className="border-t border-prestige-gray-800 pt-4">
+                  <p className="text-sm text-prestige-gray-500 mb-2">Bestellte Kurse</p>
+                  <div className="bg-prestige-black/50 rounded-lg p-4 border border-prestige-gray-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-white">{orderInfo.courseName}</p>
+                        <p className="text-sm text-prestige-gray-400">{orderInfo.planName}</p>
+                      </div>
+                      {orderInfo.total > 0 && (
+                        <p className="font-bold text-prestige-gold-500">{formatPrice(orderInfo.total)}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t border-prestige-gray-800 pt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">Status</span>
-                  <span className="inline-flex items-center gap-2 text-green-600 font-semibold">
+                  <span className="text-prestige-gray-400">Status</span>
+                  <span className="inline-flex items-center gap-2 text-green-500 font-semibold">
                     <CheckCircle className="h-4 w-4" />
                     Bezahlt & Bestätigt
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Kurszugang</span>
-                  <span className="inline-flex items-center gap-2 text-green-600 font-semibold">
+                  <span className="text-prestige-gray-400">Kurszugang</span>
+                  <span className="inline-flex items-center gap-2 text-green-500 font-semibold">
                     <CheckCircle className="h-4 w-4" />
                     Aktiviert
                   </span>
@@ -258,8 +258,8 @@ function CheckoutSuccessContent() {
               </div>
             </div>
 
-            <div className="mt-6 pt-6 border-t">
-              <Button variant="outline" className="w-full">
+            <div className="mt-6 pt-6 border-t border-prestige-gray-800">
+              <Button variant="outline" className="w-full border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
                 <Download className="h-4 w-4 mr-2" />
                 Rechnung herunterladen (PDF)
               </Button>
@@ -268,28 +268,28 @@ function CheckoutSuccessContent() {
         </Card>
 
         {/* Next Steps */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-prestige-gray-900/50 border-prestige-gray-800">
           <CardHeader>
-            <CardTitle>Nächste Schritte</CardTitle>
-            <CardDescription>So geht es weiter</CardDescription>
+            <CardTitle className="text-white">Nächste Schritte</CardTitle>
+            <CardDescription className="text-prestige-gray-400">So geht es weiter</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 rounded-lg border border-prestige-gold-500/30 bg-prestige-gold-500/5">
+              <div className="flex-shrink-0 w-8 h-8 bg-prestige-gold-500 text-prestige-black rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">
+                <h3 className="font-semibold text-white mb-1">
                   {orderInfo.isNewUser ? 'In Ihr Dashboard einloggen' : 'Bestätigungs-E-Mail prüfen'}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  {orderInfo.isNewUser 
+                <p className="text-sm text-prestige-gray-400 mb-3">
+                  {orderInfo.isNewUser
                     ? 'Nutzen Sie die oben angezeigten Zugangsdaten, um sich anzumelden.'
                     : 'Sie erhalten in Kürze eine E-Mail mit der Bestellbestätigung und Rechnung.'
                   }
                 </p>
                 {orderInfo.isNewUser && (
-                  <Button size="sm" asChild>
+                  <Button size="sm" asChild className="btn-gold">
                     <Link href="/login">
                       <Lock className="h-4 w-4 mr-2" />
                       Jetzt anmelden
@@ -299,16 +299,16 @@ function CheckoutSuccessContent() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border-2 border-green-200">
-              <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 rounded-lg border border-prestige-gold-500/30 bg-prestige-gold-500/5">
+              <div className="flex-shrink-0 w-8 h-8 bg-prestige-gold-500 text-prestige-black rounded-full flex items-center justify-center font-bold">
                 2
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">Erstgespräch buchen</h3>
-                <p className="text-sm text-gray-600 mb-3">
+                <h3 className="font-semibold text-white mb-1">Erstgespräch buchen</h3>
+                <p className="text-sm text-prestige-gray-400 mb-3">
                   Buche jetzt dein Strategie-Gespräch, damit wir sofort starten können.
                 </p>
-                <Button size="sm" asChild>
+                <Button size="sm" asChild className="btn-gold">
                   <Link href="/student/termine/buchen">
                     <Calendar className="h-4 w-4 mr-2" />
                     Jetzt Termin buchen
@@ -317,25 +317,25 @@ function CheckoutSuccessContent() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 rounded-lg border border-prestige-gray-800 bg-prestige-gray-900/50">
+              <div className="flex-shrink-0 w-8 h-8 bg-prestige-gold-500 text-prestige-black rounded-full flex items-center justify-center font-bold">
                 3
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">Community beitreten</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold text-white mb-1">Community beitreten</h3>
+                <p className="text-sm text-prestige-gray-400">
                   Treten Sie unseren WhatsApp- und Discord-Gruppen bei. Die Einladungslinks finden Sie in Ihrer Willkommens-E-Mail.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-yellow-50 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 rounded-lg border border-prestige-gray-800 bg-prestige-gray-900/50">
+              <div className="flex-shrink-0 w-8 h-8 bg-prestige-gold-500 text-prestige-black rounded-full flex items-center justify-center font-bold">
                 4
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">Mit dem Kurs beginnen</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold text-white mb-1">Mit dem Kurs beginnen</h3>
+                <p className="text-sm text-prestige-gray-400">
                   Melden Sie sich in Ihrem Dashboard an und starten Sie mit dem ersten Modul Ihres Kurses.
                 </p>
               </div>
@@ -345,13 +345,13 @@ function CheckoutSuccessContent() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <Button asChild className="flex-1" size="lg">
+          <Button asChild className="flex-1 btn-gold" size="lg">
             <Link href="/student">
               <ArrowRight className="h-4 w-4 mr-2" />
               Zum Dashboard
             </Link>
           </Button>
-          <Button asChild variant="outline" className="flex-1" size="lg">
+          <Button asChild variant="outline" className="flex-1 border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white" size="lg">
             <Link href="/">
               Zur Startseite
             </Link>
@@ -359,25 +359,25 @@ function CheckoutSuccessContent() {
         </div>
 
         {/* Support */}
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-prestige-gray-900/50 border-prestige-gray-800">
           <CardContent className="pt-6">
-            <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-blue-600" />
+            <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-prestige-gold-500" />
               Brauchen Sie Hilfe?
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-prestige-gray-400 mb-4">
               Unser Support-Team steht Ihnen bei Fragen gerne zur Verfügung.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Support kontaktieren
               </Button>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/faq">FAQ anzeigen</Link>
+              <Button size="sm" variant="outline" asChild className="border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
+                <Link href="/student/support">FAQ anzeigen</Link>
               </Button>
-              <Button size="sm" variant="outline" asChild>
-                <Link href="mailto:support@university-ecom.com">
+              <Button size="sm" variant="outline" asChild className="border-prestige-gray-700 text-prestige-gray-300 hover:bg-prestige-gray-800 hover:text-white">
+                <Link href="mailto:info@universityecom.de">
                   <Mail className="h-4 w-4 mr-2" />
                   E-Mail senden
                 </Link>
