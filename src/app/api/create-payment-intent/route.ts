@@ -15,13 +15,21 @@ const SLUG_MAP: Record<string, string> = {
 
 async function resolvePlanId(courseType: string, planType: string): Promise<string> {
   const productSlug = SLUG_MAP[courseType] || courseType
-  const [plan] = await db
-    .select({ id: plans.id })
-    .from(plans)
-    .innerJoin(products, eq(plans.productId, products.id))
-    .where(and(eq(products.slug, productSlug), eq(plans.code, planType)))
-    .limit(1)
-  return plan?.id || ''
+  try {
+    const [plan] = await db
+      .select({ id: plans.id })
+      .from(plans)
+      .innerJoin(products, eq(plans.productId, products.id))
+      .where(and(eq(products.slug, productSlug), eq(plans.code, planType)))
+      .limit(1)
+    return plan?.id || ''
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(
+      `Konnte Plan nicht auflösen (product=${productSlug}, plan=${planType}): ${msg}. ` +
+      'Wurden die Tabellen erstellt (db:push) und der Seed ausgeführt?'
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -94,6 +102,8 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const stack = error instanceof Error ? error.stack : undefined
+    console.error('[create-payment-intent] Error:', message, stack)
+    return NextResponse.json({ error: message, debug: { stack, env: !!process.env.DATABASE_URL } }, { status: 500 })
   }
 }
